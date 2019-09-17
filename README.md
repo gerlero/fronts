@@ -217,7 +217,7 @@ The included examples can be found in the ``examples`` directory of this project
 	* **``validation.py``**: results for the same case obtained using Hydrus for comparison.
 * subdirectory **``HF135/``**— lateral flow case in an HF135 nitrocellulose membrane (data from the [PhD work of J.R. Buser](http://hdl.handle.net/1773/38064))
 	* **``solve.py``**: solve the case with `fronts.solve()`.
-	* **``fromguess.py``**: get a rough approximation of the solution using `fronts.solve()` with a high tolerance, and then refine it with both `fronts.solve()` and `fronts.solve_from_guess()`.
+	* **``refine.py``**: get a rough approximation of the solution using `fronts.solve()` with a high tolerance, and then refine it with both `fronts.solve()` and `fronts.solve_from_guess()`.
 	* 🐌 **``inverse1.py``**: use `fronts.inverse()` to extract _D_ from a solution. Here, the solution is obtained with 
 `fronts.solve()`. The extracted _D_ is then used with `fronts.solve()` and the
 same conditions to verify that an equivalent solution is obtained.
@@ -229,7 +229,7 @@ from the validation case and then use it to solve the same problem.
 	* **``fromguess.py``**: solve the case with `fronts.solve_from_guess()` and compare with the exact solution.
 
 
-**Note:** the examples marked with 🐌 are significantly more computationally intensive and may take up to a few minutes to run to completion.
+**Note:** the examples marked with 🐌 are significantly more computationally intensive and may take up to a few minutes to run to completion. All other cases should finish within a few seconds at the most.
 
 ## Authors
 
