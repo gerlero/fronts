@@ -164,7 +164,7 @@ def as_o(r=None, t=None, o=None):
     """
     Transform to the Boltzmann variable if called with `r` and `t`. Passes the 
     values through if called with `o` only. On other combinations of arguments, 
-    it raises a `ValueError` with a message explaining valid usage.
+    it raises a `TypeError` with a message explaining valid usage.
 
     This function is a helper to define other functions that may be called 
     either with `r` and `t`, or with just `o`.
@@ -194,11 +194,11 @@ def as_o(r=None, t=None, o=None):
     """
     if o is not None:
         if r is not None or t is not None:
-            raise ValueError("must pass either r and t, or just o (not both)")
+            raise TypeError("must pass either r and t, or just o")
         return o
 
     if r is None or t is None:
-        raise ValueError("must pass either r and t, or o")
+        raise TypeError("must pass either r and t, or just o")
     return _o(r, t)
 
 

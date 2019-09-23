@@ -168,14 +168,16 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=1.0,
     America journal, 1980, vol. 44, no 5, p. 892-898.
     """
 
-    if (m is None) == (n is None):
-        raise ValueError("you must pass either n or m (but not both)")
-
     if n is not None:
+        if m is not None:
+            raise TypeError("cannot pass both n and m")
         if n <= 1:
             raise ValueError("n must be greater than 1.0")
         m = 1-1/n
 
+    elif m is None:
+        raise TypeError("must pass either n or m")
+        
     if not (0<m<1):
         raise ValueError("m must be strictly between 0.0 and 1.0")
 
