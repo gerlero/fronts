@@ -11,7 +11,7 @@ import numpy as np
 from scipy.integrate import solve_ivp, solve_bvp
 from scipy.interpolate import PchipInterpolator
 
-from ._boltzmann import ode, Solution, r, t
+from ._boltzmann import ode, Solution, r
 from ._util import bisect, BadBracket, IterationLimitReached
 
 
