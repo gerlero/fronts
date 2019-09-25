@@ -319,8 +319,8 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
     return solution
 
 
-def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, 
-                     max_nodes=int(1e6), verbose=0):
+def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000, 
+                    verbose=0):
     r"""
     Solve an instance of the general problem starting from a guess of the 
     solution.
