@@ -404,7 +404,7 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
     Returns
     -------
     solution : SemiInfiniteSolution
-         See `SemiInfiniteSolution` for a description of the solution object. 
+        See `SemiInfiniteSolution` for a description of the solution object. 
         Additional fields specific to this solver are included in the object:
 
             * o : numpy.ndarray, shape (n,)
