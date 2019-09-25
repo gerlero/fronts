@@ -49,7 +49,7 @@ S_guess = coarse.S(o=o_guess)
 print()
 print("----Refined with solve_from_guess----")
 from_guess = solve_from_guess(D=D, Si=Si, Sb=Sb, o_guess=o_guess, 
-	                          S_guess=S_guess, verbose=2)
+                              S_guess=S_guess, verbose=2)
 
 plt.title("Solution at t={}".format(validation.t))
 plt.plot(validation.r, coarse.S(validation.r,validation.t), 
