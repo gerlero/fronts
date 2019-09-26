@@ -23,13 +23,13 @@ D_inverse = inverse(o=o(validation.r, validation.t)[::5], S=validation.S[::5])
 # Using only a fifth of the points so that it does not run too slow
 
 sol = solve(D=D_inverse, Si=validation.S[-1], Sb=validation.S[0], 
-	           Si_tol=1e-3, verbose=2)
+               Si_tol=1e-3, verbose=2)
 
 plt.title("Solution at t={}".format(validation.t))
 plt.plot(validation.r, validation.S, 
-		 label="Original ({})".format(validation.name))
+         label="Original ({})".format(validation.name))
 plt.plot(validation.r, sol.S(validation.r, validation.t), 
-		 label="Reconstructed with inverse and solve")
+         label="Reconstructed with inverse and solve")
 plt.xlabel("r")
 plt.ylabel("saturation")
 plt.grid(which='both')
