@@ -76,34 +76,34 @@ The following is a complete list of the functions and classes that Fronts provid
 
 ### Solvers and solutions
 
-* **```fronts.solve()```** — meshless solver
+* **[```fronts.solve()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.solve.html)** — meshless solver
 
 	```solve``` solves any instance of the general problem.	Returns a ```SemiInfiniteSolution```.
 	
-* **```fronts.solve_from_guess()```** — mesh-based solver
+* **[```fronts.solve_from_guess()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.solve_from_guess.html)** — mesh-based solver
 	
 	```solve_from_guess``` works like ``solve`` but it uses a different procedure that starts from a guess of the solution on an initial mesh. It supports the same kind of problems than ```solve```. Although usually faster, ```solve_from_guess``` is significantly less robust than `solve`—whether it converges will usually depend heavily on the problem, the initial mesh and the guess of the solution. It also returns a ```SemiInfiniteSolution``` on success.
 
 
-* **```fronts.Solution```**, **```fronts.SemiInfiniteSolution```** — continuous solutions
+* **[```fronts.Solution```](https://fronts.readthedocs.io/en/latest/stubs/fronts.Solution.html)**, **[```fronts.SemiInfiniteSolution```](https://fronts.readthedocs.io/en/latest/stubs/fronts.SemiInfiniteSolution.html)** — continuous solutions
 
 	```Solution``` objects provide the continuous functions ```S```, ```dS_dr```, ```dS_dt``` and ```flux``` that build up the solution to a problem. The solvers in Fronts return a ```SemiInfiniteSolution``` (a subclass of ```Solution```) as part of their results. If you called ```ode``` and solved the ODE yourself, you can create a ```Solution``` or ```SemiInfiniteSolution``` by passing the solution to the ODE to the appropiate constructor.
 	
 	Recall that when solving the moisture diffusivity/horizonal Richards equation, the diffusive flux (which you can obtain by calling ```flux```) is equivalent to the wetting fluid's velocity. Accordingly, this enables the coupling of the results you get from Fronts (in terms of advective velocity) with more complex problems of solute transport.
 
 
-* **```fronts.inverse()```** — solve the inverse problem
+* **[```fronts.inverse()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.inverse.html)** — solve the inverse problem
 	
 	```inverse``` solves the inverse problem of finding _D_ when _S_ is known. For instance, ```inverse``` can extract _D_ from experimental results. The returned _D_ function can be used in Fronts to solve other problems.
 	
 
 ### Boltzmann transformation and ODE
 
-* **```fronts.o()```**, **```fronts.do_dr()```**, **```fronts.do_dt()```**, **```fronts.r()```**, **```fronts.t()```**, **```fronts.as_o()```** — Boltzmann transformation
+* **[```fronts.o()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.o.html)**, **[```fronts.do_dr()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.do_dr.html)**, **[```fronts.do_dt()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.do_dt.html)**, **[```fronts.r()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.r.html)**, **[```fronts.t()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.t.html)**, **[```fronts.as_o()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.as_o.html)** — Boltzmann transformation
 
 	These are convenience functions for working with the Boltzmann transformation.
 
-* **```fronts.ode()```** — access the ODE
+* **[```fronts.ode()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.ode.html)** — access the ODE
 
 	The ```ode``` function transforms the PDE into its corresponding ODE using the Boltzmann transformation. ```ode``` returns _fun_ and _jac_ callables that are directly compatible with SciPy's solvers (i.e., those in the  [```scipy.integrate```](https://docs.scipy.org/doc/scipy/reference/integrate.html) module). The solvers in Fronts actually use this function internally. You may call this function if you want to solve the ODE yourself instead of using Fronts' solvers, for example if you need to deal with a different boundary condition or want to use your own solving algorithm.
 
@@ -120,15 +120,15 @@ With the above definition you can easily write any functions you need to solve y
 
 Fronts also comes with a submodule ```fronts.D``` that lets you access some predefined functions:
 
-* **```fronts.D.constant()```** — create a constant function:
+* **[```fronts.D.constant()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.constant.html)** — create a constant function:
 
 	<img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3DD">
 
-* **```fronts.D.power_law()```** — create a function of the form:
+* **[```fronts.D.power_law()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.power_law.html)** — create a function of the form:
 
 	<img src="https://latex.codecogs.com/gif.latex?%5Csmall%20D%28S%29%3Da%20S%5Ek%20&plus;%20%5Cvarepsilon">
 
-* **```fronts.D.van_genuchten()```** — create a [Van Genuchten](https://doi.org/10.2136/sssaj1980.03615995004400050002x) moisture diffusivity function:
+* **[```fronts.D.van_genuchten()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.van_genuchten.html)** — create a [Van Genuchten](https://doi.org/10.2136/sssaj1980.03615995004400050002x) moisture diffusivity function:
 
 	<img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3D%5Cfrac%7B%281-m%29K_s%7D%7B%5Calpha%20m%20%28S_s-S_r%29%7DS_e%5E%7B%28l-%5Cfrac%7B1%7D%7Bm%7D%29%7D%5Cleft%28%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5E%7B-m%7D%20&plus;%20%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5Em%20-%202%20%5Cright%29">
 	
@@ -137,7 +137,7 @@ Fronts also comes with a submodule ```fronts.D``` that lets you access some pred
 	<img src="https://latex.codecogs.com/svg.latex?%5Csmall%20S_e%20%3D%20%5Cfrac%7BS-S_r%7D%7BS_s-S_r%7D">
 
 
-* **```fronts.D.richards()```** — make a moisture diffusivity function from the hydraulic conductivity function _K_ and the capillary capacity function _C_ using the definition: 
+* **[```fronts.D.richards()```](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.richards.html)** — make a moisture diffusivity function from the hydraulic conductivity function _K_ and the capillary capacity function _C_ using the definition: 
 	
 	<img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3D%5Cfrac%7BK%28S%29%7D%7BC%28S%29%7D">
 
@@ -239,7 +239,12 @@ from the validation case and then use it to solve the same problem.
 
 Fronts was conceived and is developed by members of the [Santa Fe Microfluidics Group (GSaM)](http://www.microfluidica.com.ar) at the [Research Center for Computational Methods (CIMEC, UNL-CONICET)](https://www.cimec.org.ar) and the [Institute of Technological Development for the Chemical Industry (INTEC, UNL-CONICET)](https://intec.conicet.gov.ar) in Santa Fe, Argentina.
 
-<img alt="CIMEC (UNL-CONICET)" src="https://cimec.conicet.gov.ar/wp-content/uploads/sites/114/2019/05/CIMEC.header.png" height=90> <img alt="INTEC (UNL-CONICET)" src="https://intec.conicet.gov.ar/wp-content/uploads/sites/15/2016/11/Logo-header.png" height=90>
+
+
+<img alt="CIMEC (UNL-CONICET)" src="https://cimec.conicet.gov.ar/wp-content/uploads/sites/114/2019/05/CIMEC.header.png" height=100> <img alt="INTEC (UNL-CONICET)" src="https://intec.conicet.gov.ar/wp-content/uploads/sites/15/2016/11/Logo-header.png" height=100> <img alt="GSaM" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/GSaMLogo.png" height=80>
+
+ 
+
 
 ## License
 
