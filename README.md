@@ -241,7 +241,7 @@ Fronts was conceived and is developed by members of the [Santa Fe Microfluidics 
 
 
 
-<img alt="CIMEC (UNL-CONICET)" src="https://cimec.conicet.gov.ar/wp-content/uploads/sites/114/2019/05/CIMEC.header.png" height=100> <img alt="INTEC (UNL-CONICET)" src="https://intec.conicet.gov.ar/wp-content/uploads/sites/15/2016/11/Logo-header.png" height=100> <img alt="GSaM" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/GSaMLogo.png" height=80>
+<img alt="CIMEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/CIMEC.png" height=70> &nbsp; <img alt="INTEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/INTEC.png" height=65> &nbsp; <img alt="GSaM" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/GSaMLogo.png" height=65> 
 
  
 
