@@ -14,23 +14,23 @@ def constant(D=1.0):
     ----------
     D : float
         A positive constant.
-    
+
     Returns
     -------
     D : callable
-        Function that maps any value of `S` to the given constant. It can be 
-        called as ``D(S)`` to obtain the value. It can also be called as 
-        ``D(S, n)`` with `n` equal to 1 or 2, in which case the first `n` 
-        derivatives of the function, which are always zero, are included (in 
-        order) as additional return values. While mathematically a scalar 
-        function, `D` operates in a vectorized fashion with the same semantics 
+        Function that maps any value of `S` to the given constant. It can be
+        called as ``D(S)`` to obtain the value. It can also be called as
+        ``D(S, n)`` with `n` equal to 1 or 2, in which case the first `n`
+        derivatives of the function, which are always zero, are included (in
+        order) as additional return values. While mathematically a scalar
+        function, `D` operates in a vectorized fashion with the same semantics
         when `S` is a `numpy.ndarray`.
 
     Notes
     -----
     This function is not particularly useful: a constant `D` will turn a
     diffusion problem into a linear one, which has an exact solution and no
-    numerical solvers are necessary. However, it is provided here given that it 
+    numerical solvers are necessary. However, it is provided here given that it
     is the simplest supported function.
     """
 
@@ -40,7 +40,7 @@ def constant(D=1.0):
     def D(S, derivatives=0):
 
         if derivatives == 0: return D
-            
+
         return (D,) + (0,)*derivatives
 
     return D
@@ -50,7 +50,7 @@ def power_law(k, a=1, epsilon=0):
     r"""
     Return a power-law `D` function.
 
-    Given the scalars `a`, `k` and :math:`\varepsilon`, returns a function `D` 
+    Given the scalars `a`, `k` and :math:`\varepsilon`, returns a function `D`
     defined as:
 
     .. math:: D(S) = aS^k + \varepsilon
@@ -63,34 +63,34 @@ def power_law(k, a=1, epsilon=0):
         Constant factor
     epsilon : float
         :math:`\varepsilon`, the deviation term
-    
+
     Returns
     -------
     D : callable
-        Twice-differentiable function that maps `S` to values according to the 
-        expression. It can be called as ``D(S)`` to evaluate it at `S`. It can 
-        also be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case 
-        the first `n` derivatives of the function evaluated at the same `S` are 
-        included (in order) as additional return values. While mathematically a 
-        scalar function, `D` operates in a vectorized fashion with the same 
+        Twice-differentiable function that maps `S` to values according to the
+        expression. It can be called as ``D(S)`` to evaluate it at `S`. It can
+        also be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case
+        the first `n` derivatives of the function evaluated at the same `S` are
+        included (in order) as additional return values. While mathematically a
+        scalar function, `D` operates in a vectorized fashion with the same
         semantics when `S` is a `numpy.ndarray`.
 
     Notes
     -----
-    Keep in mind that, depending on the parameters, the returned `D` does not 
+    Keep in mind that, depending on the parameters, the returned `D` does not
     necessarily map every value of `S` to a positive value.
     """
 
     def D(S, derivatives=0):
-    
+
         D = a*S**k + epsilon
-    
+
         if derivatives == 0: return D
-        
+
         dD_dS = k*D/S
-    
+
         if derivatives == 1: return D, dD_dS
-        
+
         d2D_dS2 = (k-1)*dD_dS/S
 
         if derivatives == 2: return D, dD_dS, d2D_dS2
@@ -105,12 +105,12 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=1.0,
     r"""
     Return a Van Genuchten moisture diffusivity function.
 
-    Given the parameters :math:`K_s`, :math:`\alpha`, `m`, `l`, :math:`S_r` and 
-    :math:`S_s`, the Van Genuchten moisture diffusivity function `D` 
+    Given the parameters :math:`K_s`, :math:`\alpha`, `m`, `l`, :math:`S_r` and
+    :math:`S_s`, the Van Genuchten moisture diffusivity function `D`
     is defined as:
 
     .. math:: D(S)=\frac{(1-m)K_s}{\alpha m (S_s-S_r)}
-        S_e^{(l-\frac{1}{m})}\left((1-S_e^\frac{1}{m})^{-m} + 
+        S_e^{(l-\frac{1}{m})}\left((1-S_e^\frac{1}{m})^{-m} +
         (1-S_e^\frac{1}{m})^m - 2 \right)
 
     where:
@@ -119,52 +119,52 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=1.0,
 
     and `S` is the saturation (or moisture content).
 
-    In common usage, the `m` parameter is replaced with an `n` parameter so 
+    In common usage, the `m` parameter is replaced with an `n` parameter so
     that :math:`m=1-\tfrac{1}{n}`. This function supports either parameter.
 
     Parameters
     ----------
     n : float, optional
-        `n` parameter in the Van Genuchten model. Must be >1. You must pass 
+        `n` parameter in the Van Genuchten model. Must be >1. You must pass
         either `n` or `m` (but not both).
     m : float, optional
-        `m` parameter in the Van Genucthen model. Must be strictly between 0 
+        `m` parameter in the Van Genucthen model. Must be strictly between 0
         and 1. You must pass either `n` or `m` (but not both).
     l : float, optional
-        Pore connectivity parameter. The default is 0.5. Must be strictly 
+        Pore connectivity parameter. The default is 0.5. Must be strictly
         between 0 and 1.
     alpha : float, optional
-        :math:`\alpha` parameter of the Van Genucthen model. The default is 1. 
+        :math:`\alpha` parameter of the Van Genucthen model. The default is 1.
         Must be positive.
     Ks : float, optional
-        :math:`K_s`, the hydraulic conductivity when saturated. The default is 
+        :math:`K_s`, the hydraulic conductivity when saturated. The default is
         1. Must be positive.
     S_range : (float, float), optional
-        the tuple (:math:`S_r`, :math:`S_s`), where :math:`S_r` is the minimum 
-        (or residual) saturation and :math:`S_s` the maximum saturation. The 
+        the tuple (:math:`S_r`, :math:`S_s`), where :math:`S_r` is the minimum
+        (or residual) saturation and :math:`S_s` the maximum saturation. The
         default is (0, 1). :math:`S_s` must be greater than :math:`S_r`.
 
     Returns
     -------
     D : callable
-        Twice-differentiable function that maps values of `S` in the open 
-        interval (:math:`S_r`, :math:`S_s`) to positive values. It can be 
-        called as ``D(S)`` to evaluate it at `S`. It can  also be called as 
-        ``D(S, n)`` with `n` equal to 1 or 2, in which case the first `n` 
-        derivatives of the function evaluated at the same `S` are included (in 
-        order) as additional return values. While mathematically a scalar 
-        function, `D` operates in a vectorized fashion with the same semantics 
+        Twice-differentiable function that maps values of `S` in the open
+        interval (:math:`S_r`, :math:`S_s`) to positive values. It can be
+        called as ``D(S)`` to evaluate it at `S`. It can  also be called as
+        ``D(S, n)`` with `n` equal to 1 or 2, in which case the first `n`
+        derivatives of the function evaluated at the same `S` are included (in
+        order) as additional return values. While mathematically a scalar
+        function, `D` operates in a vectorized fashion with the same semantics
         when `S` is a `numpy.ndarray`.
 
     Notes
     -----
-    The expression used is the one found in Van Genuchten's original paper [1], 
+    The expression used is the one found in Van Genuchten's original paper [1],
     but with the addition of the optional `l` parameter.
 
     References
     ----------
-    [1] VAN GENUCHTEN, M. Th. A closed-form equation for predicting the 
-    hydraulic conductivity of unsaturated soils. Soil science society of 
+    [1] VAN GENUCHTEN, M. Th. A closed-form equation for predicting the
+    hydraulic conductivity of unsaturated soils. Soil science society of
     America journal, 1980, vol. 44, no 5, p. 892-898.
     """
 
@@ -177,7 +177,7 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=1.0,
 
     elif m is None:
         raise TypeError("must pass either n or m")
-        
+
     if not (0<m<1):
         raise ValueError("m must be strictly between 0.0 and 1.0")
 
@@ -226,7 +226,7 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=1.0,
         dD_dS = x17*x6*(l*x16 - x0*x16 - x12*(x14 - x15)/x13)/x2
 
         if derivatives == 1: return D, dD_dS
-          
+
         x18 = l*x9
         x19 = 1/(x5 - 1)
         x20 = x19*(x7 - x8)
@@ -252,41 +252,41 @@ def richards(K, C):
 
     .. math:: D(S) = \frac{K(S)}{C(S)}
 
-    This function helps the conversion of horizontal Richards equation problems 
-    (for which those two functions are parameters) into moisture diffusivity 
+    This function helps the conversion of horizontal Richards equation problems
+    (for which those two functions are parameters) into moisture diffusivity
     problems that can be solved using this library.
-    
+
     Parameters
     ----------
     K : callable
         Hydraulic conductivity function, defined in terms of saturation. A
         twice-differentiable function that maps values of `S` to positive
-        values. It can be called as ``K(S)`` to evaluate it at `S`. It can also 
-        be called as ``K(S, n)`` with `n` equal to 1 or 2, in which case the 
-        first `n` derivatives of the function evaluated at the same `S` are 
-        included (in order) as additional return values. While mathematically a 
-        scalar function, `K` operates in a vectorized fashion with the same 
+        values. It can be called as ``K(S)`` to evaluate it at `S`. It can also
+        be called as ``K(S, n)`` with `n` equal to 1 or 2, in which case the
+        first `n` derivatives of the function evaluated at the same `S` are
+        included (in order) as additional return values. While mathematically a
+        scalar function, `K` operates in a vectorized fashion with the same
         semantics when `S` is a `numpy.ndarray`.
     C : callable
         Capillary capacity function, defined in terms of saturation. A
-        twice-differentiable function that maps values of `S` to positive 
-        values. It can be called as ``C(S)`` to evaluate it at `S`. It can also 
-        be called as ``C(S, n)`` with `n` equal to 1 or 2, in which case the 
-        first `n` derivatives of the function evaluated at the same `S` are 
-        included (in order) as additional return values. While mathematically a 
-        scalar function, `C` operates in a vectorized fashion with the same 
+        twice-differentiable function that maps values of `S` to positive
+        values. It can be called as ``C(S)`` to evaluate it at `S`. It can also
+        be called as ``C(S, n)`` with `n` equal to 1 or 2, in which case the
+        first `n` derivatives of the function evaluated at the same `S` are
+        included (in order) as additional return values. While mathematically a
+        scalar function, `C` operates in a vectorized fashion with the same
         semantics when `S` is a `numpy.ndarray`.
 
     Returns
     -------
     D : callable
         Twice-differentiable function that maps values of `S` in the domains of
-        both `K` and `C` to positive values. It can be called as ``D(S)`` to 
-        evaluate it at `S`. It can also be called as ``D(S, n)`` with `n` equal 
-        to 1 or 2, in which case the first `n` derivatives of the function 
-        evaluated at the same `S` are included (in order) as additional return 
-        values. While mathematically a scalar function, `D` operates in a 
-        vectorized fashion with the same semantics when `S` is a 
+        both `K` and `C` to positive values. It can be called as ``D(S)`` to
+        evaluate it at `S`. It can also be called as ``D(S, n)`` with `n` equal
+        to 1 or 2, in which case the first `n` derivatives of the function
+        evaluated at the same `S` are included (in order) as additional return
+        values. While mathematically a scalar function, `D` operates in a
+        vectorized fashion with the same semantics when `S` is a
         `numpy.ndarray`.
     """
 

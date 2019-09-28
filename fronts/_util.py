@@ -7,7 +7,7 @@ class BadBracket(ValueError):
 
 class IterationLimitReached(RuntimeError):
     """
-    Exception raised by `bisect` when the convergence criterion is not met 
+    Exception raised by `bisect` when the convergence criterion is not met
     within the specified number of iterations.
     """
 
@@ -90,7 +90,7 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100):
         m = (a + b)/2
         f_m = f(m)
 
-        if f_m*f_a > 0: 
+        if f_m*f_a > 0:
             a, f_a = m, f_m
         else:
             b, f_b = m, f_m
