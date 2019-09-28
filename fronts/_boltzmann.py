@@ -17,7 +17,7 @@ def o(r, t):
     result of applying the Boltzmann transformation:
 
     .. math::
-        o(r,t) = \frac{r}{\sqrt t}
+        o(r,t) = r/\sqrt t
 
     Parameters
     ----------
@@ -49,8 +49,8 @@ def do_dr(r, t):
     r"""
     Spatial derivative of the Boltzmann transformation.
 
-    Returns the partial derivative :math:`\tfrac{\partial o}{\partial r}`
-    evaluated at (`r`,`t`).
+    Returns the partial derivative :math:`\partial o/\partial r` evaluated at 
+    (`r`, `t`).
 
     Parameters
     ----------
@@ -79,8 +79,8 @@ def do_dt(r, t):
     r"""
     Time derivative of the Boltzmann transformation.
 
-    Returns the partial derivative :math:`\tfrac{\partial o}{\partial t}` 
-    evaluated at (`r`,`t`).
+    Returns the partial derivative :math:`\partial o/\partial t` evaluated at 
+    (`r`, `t`).
 
     Parameters
     ----------
@@ -226,7 +226,7 @@ def ode(D, radial=False):
     module). The second-order ODE is expressed as a system of first-order ODEs 
     with independent variable `o` where ``y[0]`` in `fun` and `jac` correspond 
     to the value of the function `S` itself and ``y[1]`` to its first 
-    derivative :math:`\tfrac{dS}{do}`.
+    derivative :math:`dS/do`.
 
     `fun` and `jac` support both non-vectorized usage (where their first 
     argument is a float) as well as vectorized usage (when `numpy.ndarray` 
@@ -380,7 +380,7 @@ class Solution(object):
 
     def dS_dr(self, r, t):
         r"""
-        :math:`\tfrac{\partial S}{\partial r}`, spatial derivative of `S`.
+        :math:`\partial S/\partial r`, spatial derivative of `S`.
 
         Parameters
         ----------
@@ -402,7 +402,7 @@ class Solution(object):
 
     def dS_dt(self, r, t):
         r"""
-        :math:`\tfrac{\partial S}{\partial t}`, time derivative of `S`.
+        :math:`\partial S/\partial t`, time derivative of `S`.
         
         Parameters
         ----------
@@ -427,8 +427,7 @@ class Solution(object):
         Diffusive flux of `S`.
 
         Returns the diffusive flux of `S` in the direction 
-        :math:`\mathbf{\hat{r}}`, equal to 
-        :math:`-D(S)\tfrac{\partial S}{\partial r}`.
+        :math:`\mathbf{\hat{r}}`, equal to :math:`-D(S)\partial S/\partial r`.
 
         Parameters
         ----------
@@ -450,7 +449,7 @@ class Solution(object):
 
     def dS_do(self, r=None, t=None, o=None):
         r"""
-        :math:`\tfrac{dS}{do}`, derivative of `S` with respect to the Boltzmann 
+        :math:`dS/do`, derivative of `S` with respect to the Boltzmann 
         variable.
 
         May be called either with parameters `r` and `t`, or with just `o`.

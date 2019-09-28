@@ -35,8 +35,7 @@ class SemiInfiniteSolution(Solution):
         Solution to the corresponding ODE obtained with `ode`. For any `o` in 
         the closed interval [`ob`, `oi`], ``sol(o)[0]`` is the value of 
         `S` at `o`, and ``sol(o)[1]`` is the value of the derivative 
-        :math:`\tfrac{dS}{do}` at `o`. `sol` will only be evaluated inside this 
-        interval.
+        :math:`dS/do` at `o`. `sol` will only be evaluated in this interval.
     ob : float
         :math:`o_b`, which determines the behavior of the boundary.
     oi : float
@@ -129,14 +128,14 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
     Sb : float
         :math:`S_b`, the value of `S` imposed at the boundary.
     dS_dob_bracket : (float, float), optional
-        An interval that contains the value of the derivative of `S` with 
-        respect to the Boltzmann variable `o` (i.e., :math:`\tfrac{dS}{do}`) at 
-        the boundary in the solution. The interval can be made as wide as 
-        desired, at the cost of additional iterations required to obtain the 
-        solution. To refine a solution obtained previously with this same 
-        function, pass in that solution's final `dS_dob_bracket`. This 
-        parameter is always checked and a `ValueError` is raised if a
-        `dS_dob_bracket` is found not valid for the problem. 
+        Search interval that contains the value of the derivative of `S` with 
+        respect to the Boltzmann variable `o` (i.e., :math:`dS/do`) at the
+        boundary in the solution. The interval can be made as wide as desired, 
+        at the cost of additional iterations required to obtain the solution. 
+        To refine a solution obtained previously with this same function, pass 
+        in that solution's final `dS_dob_bracket`. This parameter is always 
+        checked and a `ValueError` is raised if a `dS_dob_bracket` is found not 
+        to be valid for the problem. 
     radial : {False, 'cylindrical', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one 
         of the following:
@@ -181,7 +180,7 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
                 Number of iterations required to find the solution.
             * `dS_dob_bracket` : (float, float)
                 Subinterval of `dS_dob_bracket` that contains the value of 
-                dS/do at the boundary in the solution. May be used in a 
+                :math:`dS/do` at the boundary in the solution. May be used in a 
                 subsequent call with a smaller `Si_tol` to avoid reduntant
                 iterations if wanting to refine a previously obtained solution.
 
@@ -201,11 +200,10 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
     repeateadly using the 'Radau' method as implemented in 
     `scipy.integrate.solve_ivp`. The boundary condition is satisfied exactly as 
     the starting point, and the algorithm iterates with different values of 
-    :math:`\tfrac{dS}{do}` at the boundary (chosen from within `dS_dob_bracket` 
-    using bisection) until it finds the solution that also satisfies the 
-    initial condition with the specified tolerance. This scheme assumes that 
-    :math:`\tfrac{dS}{do}` at the boundary varies continuously with 
-    :math:`S_i`.
+    :math:`dS/do` at the boundary (chosen from within `dS_dob_bracket` using 
+    bisection) until it finds the solution that also satisfies the initial 
+    condition with the specified tolerance. This scheme assumes that 
+    :math:`dS/do` at the boundary varies continuously with :math:`S_i`.
     """
     direction = np.sign(Si - Sb)
 
@@ -431,7 +429,7 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
     a two-point Dirichlet condition that matches the boundary and initial 
     conditions of the problem. Upon that solver's convergence, it runs a final 
     check on whether the candidate solution also satisfies the semi-infinite 
-    condition (which implies :math:`\tfrac{dS}{do}\to0` as :math:`o\to\infty`).
+    condition (which implies :math:`dS/do\to0` as :math:`o\to\infty`).
     """
 
     if radial and o_guess[0] <= 0:
@@ -530,8 +528,8 @@ def inverse(o, S):
 
     Notes
     -----
-    An `o(S)` function is constructed by interpolating the input data with a 
-    PCHIP monotonic cubic spline. The function `D` is then constructed by 
+    An `o` function of `S` is constructed by interpolating the input data with 
+    a PCHIP monotonic cubic spline. The function `D` is then constructed by 
     applying the expressions that result from solving the Boltzmann-transformed 
     equation for `D`.
     """
