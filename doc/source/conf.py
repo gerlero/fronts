@@ -23,7 +23,7 @@ copyright = '2019, Gabriel S. Gerlero'
 author = 'Gabriel S. Gerlero'
 
 # The full version, including alpha/beta/rc tags
-release = '0.9.4'
+release = '0.9.5-dev'
 
 
 # -- General configuration ---------------------------------------------------
