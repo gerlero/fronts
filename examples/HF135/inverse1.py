@@ -19,10 +19,6 @@ import matplotlib.pyplot as plt
 from fronts import solve, inverse
 from fronts.D import van_genuchten
 
-rho = 1e3
-mu = 1e-3
-g = 9.81
-
 epsilon = 1e-7
 
 # Wetting of an HF135 membrane, Van Genuchten model
@@ -36,7 +32,7 @@ Si = 0.102755  # Computed from P0
 
 Sb = S_range[1] - epsilon
 
-D_analytical = van_genuchten(n=n, alpha=alpha, Ks=rho*g*k/mu, S_range=S_range)
+D_analytical = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
 
 analytical = solve(D=D_analytical, Si=Si, Sb=Sb)
 

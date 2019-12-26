@@ -16,10 +16,6 @@ from fronts.D import van_genuchten
 
 import validation
 
-rho = 1e3
-mu = 1e-3
-g = 9.81
-
 epsilon = 1e-7
 
 # Wetting of an HF135 membrane, Van Genuchten model
@@ -33,7 +29,7 @@ Si = 0.102755  # Computed from P0
 
 Sb = S_range[1] - epsilon
 
-D = van_genuchten(n=n, alpha=alpha, Ks=rho*g*k/mu, S_range=S_range)
+D = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
 
 
 solution = solve(D=D, Si=Si, Sb=Sb, Si_tol=1e-3, verbose=2)
