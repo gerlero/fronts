@@ -46,7 +46,7 @@ def constant(D0):
     return D
 
 
-def power_law(k, a=1, epsilon=0):
+def power_law(k, a=1.0, epsilon=0.0):
     r"""
     Return a power-law `D` function.
 
@@ -59,10 +59,10 @@ def power_law(k, a=1, epsilon=0):
     ----------
     k : float
         Exponent
-    a : float
-        Constant factor
-    epsilon : float
-        :math:`\varepsilon`, the deviation term
+    a : float, optional
+        Constant factor. The default is 1.
+    epsilon : float, optional
+        :math:`\varepsilon`, the deviation term. The default is 0.
 
     Returns
     -------
