@@ -2,18 +2,18 @@
 
 from __future__ import division, absolute_import, print_function
 
-def constant(D=1.0):
+def constant(D0):
     """
     Return a constant `D` function.
 
-    Given a positive constant `D`, returns the function `D`:
+    Given :math:`D_0`, returns the function `D`:
 
-    .. math:: D(S) = D
+    .. math:: D(S) = D_0
 
     Parameters
     ----------
-    D : float
-        A positive constant.
+    D0 : float
+        :math:`D_0`, a positive constant
 
     Returns
     -------
@@ -34,14 +34,14 @@ def constant(D=1.0):
     is the simplest supported function.
     """
 
-    if D <= 0:
-        raise ValueError("D must be positive")
+    if D0 <= 0:
+        raise ValueError("D0 must be positive")
 
     def D(S, derivatives=0):
 
-        if derivatives == 0: return D
+        if derivatives == 0: return D0
 
-        return (D,) + (0,)*derivatives
+        return (D0,) + (0,)*derivatives
 
     return D
 
