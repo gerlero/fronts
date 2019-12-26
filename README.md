@@ -47,7 +47,7 @@ As mentioned before, if your problem is supported, you can expect Fronts to be e
 
 ### Prerequisites
 
-* **Python**. Fronts works with all current (as of 2019) versions of Python: it runs on Python 3.5 and later as well as on the older Python 2.7. It has been tested on versions 3.7.4, 3.6.6, 3.5.7, and 2.7.16.
+* **Python**. Fronts runs on Python 3.5 and later, as well as on the older Python 2.7. It has been tested on various releases of Python 2.7, 3.5, 3.6, 3.7 and 3.8.
 
 * **pip**. Installation of Fronts requires the Python package manager [pip](https://pip.pypa.io/en/stable/) to be installed on your system.
 
