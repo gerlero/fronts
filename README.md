@@ -122,7 +122,7 @@ Fronts also comes with a submodule ```fronts.D``` that lets you access some pred
 
 * [**```fronts.D.constant()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.constant.html) — create a constant function:
 
-    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3DD">
+    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%20%3D%20D_0">
 
 * [**```fronts.D.power_law()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.power_law.html) — create a function of the form:
 
@@ -137,10 +137,11 @@ Fronts also comes with a submodule ```fronts.D``` that lets you access some pred
     <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20S_e%20%3D%20%5Cfrac%7BS-S_r%7D%7BS_s-S_r%7D">
 
 
-* [**```fronts.D.richards()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.richards.html) — make a moisture diffusivity function from the hydraulic conductivity function _K_ and the capillary capacity function _C_ using the definition: 
+* [**```fronts.D.richards()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.richards.html) — make a moisture diffusivity function from a relative permeability/conductivity function _kr_ and a capillary capacity function _C_, using the definition: 
     
-    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3D%5Cfrac%7BK%28S%29%7D%7BC%28S%29%7D">
+    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%20%3D%20%5Cfrac%7BK_Sk_r%28S%29%7D%7BC%28S%29%7D">
 
+    Can be used to convert problems of the horizontal Richards equation (for which those two functions are parameters) into moisture diffusivity problems that can be solved with Fronts.
     
 ## Examples
 
