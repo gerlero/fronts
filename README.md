@@ -35,7 +35,7 @@ The main solver function ``solve()`` will assume that you want to work with this
 
 ## Uses
 
-Problems supported by Fronts appear in many areas of physics. For instance, if we take _S_ as the saturation or moisture content and _D_ as the moisture diffusivity, the above PDE translates into what is known as the moisture diffusivity equation, which is a special case of the [Richards equation](https://en.wikipedia.org/wiki/Richards_equation) that models fluid flow in unsaturated porous media.
+Problems supported by Fronts appear in many areas of physics. For instance, if we take _S_ as the water content or saturation and _D_ as the moisture diffusivity, the above PDE translates into what is known as the moisture diffusivity equation, which is a special case of the [Richards equation](https://en.wikipedia.org/wiki/Richards_equation) that models fluid flow in unsaturated porous media.
 
 Of particular interest to the creators of Fronts is the fact that the moisture diffusivity equation as supported by Fronts can directly describe the phenomenon known as lateral flow in the field of paper-based microfluidics. In fact, the name "Fronts" is a reference to the wetting fronts that appear under these conditions, the study of which motivated the creation of this library.
 
@@ -78,34 +78,34 @@ The following is a complete list of the functions and classes that Fronts provid
 
 * [**```fronts.solve()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.solve.html) — meshless solver
 
-	```solve``` solves any instance of the general problem.	Returns a ```SemiInfiniteSolution```.
-	
+    ```solve``` solves any instance of the general problem. Returns a ```SemiInfiniteSolution```.
+    
 * [**```fronts.solve_from_guess()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.solve_from_guess.html) — mesh-based solver
-	
-	```solve_from_guess``` works like ``solve`` but it uses a different procedure that starts from a guess of the solution on an initial mesh. It supports the same kind of problems than ```solve```. Although usually faster, ```solve_from_guess``` is significantly less robust than `solve`—whether it converges will usually depend heavily on the problem, the initial mesh and the guess of the solution. It also returns a ```SemiInfiniteSolution``` on success.
+    
+    ```solve_from_guess``` works like ``solve`` but it uses a different procedure that starts from a guess of the solution on an initial mesh. It supports the same kind of problems than ```solve```. Although usually faster, ```solve_from_guess``` is significantly less robust than `solve`—whether it converges will usually depend heavily on the problem, the initial mesh and the guess of the solution. It also returns a ```SemiInfiniteSolution``` on success.
 
 
 * [**```fronts.Solution```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.Solution.html), [**```fronts.SemiInfiniteSolution```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.SemiInfiniteSolution.html) — continuous solutions
 
-	```Solution``` objects provide the continuous functions ```S```, ```dS_dr```, ```dS_dt``` and ```flux``` that build up the solution to a problem. The solvers in Fronts return a ```SemiInfiniteSolution``` (a subclass of ```Solution```) as part of their results. If you called ```ode``` and solved the ODE yourself, you can create a ```Solution``` or ```SemiInfiniteSolution``` by passing the solution to the ODE to the appropiate constructor.
-	
-	Recall that when solving the moisture diffusivity/horizonal Richards equation, the diffusive flux (which you can obtain by calling ```flux```) is equivalent to the wetting fluid's velocity. Accordingly, this enables the coupling of the results you get from Fronts (in terms of advective velocity) with more complex problems of solute transport.
+    ```Solution``` objects provide the continuous functions ```S```, ```dS_dr```, ```dS_dt``` and ```flux``` that build up the solution to a problem. The solvers in Fronts return a ```SemiInfiniteSolution``` (a subclass of ```Solution```) as part of their results. If you called ```ode``` and solved the ODE yourself, you can create a ```Solution``` or ```SemiInfiniteSolution``` by passing the solution to the ODE to the appropiate constructor.
+    
+    Note that in problems of the moisture diffusivity equation or horizontal Richards equation, the diffusive flux (which can be obtained by calling ```flux``` on a ```Solution``` object) gives the velocity of the wetting fluid. In particular, if `S` is taken to mean volumetric water content, it is the Darcy velocity; if `S` is saturation, it is the fluid's true velocity. These velocity fields can be used directly in more complex problems of solute transport.
 
 
 * [**```fronts.inverse()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.inverse.html) — solve the inverse problem
-	
-	```inverse``` solves the inverse problem of finding _D_ when _S_ is known. For instance, ```inverse``` can extract _D_ from experimental results. The returned _D_ function can be used in Fronts to solve other problems.
-	
+    
+    ```inverse``` solves the inverse problem of finding _D_ when _S_ is known. For instance, ```inverse``` can extract _D_ from experimental results. The returned _D_ function can be used in Fronts to solve other problems.
+    
 
 ### Boltzmann transformation and ODE
 
 * [**```fronts.o()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.o.html), [**```fronts.do_dr()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.do_dr.html), [**```fronts.do_dt()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.do_dt.html), [**```fronts.r()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.r.html), [**```fronts.t()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.t.html), [**```fronts.as_o()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.as_o.html) — Boltzmann transformation
 
-	These are convenience functions for working with the Boltzmann transformation.
+    These are convenience functions for working with the Boltzmann transformation.
 
 * [**```fronts.ode()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.ode.html) — access the ODE
 
-	The ```ode``` function transforms the PDE into its corresponding ODE using the Boltzmann transformation. ```ode``` returns _fun_ and _jac_ callables that are directly compatible with SciPy's solvers (i.e., those in the  [```scipy.integrate```](https://docs.scipy.org/doc/scipy/reference/integrate.html) module). The solvers in Fronts actually use this function internally. You may call this function if you want to solve the ODE yourself instead of using Fronts' solvers, for example if you need to deal with a different boundary condition or want to use your own solving algorithm.
+    The ```ode``` function transforms the PDE into its corresponding ODE using the Boltzmann transformation. ```ode``` returns _fun_ and _jac_ callables that are directly compatible with SciPy's solvers (i.e., those in the  [```scipy.integrate```](https://docs.scipy.org/doc/scipy/reference/integrate.html) module). The solvers in Fronts actually use this function internally. You may call this function if you want to solve the ODE yourself instead of using Fronts' solvers, for example if you need to deal with a different boundary condition or want to use your own solving algorithm.
 
 ### _D_ functions and ```fronts.D```
 
@@ -122,26 +122,26 @@ Fronts also comes with a submodule ```fronts.D``` that lets you access some pred
 
 * [**```fronts.D.constant()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.constant.html) — create a constant function:
 
-	<img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3DD">
+    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3DD">
 
 * [**```fronts.D.power_law()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.power_law.html) — create a function of the form:
 
-	<img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3Da%20S%5Ek%20&plus;%20%5Cvarepsilon">
+    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3Da%20S%5Ek%20&plus;%20%5Cvarepsilon">
 
 * [**```fronts.D.van_genuchten()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.van_genuchten.html) — create a [Van Genuchten](https://doi.org/10.2136/sssaj1980.03615995004400050002x) moisture diffusivity function:
 
-	<img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3D%5Cfrac%7B%281-m%29K_s%7D%7B%5Calpha%20m%20%28S_s-S_r%29%7DS_e%5E%7B%28l-%5Cfrac%7B1%7D%7Bm%7D%29%7D%5Cleft%28%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5E%7B-m%7D%20&plus;%20%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5Em%20-%202%20%5Cright%29">
-	
-	where _S_ is the saturation and _Se_ is defined as:
-	
-	<img src="https://latex.codecogs.com/svg.latex?%5Csmall%20S_e%20%3D%20%5Cfrac%7BS-S_r%7D%7BS_s-S_r%7D">
+    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3D%5Cfrac%7B%281-m%29K_s%7D%7B%5Calpha%20m%20%28S_s-S_r%29%7DS_e%5E%7B%28l-%5Cfrac%7B1%7D%7Bm%7D%29%7D%5Cleft%28%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5E%7B-m%7D%20&plus;%20%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5Em%20-%202%20%5Cright%29">
+    
+    where _S_ is either water content or saturation, and _Se_ is defined as:
+    
+    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20S_e%20%3D%20%5Cfrac%7BS-S_r%7D%7BS_s-S_r%7D">
 
 
 * [**```fronts.D.richards()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.richards.html) — make a moisture diffusivity function from the hydraulic conductivity function _K_ and the capillary capacity function _C_ using the definition: 
-	
-	<img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3D%5Cfrac%7BK%28S%29%7D%7BC%28S%29%7D">
+    
+    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3D%5Cfrac%7BK%28S%29%7D%7BC%28S%29%7D">
 
-	
+    
 ## Examples
 
 ### Introductory example
@@ -208,25 +208,25 @@ The included examples can be found in the ``examples`` directory of this project
 
 
 * subdirectory **``powerlaw/``** — cases based on the introductory example presented above
-	* **``solve.py``**: solve the case with `fronts.solve()`.
-	* **``radial.py``**: solve a radial case (with a moving boundary) using `fronts.solve()`.
-	* **``inverse.py``**: more examples of usage of `fronts.solve()` and of`fronts.inverse()`.
+    * **``solve.py``**: solve the case with `fronts.solve()`.
+    * **``radial.py``**: solve a radial case (with a moving boundary) using `fronts.solve()`.
+    * **``inverse.py``**: more examples of usage of `fronts.solve()` and of`fronts.inverse()`.
 
 * subdirectory **``1INFILTR/``** — the _1INFILTR_ test case from [Hydrus-1D](https://www.pc-progress.com/en/Default.aspx?hydrus-1d), in horizontal
-	* **``solve.py``**: solve the case with `fronts.solve()`.
-	* **``validation.py``**: results for the same case obtained using Hydrus for comparison.
+    * **``solve.py``**: solve the case with `fronts.solve()`.
+    * **``validation.py``**: results for the same case obtained using Hydrus for comparison.
 * subdirectory **``HF135/``**— lateral flow case in an HF135 nitrocellulose membrane (data from the [PhD work of J.R. Buser](http://hdl.handle.net/1773/38064))
-	* **``solve.py``**: solve the case with `fronts.solve()`.
-	* **``refine.py``**: get a rough approximation of the solution using `fronts.solve()` with a high tolerance, and then refine it with both `fronts.solve()` and `fronts.solve_from_guess()`.
-	* 🐌 **``inverse1.py``**: use `fronts.inverse()` to extract _D_ from a solution. Here, the solution is obtained with 
+    * **``solve.py``**: solve the case with `fronts.solve()`.
+    * **``refine.py``**: get a rough approximation of the solution using `fronts.solve()` with a high tolerance, and then refine it with both `fronts.solve()` and `fronts.solve_from_guess()`.
+    * 🐌 **``inverse1.py``**: use `fronts.inverse()` to extract _D_ from a solution. Here, the solution is obtained with 
 `fronts.solve()`. The extracted _D_ is then used with `fronts.solve()` and the
 same conditions to verify that an equivalent solution is obtained.
-	* 🐌 **``inverse2.py``**: use `fronts.inverse()` to obtain _D_ 
+    * 🐌 **``inverse2.py``**: use `fronts.inverse()` to obtain _D_ 
 from the validation case and then use it to solve the same problem. 
-	* **``validation.py``**: results with the same case solved with [porousMultiphaseFoam](https://github.com/phorgue/porousMultiphaseFoam) for comparison.
+    * **``validation.py``**: results with the same case solved with [porousMultiphaseFoam](https://github.com/phorgue/porousMultiphaseFoam) for comparison.
 * subdirectory **``exact/``** — solve a case with a _D_ function proposed by [Philip](https://doi.org/10.1071/PH600001) that has an exact solution
-	* **``solve.py``**: solve the case with `fronts.solve()` and compare with the exact solution.
-	* **``fromguess.py``**: solve the case with `fronts.solve_from_guess()` and compare with the exact solution.
+    * **``solve.py``**: solve the case with `fronts.solve()` and compare with the exact solution.
+    * **``fromguess.py``**: solve the case with `fronts.solve_from_guess()` and compare with the exact solution.
 
 
 **Note:** the examples marked with 🐌 are significantly more computationally intensive and may take more than a minute to run to completion. All other cases should finish within a few seconds at the most.

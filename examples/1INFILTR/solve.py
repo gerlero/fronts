@@ -24,7 +24,7 @@ for t, S in zip(validation.t, validation.S):
              label="Fronts, t={}".format(t))
     plt.plot(validation.r, S, label="{}, t={}".format(validation.name,t))
 plt.xlabel("r")
-plt.ylabel("saturation")
+plt.ylabel("water content")
 plt.grid(which='both')
 plt.legend()
 plt.show()

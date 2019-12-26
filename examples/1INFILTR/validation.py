@@ -61,7 +61,7 @@ if __name__ == '__main__':
     for t_, S_ in zip(t, S):
         plt.plot(r, S_, label="{}, t={}".format(name,t_))
     plt.xlabel("r")
-    plt.ylabel("saturation")
+    plt.ylabel("water content")
     plt.grid(which='both')
     plt.legend()
     plt.show()
