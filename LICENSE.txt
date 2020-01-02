@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2019, Gabriel S. Gerlero.
+Copyright (c) 2019-2020, Gabriel S. Gerlero.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

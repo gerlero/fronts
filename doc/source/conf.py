@@ -19,7 +19,7 @@ print(sys.path)
 # -- Project information -----------------------------------------------------
 
 project = 'Fronts'
-copyright = '2019, Gabriel S. Gerlero'
+copyright = '2019-2020, Gabriel S. Gerlero'
 author = 'Gabriel S. Gerlero'
 
 # The full version, including alpha/beta/rc tags
