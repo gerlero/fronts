@@ -68,7 +68,7 @@ plt.plot(validation.r, fine.flux(validation.r,validation.t),
 plt.plot(validation.r, from_guess.flux(validation.r,validation.t), 
 	     label="Refined with solve_from_guess")
 plt.xlabel("r [{}]".format(validation.r_unit))
-plt.ylabel("velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
+plt.ylabel("true velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
 plt.grid(which='both')
 plt.legend()
 plt.show()

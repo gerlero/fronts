@@ -79,7 +79,7 @@ if __name__ == '__main__':
     for t_, velocity_ in zip(t, velocity):
         plt.plot(r, velocity_, label="{}, t={} {}".format(name, t_, t_unit))
     plt.xlabel("r [{}]".format(r_unit))
-    plt.ylabel("velocity [{}/{}]".format(r_unit, t_unit))
+    plt.ylabel("Darcy velocity [{}/{}]".format(r_unit, t_unit))
     plt.grid(which='both')
     plt.legend()
     plt.show()

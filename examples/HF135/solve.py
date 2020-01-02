@@ -51,7 +51,7 @@ plt.plot(validation.r, solution.flux(validation.r,validation.t),
 plt.plot(validation.r, validation.velocity, 
          color='sandybrown', label=validation.name)
 plt.xlabel("r [{}]".format(validation.r_unit))
-plt.ylabel("velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
+plt.ylabel("true velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
 plt.grid(which='both')
 plt.legend()
 plt.show()

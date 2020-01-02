@@ -42,7 +42,7 @@ for t, velocity in zip(validation.t, validation.velocity):
     plt.plot(validation.r, velocity, label="{}, t={} {}"
     		 .format(validation.name, t, validation.t_unit))
 plt.xlabel("r [{}]".format(validation.r_unit))
-plt.ylabel("velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
+plt.ylabel("Darcy velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
 plt.grid(which='both')
 plt.legend()
 plt.show()

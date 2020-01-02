@@ -43,7 +43,7 @@ if __name__ == '__main__':
     plt.title("Solution at t={} {}".format(t, t_unit))
     plt.plot(r, velocity, color='sandybrown', label=name)
     plt.xlabel("r [{}]".format(r_unit))
-    plt.ylabel("velocity [{}/{}]".format(r_unit, t_unit))
+    plt.ylabel("true velocity [{}/{}]".format(r_unit, t_unit))
     plt.grid(which='both')
     plt.legend()
     plt.show()
