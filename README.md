@@ -130,7 +130,7 @@ Fronts also comes with a submodule ```fronts.D``` that lets you access some pred
 
 * [**```fronts.D.van_genuchten()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.van_genuchten.html) — create a [Van Genuchten](https://doi.org/10.2136/sssaj1980.03615995004400050002x) moisture diffusivity function:
 
-    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3D%5Cfrac%7B%281-m%29K_s%7D%7B%5Calpha%20m%20%28S_s-S_r%29%7DS_e%5E%7B%28l-%5Cfrac%7B1%7D%7Bm%7D%29%7D%5Cleft%28%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5E%7B-m%7D%20&plus;%20%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5Em%20-%202%20%5Cright%29">
+    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3D%5Cfrac%7B%281-m%29K_s%7D%7B%5Calpha%20m%20%28S_s-S_r%29%7DS_e%5E%7Bl-%5Cfrac%7B1%7D%7Bm%7D%7D%5Cleft%28%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5E%7B-m%7D%20&plus;%20%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5Em%20-%202%20%5Cright%29">
     
     where _S_ is either water content or saturation, and _Se_ is defined as:
     

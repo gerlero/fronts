@@ -159,7 +159,7 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
     moisture diffusivity function `D` is defined as:
 
     .. math:: D(S)=\frac{(1-m)K_S}{\alpha m (S_s-S_r)}
-        S_e^{(l-\frac{1}{m})}\left((1-S_e^\frac{1}{m})^{-m} +
+        S_e^{l-\frac{1}{m}}\left((1-S_e^\frac{1}{m})^{-m} +
         (1-S_e^\frac{1}{m})^m - 2 \right)
 
     where:
