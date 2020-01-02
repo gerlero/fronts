@@ -100,16 +100,65 @@ def power_law(k, a=1.0, epsilon=0.0):
     return D
 
 
-def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=1.0,
-                  S_range=(0.0,1.0)):
+def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
+    r"""
+    Return the saturated hydraulic conductivity, computed from the instrinsic
+    permeability if necessary.
+
+    Parameters
+    ----------
+    Ks : float, optional
+        :math:`K_S`, the saturated hydraulic conductivity. Must be positive. If
+        neither `Ks` nor `k` are given, the saturated hydraulic conductivity is
+        assumed to be 1.
+    k : float, optional
+        Intrinsic permeability of the porous medium. Can be given in place of
+        `Ks`, which results in the saturated hydraulic conductivity being
+        computed using :math:`K_S = kg/\nu`. Must be positive.
+    nu : float, optional
+        :math:`\nu`, the kinematic viscosity of the wetting fluid. Only used if
+        `k` is passed instead of `Ks`. Must be positive. Defaults to 1e-6,
+        approximately the kinematic viscosity of water at 20°C in SI units.
+    g : float, optional
+        Magnitude of the gravitational acceleration. Only used if `k` is passed
+        instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of 
+        Earth in SI units.
+
+    Returns
+    -------
+    Ks : float
+        :math:`K_S`, the saturated hydraulic conductivity
+    """
+    if Ks is not None:
+        if k is not None:
+            raise TypeError("cannot pass both Ks and k")
+        if Ks <= 0:
+            raise ValueError("Ks must be positive")
+        return Ks
+
+    elif k is not None:
+        if k <= 0:
+            raise ValueError("k must be positive")
+        if nu <= 0:
+            raise ValueError("nu must be positive")
+        if g <= 0:
+            raise ValueError("g must be positive")
+        return g*k/nu
+
+    else:
+        return 1
+
+
+def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
+                  g=9.81, S_range=(0.0,1.0)):
     r"""
     Return a Van Genuchten moisture diffusivity function.
 
-    Given the parameters :math:`K_s`, :math:`\alpha`, `m`, `l`, :math:`S_r` and
-    :math:`S_s`, the Van Genuchten moisture diffusivity function `D`
-    is defined as:
+    Given the saturated hydraulic conductivity :math:`K_S` and parameters
+    :math:`\alpha`, `m`, `l`, :math:`S_r` and :math:`S_s`, the Van Genuchten
+    moisture diffusivity function `D` is defined as:
 
-    .. math:: D(S)=\frac{(1-m)K_s}{\alpha m (S_s-S_r)}
+    .. math:: D(S)=\frac{(1-m)K_S}{\alpha m (S_s-S_r)}
         S_e^{(l-\frac{1}{m})}\left((1-S_e^\frac{1}{m})^{-m} +
         (1-S_e^\frac{1}{m})^m - 2 \right)
 
@@ -120,25 +169,38 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=1.0,
     and `S` is either water content or saturation.
 
     In common usage, the `m` parameter is replaced with an `n` parameter so
-    that :math:`m=1-\tfrac{1}{n}`. This function supports either parameter.
+    that :math:`m=1-1/n`. This function supports either parameter.
 
     Parameters
     ----------
     n : float, optional
-        `n` parameter in the Van Genuchten model. Must be >1. You must pass
-        either `n` or `m` (but not both).
+        `n` parameter in the Van Genuchten model. Must be >1. Either `n` or `m`
+        must be given (but not both).
     m : float, optional
-        `m` parameter in the Van Genucthen model. Must be strictly between 0
-        and 1. You must pass either `n` or `m` (but not both).
+        `m` parameter in the Van Genuchten model. Must be strictly between 0
+        and 1. Either `n` or `m` must be given (but not both).
     l : float, optional
         Pore connectivity parameter. The default is 0.5. Must be strictly
         between 0 and 1.
     alpha : float, optional
-        :math:`\alpha` parameter of the Van Genucthen model. The default is 1.
+        :math:`\alpha` parameter of the Van Genuchten model. The default is 1.
         Must be positive.
     Ks : float, optional
-        :math:`K_s`, the hydraulic conductivity when saturated. The default is
-        1. Must be positive.
+        :math:`K_S`, the saturated hydraulic conductivity. Must be positive. If
+        neither `Ks` nor `k` are given, the saturated hydraulic conductivity is
+        assumed to be 1.
+    k : float, optional
+        Intrinsic permeability of the porous medium. Can be given in place of
+        `Ks`, which results in the saturated hydraulic conductivity being
+        computed using :math:`K_S = kg/\nu`. Must be positive.
+    nu : float, optional
+        :math:`\nu`, the kinematic viscosity of the wetting fluid. Only used if
+        `k` is passed instead of `Ks`. Must be positive. Defaults to 1e-6,
+        approximately the kinematic viscosity of water at 20°C in SI units.
+    g : float, optional
+        Magnitude of the gravitational acceleration. Only used if `k` is passed
+        instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of 
+        Earth in SI units.
     S_range : (float, float), optional
         the tuple (:math:`S_r`, :math:`S_s`), where :math:`S_r` is the minimum
         (also known as residual) and :math:`S_s` the maximum water content (or
@@ -150,7 +212,7 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=1.0,
     D : callable
         Twice-differentiable function that maps values of `S` in the open
         interval (:math:`S_r`, :math:`S_s`) to positive values. It can be
-        called as ``D(S)`` to evaluate it at `S`. It can  also be called as
+        called as ``D(S)`` to evaluate it at `S`. It can also be called as
         ``D(S, n)`` with `n` equal to 1 or 2, in which case the first `n`
         derivatives of the function evaluated at the same `S` are included (in
         order) as additional return values. While mathematically a scalar
@@ -165,8 +227,8 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=1.0,
     References
     ----------
     [1] VAN GENUCHTEN, M. Th. A closed-form equation for predicting the
-    hydraulic conductivity of unsaturated soils. Soil science society of
-    America journal, 1980, vol. 44, no 5, p. 892-898.
+    hydraulic conductivity of unsaturated soils. Soil Science Society of
+    America Journal, 1980, vol. 44, no 5, p. 892-898.
     """
 
     if n is not None:
@@ -177,7 +239,7 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=1.0,
         m = 1-1/n
 
     elif m is None:
-        raise TypeError("must pass either n or m")
+        raise TypeError("either n or m must be given")
 
     if not (0<m<1):
         raise ValueError("m must be strictly between 0.0 and 1.0")
@@ -185,11 +247,10 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=1.0,
     if not (0<l<1):
         raise ValueError("l must be strictly between 0.0 and 1.0")
 
-    if alpha<=0:
+    if alpha <= 0:
         raise ValueError("alpha must be positive")
 
-    if Ks<=0:
-        raise ValueError("Ks must be positive")
+    Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
 
     if S_range[1]-S_range[0] <= 0:
         raise ValueError("S_range[1] must be greater than S_range[0]")
