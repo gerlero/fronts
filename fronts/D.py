@@ -306,45 +306,63 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
     return D
 
 
-def richards(K, C):
+def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
     r"""
     Return a moisture diffusivity function for a Richards equation problem.
 
-    Given the functions `K` and `C` (where `S` is either water content or
-    saturation) returns the function:
+    Given `K_S` and the functions `C` and :math:`k_r` of `S` (where `S` is
+    either water content or saturation), returns the function:
 
-    .. math:: D(S) = \frac{K(S)}{C(S)}
+    .. math:: D(S) = \frac{K_S k_r(S)}{C(S)}
 
-    This effectively converts horizontal Richards equation problems (for which
-    those two functions are parameters) into moisture diffusivity problems that
-    can be solved using this library.
+    This function helps transform problems of the horizontal Richards equation
+    (for which :math:`K_S`, :math:`k_r`, and `C` are known parameters) into
+    problems of the moisture diffusivity equation that can be solved with this
+    library.
 
     Parameters
     ----------
-    K : callable
-        Hydraulic conductivity function. A twice-differentiable function that 
-        maps values of `S` to positive values. It can be called as ``K(S)`` to
-        evaluate it at `S`. It can also be called as ``K(S, n)`` with `n` equal
-        to 1 or 2, in which case the first `n` derivatives of the function
-        evaluated at the same `S` are included (in order) as additional return
-        values. While mathematically a scalar function, `K` operates in a
-        vectorized fashion with the same semantics when `S` is a
-        `numpy.ndarray`.
     C : callable
-        Capillary capacity function. A twice-differentiable function that maps
-        values of `S` to positive values. It can be called as ``C(S)`` to
-        evaluate it at `S`. It can also be called as ``C(S, n)`` with `n` equal
-        to 1 or 2, in which case the first `n` derivatives of the function
-        evaluated at the same `S` are included (in order) as additional return
-        values. While mathematically a scalar function, `C` operates in a
-        vectorized fashion with the same semantics when `S` is a
-        `numpy.ndarray`.
+        Capillary capacity function (also known as hydraulic capacity
+        function). A twice-differentiable function that maps values of `S` to
+        positive values. It can be called as ``C(S)`` to evaluate it at `S`. It
+        can also be called as ``C(S, n)`` with `n` equal to 1 or 2, in which
+        case the first `n` derivatives of the function evaluated at the same
+        `S` are included (in order) as additional return values. While
+        mathematically a scalar function, `C` operates in a vectorized fashion
+        with the same semantics when `S` is a `numpy.ndarray`.
+    kr : callable
+        :math:`k_r`, the relative permeability function (also known as relative
+        conductivity function). A twice-differentiable function that maps
+        values of `S` to positive values (usually between 0 and 1). It can be
+        called as ``kr(S)`` to evaluate it at `S`. It can also be called as
+        ``kr(S, n)`` with `n` equal to 1 or 2, in which case the first `n`
+        derivatives of the function evaluated at the same `S` are included
+        (in order) as additional return values. While mathematically a scalar
+        function, `kr` operates in a vectorized fashion with the same semantics
+        when `S` is a `numpy.ndarray`.
+    Ks : float, optional
+        :math:`K_S`, the saturated hydraulic conductivity. Must be positive. If
+        neither `Ks` nor `k` are given, the saturated hydraulic conductivity is
+        assumed to be 1.
+    k : float, optional
+        Intrinsic permeability of the porous medium. Can be given in place of
+        `Ks`, which results in the saturated hydraulic conductivity being
+        computed using :math:`K_S = kg/\nu`. Must be positive.
+    nu : float, optional
+        :math:`\nu`, the kinematic viscosity of the wetting fluid. Only used if
+        `k` is passed instead of `Ks`. Must be positive. Defaults to 1e-6,
+        approximately the kinematic viscosity of water at 20°C in SI units.
+    g : float, optional
+        Magnitude of the gravitational acceleration. Only used if `k` is passed
+        instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of 
+        Earth in SI units.
 
     Returns
     -------
     D : callable
         Twice-differentiable function that maps values of `S` in the domains of
-        both `K` and `C` to positive values. It can be called as ``D(S)`` to
+        both `kr` and `C` to positive values. It can be called as ``D(S)`` to
         evaluate it at `S`. It can also be called as ``D(S, n)`` with `n` equal
         to 1 or 2, in which case the first `n` derivatives of the function
         evaluated at the same `S` are included (in order) as additional return
@@ -353,11 +371,13 @@ def richards(K, C):
         `numpy.ndarray`.
     """
 
+    Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
+
     def D(S, derivatives=0):
 
-        if derivatives == 0: return K(S)/C(S)
+        if derivatives == 0: return Ks*kr(S)/C(S)
 
-        K_ = K(S, derivatives)
+        K_ = [Ks*kr for kr in kr(S, derivatives)]
         C_ = C(S, derivatives)
 
         D = K_[0]/C_[0]
