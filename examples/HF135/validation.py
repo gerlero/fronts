@@ -3,9 +3,9 @@
 """
 Lateral flow in a HF135 nitrocellulose membrane.
 
-Solution to the case obtained with the porousMultiphaseFoam toolbox in OpenFOAM
-(https://github.com/phorgue/porousMultiphaseFoam). The groundwaterFoam solver
-was used.
+Solution to the case obtained with the porousMultiphaseFoam toolbox (version
+1906) for OpenFOAM (https://github.com/phorgue/porousMultiphaseFoam). The
+groundwaterFoam solver was used.
 
 """
 
