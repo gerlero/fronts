@@ -197,13 +197,14 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
 
     This function works by transforming the partial differential equation with
     the Boltzmann transformation using `ode` and then solving the resulting ODE
-    repeateadly using the 'Radau' method as implemented in
-    `scipy.integrate.solve_ivp`. The boundary condition is satisfied exactly as
-    the starting point, and the algorithm iterates with different values of
-    :math:`dS/do` at the boundary (chosen from within `dS_dob_bracket` using
-    bisection) until it finds the solution that also satisfies the initial
-    condition with the specified tolerance. This scheme assumes that
-    :math:`dS/do` at the boundary varies continuously with :math:`S_i`.
+    repeatedly using the 'Radau' method as implemented in
+    `scipy.integrate.solve_ivp` and a custom shooting algorithm. The boundary
+    condition is satisfied exactly as the starting point, and the shooting 
+    algorithm iterates with different values of :math:`dS/do` at the boundary 
+    (chosen from within `dS_dob_bracket` using bisection) until it finds the
+    solution that also satisfies the initial condition within the specified
+    tolerance. This scheme assumes that :math:`dS/do` at the boundary varies
+    continuously with :math:`S_i`.
     """
     direction = np.sign(Si - Sb)
 
