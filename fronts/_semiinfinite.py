@@ -336,14 +336,15 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
         r_b(t) = o_b\sqrt t
         \end{cases}
 
-    This function requires an initial mesh and guess of the solution. It is
-    significantly less robust than `solve`, and will fail to converge in many
-    cases that the latter can easily handle (whether it converges will usually
-    depend heavily on the problem, the initial mesh and the guess of the
-    solution; it will raise a `RuntimeError` on failure). However, when it
-    converges it is usually faster than `solve`, which may be an advantage for
-    some use cases. You should nonetheless prefer `solve` unless you have a
-    particular use case for which you have found this function to be better.
+    Alternative to the main `solve` function. This function requires a starting
+    mesh and guess of the solution. It is significantly less robust than
+    `solve`, and will fail to converge in many cases that the latter can easily
+    handle (whether it converges will usually depend heavily on the problem,
+    the starting mesh and the guess of the solution; it will raise a
+    `RuntimeError` on failure). However, when it converges it is usually faster
+    than `solve`, which may be an advantage for some use cases. You should
+    nonetheless prefer `solve` unless you have a particular use case for which
+    you have found this function to be better.
 
     Possible use cases include refining a solution (note that `solve` can do
     that too), optimization runs in which known solutions make good first
@@ -367,7 +368,7 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
     Sb : float
         :math:`S_b`, the value of `S` imposed at the boundary.
     o_guess : numpy.array_like, shape (n_guess,)
-        Initial mesh in terms of the Boltzmann variable `o`. Must be strictly
+        Starting mesh in terms of the Boltzmann variable `o`. Must be strictly
         increasing. ``o_guess[0]`` is :math:`o_b`, which determines the
         behavior of the boundary. If zero, it implies that the boundary always
         exists at :math:`r=0`. It must be strictly positive if `radial` is not
@@ -375,8 +376,8 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
         the other end, ``o_guess[-1]`` must be large enough to contain the
         solution to the semi-infinite problem.
     S_guess : float or numpy.array_like, shape (n_guess,)
-        Initial guess of `S` at the points in `o_guess`. If a single value, the
-        guess is interpreted as uniform.
+        Starting guess of `S` at the points in `o_guess`. If a single value,
+        the guess is assumed uniform.
     radial : {False, 'cylindrical', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
@@ -426,11 +427,12 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
 
     This function works by transforming the partial differential equation with
     the Boltzmann transformation using `ode` and then solving the resulting ODE
-    with SciPy's boundary value problem solver `scipy.integrate.solve_bvp` and
-    a two-point Dirichlet condition that matches the boundary and initial
-    conditions of the problem. Upon that solver's convergence, it runs a final
-    check on whether the candidate solution also satisfies the semi-infinite
-    condition (which implies :math:`dS/do\to0` as :math:`o\to\infty`).
+    with SciPy's collocation-based boundary value problem solver
+    `scipy.integrate.solve_bvp` and a two-point Dirichlet condition that
+    matches the boundary and initial conditions of the problem. Upon that
+    solver's convergence, it runs a final check on whether the candidate
+    solution also satisfies the semi-infinite condition (which implies
+    :math:`dS/do\to0` as :math:`o\to\infty`).
     """
 
     if radial and o_guess[0] <= 0:
