@@ -1,7 +1,7 @@
 Fronts
 ======
 
-Welcome to the API documentation for Fronts!
+Welcome to the reference documentation for Fronts!
 
 Don't forget to read the README and check out the examples on the project's `GitHub page <http://github.com/gerlero/fronts>`_.
 

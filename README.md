@@ -72,7 +72,7 @@ $ pip install matplotlib
 
 ## Documentation and features
 
-The following is a complete list of the functions and classes that Fronts provides, with a short description of each. You will find the full details on each object in the [API documentation](https://fronts.readthedocs.io).
+The following is a complete list of the functions and classes that Fronts provides, with a short description of each. You will find the full details on each object in the [reference documentation](https://fronts.readthedocs.io).
 
 ### Solvers and solutions
 
