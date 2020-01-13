@@ -1,9 +1,9 @@
 Fronts
 ======
 
-Welcome to the reference documentation for Fronts!
+Welcome to the reference documentation for Fronts. This documentation covers the usage of all available functions and classes.
 
-Don't forget to read the README and check out the examples on the project's `GitHub page <http://github.com/gerlero/fronts>`_.
+For an introduction to the software, please refer to the README file, which is displayed on the project's `GitHub <http://github.com/gerlero/fronts>`_ and `PyPI <https://pypi.org/project/fronts>`_ pages. Users may also want to review the example cases, found on the GitHub page under the *examples* directory.
 
 .. currentmodule:: fronts
 
