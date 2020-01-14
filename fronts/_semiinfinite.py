@@ -487,7 +487,7 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
 
 def inverse(o, S):
     r"""
-    Solve the inverse problem.
+    Solve an inverse problem.
 
     Given a function `S` of `r` and `t`, and scalars :math:`S_i`, :math:`S_b`
     and :math:`o_b`, finds a positive function `D` of the values of `S` such
@@ -501,8 +501,9 @@ def inverse(o, S):
         r_b(t) = o_b\sqrt t
         \end{cases}
 
-    `S` is input via its values on a finite set of points expressed in terms of
-    the Boltzmann variable. Problems in radial coordinates are not supported.
+    `S` is taken as its values on a discrete set of points expressed in terms
+    of the Boltzmann variable. Problems in radial coordinates are not
+    supported.
 
     Parameters
     ----------
@@ -536,10 +537,21 @@ def inverse(o, S):
     applying the expressions that result from solving the Boltzmann-transformed
     equation for `D`.
 
+    While very fast, the scheme used by this function is somewhat limited in
+    its  practical precision because of the use of interpolation (see the 
+    Notes) and the fact that two `S` functions that differ little in their
+    values may actually be the consequence of very different `D` functions. If
+    the goal is to find the parameters for a parameterized `D`, you may opt to
+    perform an optimization run using `solve` instead.
+
     Depending on the number of points, the returned `D` may take orders of
-    magnitude more time to be evaluated than an analytic function. In that
+    magnitude more time to be evaluated than an analytical function. In that
     case, you may notice that solvers work significantly slower when called
     with this `D`.
+
+    This function also works if the problem has different boundary condition,
+    as long as it is compatible with the Boltzmann transformation so that
+    `S` can be considered a function of `o` only.
     """
 
     if not np.all(np.diff(o) > 0):
