@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add units of measurement to _examples/1INFILTR_ and _examples/HF135_.
 - Add this changelog file to the project.
 
+### Changed
+
+- Update Hydrus-1D validation data for _examples/1INFILTR_.
+
 ## 0.9.5 - 2019-12-26
 
 ### Changed
