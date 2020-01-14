@@ -13,6 +13,7 @@ classifiers = ('Development Status :: 4 - Beta',
                'Programming Language :: Python :: 3.5',
 			   'Programming Language :: Python :: 3.6',
 			   'Programming Language :: Python :: 3.7',
+               'Programming Language :: Python :: 3.8',
 			   'Topic :: Scientific/Engineering :: Physics',
 			   'Topic :: Software Development :: Libraries',
 			   'Operating System :: OS Independent')
