@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change "water content" to "saturation" in _examples/HF135_.
 - Clarify whether the Darcy velocity or true velocity is being plotted in the examples.
 - Rename "API documentation" to "reference documentation".
+- Improve README.md file.
 
 ## 0.9.5 - 2019-12-26
 
