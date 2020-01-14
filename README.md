@@ -95,7 +95,7 @@ The following is a complete list of the functions and classes that Fronts provid
 
 * [**```fronts.inverse()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.inverse.html) — solve the inverse problem
     
-    ```inverse``` solves the inverse problem of finding _D_ when _S_ is known. For instance, ```inverse``` can extract _D_ from experimental results. The returned _D_ function can be used in Fronts to solve other problems.
+     Inverse solver. ```inverse``` solves the inverse problem of finding _D_ when _S_ is known. For instance, ```inverse``` can extract _D_ from experimental results. The returned _D_ function can be used in Fronts to solve other problems. Use of this function for inverse problems [comes with some limitations](https://fronts.readthedocs.io/en/latest/stubs/fronts.inverse.html).
     
 
 ### Boltzmann transformation and ODE
