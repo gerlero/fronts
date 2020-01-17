@@ -11,16 +11,16 @@ import numpy as np
 from scipy.integrate import solve_ivp, solve_bvp
 from scipy.interpolate import PchipInterpolator
 
-from ._boltzmann import ode, Solution, r
+from ._boltzmann import ode, BaseSolution, r
 from ._util import bisect, BadBracket, IterationLimitReached
 
 
-class SemiInfiniteSolution(Solution):
+class Solution(BaseSolution):
     r"""
-    Continuous solution to a semi-infinite problem.
+    Continuous solution to a problem.
 
-    Its methods describe a continuous solution to a problem of finding a
-    function `S` of `r` and `t` such that:
+    A subclass of `BaseSolution`, its methods describe a continuous solution to
+    a problem of finding a function `S` of `r` and `t` such that:
 
     .. math::
          \dfrac{\partial S}{\partial t} = \nabla\cdot\left[D\left(S\right)
@@ -67,7 +67,7 @@ class SemiInfiniteSolution(Solution):
 
             return y
 
-        super(SemiInfiniteSolution, self).__init__(sol=wrapped_sol, D=D)
+        super(Solution, self).__init__(sol=wrapped_sol, D=D)
         self._ob = ob
         self._oi = oi
 
@@ -170,8 +170,8 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
 
     Returns
     -------
-    solution : SemiInfiniteSolution
-        See `SemiInfiniteSolution` for a description of the solution object.
+    solution : Solution
+        See `Solution` for a description of the solution object.
         Additional fields specific to this solver are included in the object:
 
             * `o` : numpy.ndarray, shape (n,)
@@ -306,10 +306,10 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
         integrate(bisect_result.root, verbose=0)
     assert saved_integration['dS_dob'] == bisect_result.root
 
-    solution = SemiInfiniteSolution(sol=saved_integration['sol'],
-                                    ob=saved_integration['o'][0],
-                                    oi=saved_integration['o'][-1],
-                                    D=D)
+    solution = Solution(sol=saved_integration['sol'],
+                        ob=saved_integration['o'][0],
+                        oi=saved_integration['o'][-1],
+                        D=D)
 
     solution.o = saved_integration['o']
     solution.niter = bisect_result.function_calls
@@ -403,8 +403,8 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
 
     Returns
     -------
-    solution : SemiInfiniteSolution
-        See `SemiInfiniteSolution` for a description of the solution object.
+    solution : Solution
+        See `Solution` for a description of the solution object.
         Additional fields specific to this solver are included in the object:
 
             * o : numpy.ndarray, shape (n,)
@@ -473,10 +473,10 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
 
         raise RuntimeError("o_guess cannot contain solution")
 
-    solution = SemiInfiniteSolution(sol=bvp_result.sol,
-                                    ob=bvp_result.x[0],
-                                    oi=bvp_result.x[-1],
-                                    D=D)
+    solution = Solution(sol=bvp_result.sol,
+                        ob=bvp_result.x[0],
+                        oi=bvp_result.x[-1],
+                        D=D)
 
     solution.o = bvp_result.x
     solution.niter = bvp_result.niter

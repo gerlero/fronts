@@ -268,7 +268,7 @@ def ode(D, radial=False):
 
     See also
     --------
-    Solution
+    BaseSolution
     o
 
     Notes
@@ -319,7 +319,7 @@ def ode(D, radial=False):
 
 
 
-class Solution(object):
+class BaseSolution(object):
     r"""
     Base class for solutions using the Boltzmann transformation.
 

@@ -28,8 +28,8 @@ Solutions
 	:toctree: stubs/
 	:nosignatures:
 	   
-	SemiInfiniteSolution
 	Solution
+	BaseSolution
 
 
 Boltzmann transformation

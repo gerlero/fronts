@@ -79,18 +79,18 @@ The following is a complete list of the functions and classes that Fronts provid
 
 * [**```fronts.solve()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.solve.html) — meshless solver
 
-    Main solver. ```solve``` solves any instance of the general problem. Returns a ```SemiInfiniteSolution```.
+    Main solver. ```solve``` solves any instance of the general problem. Returns a ```Solution``` object.
     
 * [**```fronts.solve_from_guess()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.solve_from_guess.html) — mesh-based solver
     
-    Alternative solver. ```solve_from_guess``` works like ``solve`` but it uses a different procedure that starts from a guess of the solution on an initial mesh. It supports the same problems as ```solve```. Although usually faster, ```solve_from_guess``` is significantly less robust than `solve`—whether it converges will usually depend heavily on the problem, the initial mesh and the guess of the solution. It also returns a ```SemiInfiniteSolution``` on success.
+    Alternative solver. ```solve_from_guess``` works like ``solve`` but it uses a different procedure that starts from a guess of the solution on an initial mesh. It supports the same problems as ```solve```. Although usually faster, ```solve_from_guess``` is significantly less robust than `solve`—whether it converges will usually depend heavily on the problem, the initial mesh and the guess of the solution. It also returns a ```Solution``` on success.
 
 
-* [**```fronts.Solution```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.Solution.html), [**```fronts.SemiInfiniteSolution```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.SemiInfiniteSolution.html) — continuous solutions
+* [**```fronts.Solution```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.Solution.html), [**```fronts.BaseSolution```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.BaseSolution.html) — continuous solutions
 
-    ```Solution``` objects provide the continuous functions ```S```, ```dS_dr```, ```dS_dt``` and ```flux``` that build up the solution to a problem. The solvers in Fronts return a ```SemiInfiniteSolution``` (a subclass of ```Solution```) as part of their results. If you called ```ode``` and solved the ODE yourself, you can create a ```Solution``` or ```SemiInfiniteSolution``` by passing the solution to the ODE to the appropiate constructor.
+    ```BaseSolution``` objects provide the continuous functions ```S```, ```dS_dr```, ```dS_dt``` and ```flux``` that make up the solution to a problem. The solvers in Fronts return a ```Solution```—a subclass of ```BaseSolution```—as part of their results. If you called ```ode``` and solved the ODE yourself, you can create a ```BaseSolution``` or ```Solution``` by passing the solution to the ODE to the appropiate constructor.
     
-    Note that in problems of the moisture diffusivity equation, the diffusive flux (which can be obtained by calling ```flux``` on a ```Solution``` object) gives the velocity of the wetting fluid. In particular, if `S` is taken to mean volumetric water content, it is the Darcy velocity; if `S` is saturation, it is the fluid's true velocity. These velocity fields can be used directly in more complex problems of solute transport.
+    Note that in problems of the moisture diffusivity equation, the diffusive flux (which can be obtained by calling ```flux``` on a ```BaseSolution``` object) gives the velocity of the wetting fluid. In particular, if `S` is taken to mean volumetric water content, it is the Darcy velocity; if `S` is saturation, it is the fluid's true velocity. These velocity fields can be used directly in more complex problems of solute transport.
 
 
 * [**```fronts.inverse()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.inverse.html) — solve the inverse problem
@@ -176,7 +176,7 @@ from fronts import solve
 solution = solve(D, Si=0.1, Sb=1)
 ```
 
-The call to ```fronts.solve``` completes within a second and we get back a ```SemiInfiniteSolution``` object, which holds the functions ```S```, ```dS_dr```, ```dS_dt```and ```flux```.
+The call to ```fronts.solve``` completes within a second and we get back a ```Solution``` object, which holds the functions ```S```, ```dS_dr```, ```dS_dt```and ```flux```.
 
 We can now plot _S_ for arbitrary _r_ and _t_. For example, with _r_ between 0 and 10 and _t_=60:
 

@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Rename `SemiInfiniteSolution` class to just `Solution` (and the old `Solution` class to `BaseSolution`).
 - Update Hydrus-1D validation data for _examples/1INFILTR_.
 - Change "water content" to "saturation" in _examples/HF135_.
 - Clarify whether the Darcy velocity or true velocity is being plotted in the examples.
