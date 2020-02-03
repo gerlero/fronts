@@ -21,25 +21,29 @@ _filename = os.path.join(sys.path[0], "groundwaterFoam_results.csv")
 
 name = "porousMultiphaseFoam"
 
+r_unit = "m"
+t_unit = "s"
+
 r, S, velocity = np.loadtxt(_filename, delimiter=',', skiprows=1, 
                             usecols=(4, 3, 0), unpack=True)
 
 t = 60
 
+
 if __name__ == '__main__':
 
-    plt.title("Solution at t={}".format(t))
+    plt.title("Solution at t={} {}".format(t, t_unit))
     plt.plot(r, S, color='sandybrown', label=name)
-    plt.xlabel("r")
-    plt.ylabel("water content")
+    plt.xlabel("r [{}]".format(r_unit))
+    plt.ylabel("water content [-]")
     plt.grid(which='both')
     plt.legend()
     plt.show()
 
-    plt.title("Solution at t={}".format(t))
+    plt.title("Solution at t={} {}".format(t, t_unit))
     plt.plot(r, velocity, color='sandybrown', label=name)
-    plt.xlabel("r")
-    plt.ylabel("velocity")
+    plt.xlabel("r [{}]".format(r_unit))
+    plt.ylabel("velocity [{}/{}]".format(r_unit, t_unit))
     plt.grid(which='both')
     plt.legend()
     plt.show()

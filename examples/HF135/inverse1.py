@@ -19,14 +19,16 @@ import matplotlib.pyplot as plt
 from fronts import solve, inverse
 from fronts.D import van_genuchten
 
+import validation
+
 epsilon = 1e-7
 
 # Wetting of an HF135 membrane, Van Genuchten model
 # Data from Buser (PhD thesis, 2016)
 # http://hdl.handle.net/1773/38064
 S_range = (0.0473, 0.945)
-k = 5.50e-13
-alpha = 0.2555
+k = 5.50e-13  # m**2
+alpha = 0.2555  # 1/m
 n = 2.3521
 Si = 0.102755  # Computed from P0 
 
@@ -45,8 +47,8 @@ D_inverse = inverse(o=o, S=S)
 plt.title("Diffusivities")
 plt.plot(S, D_analytical(S), label="Analytical")
 plt.plot(S, D_inverse(S), label="Obtained with inverse")
-plt.xlabel("water content")
-plt.ylabel("D")
+plt.xlabel("water content [-]")
+plt.ylabel("D [{}**2/{}]".format(validation.r_unit, validation.t_unit))
 plt.yscale('log')
 plt.grid(which='both')
 plt.legend()
@@ -58,8 +60,8 @@ inverse = solve(D=D_inverse, Si=Si, Sb=Sb, Si_tol=1e-3, verbose=2)
 plt.title("Solution in terms of o")
 plt.plot(o, analytical.S(o=o), label="Using analytical diffusivities")
 plt.plot(o, inverse.S(o=o), label="Using diffusivities obtained from inverse")
-plt.xlabel("o")
-plt.ylabel("water content")
+plt.xlabel("o [{}/{}**0.5]".format(validation.r_unit, validation.t_unit))
+plt.ylabel("water content [-]")
 plt.grid(which='both')
 plt.legend()
 plt.show()

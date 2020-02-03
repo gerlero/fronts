@@ -25,13 +25,13 @@ D_inverse = inverse(o=o(validation.r, validation.t)[::5], S=validation.S[::5])
 sol = solve(D=D_inverse, Si=validation.S[-1], Sb=validation.S[0], 
                Si_tol=1e-3, verbose=2)
 
-plt.title("Solution at t={}".format(validation.t))
+plt.title("Solution at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, validation.S, 
          label="Original ({})".format(validation.name))
 plt.plot(validation.r, sol.S(validation.r, validation.t), 
          label="Reconstructed with inverse and solve")
-plt.xlabel("r")
-plt.ylabel("water content")
+plt.xlabel("r [{}]".format(validation.r_unit))
+plt.ylabel("water content [-]")
 plt.grid(which='both')
 plt.legend()
 plt.show()

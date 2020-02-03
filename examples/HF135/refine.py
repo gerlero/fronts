@@ -22,8 +22,8 @@ epsilon = 1e-7
 # Data from Buser (PhD thesis, 2016)
 # http://hdl.handle.net/1773/38064
 S_range = (0.0473, 0.945)
-k = 5.50e-13
-alpha = 0.2555
+k = 5.50e-13  # m**2
+alpha = 0.2555  # 1/m
 n = 2.3521
 Si = 0.102755  # Computed from P0 
 
@@ -47,28 +47,28 @@ print("----Refined with solve_from_guess----")
 from_guess = solve_from_guess(D=D, Si=Si, Sb=Sb, o_guess=o_guess, 
                               S_guess=S_guess, verbose=2)
 
-plt.title("Solution at t={}".format(validation.t))
+plt.title("Solution at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, coarse.S(validation.r,validation.t), 
 	     label="Starting solution (solve, high tolerance)")
 plt.plot(validation.r, fine.S(validation.r,validation.t), 
 	     label="Refined with solve")
 plt.plot(validation.r, from_guess.S(validation.r,validation.t), 
 	     label="Refined with solve_from_guess")
-plt.xlabel("r")
-plt.ylabel("water content")
+plt.xlabel("r [{}]".format(validation.r_unit))
+plt.ylabel("water content [-]")
 plt.grid(which='both')
 plt.legend()
 plt.show()
 
-plt.title("Solution at t={}".format(validation.t))
+plt.title("Solution at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, coarse.flux(validation.r,validation.t), 
 	     label="Starting solution (solve, high tolerance)")
 plt.plot(validation.r, fine.flux(validation.r,validation.t), 
 	     label="Refined with solve")
 plt.plot(validation.r, from_guess.flux(validation.r,validation.t), 
 	     label="Refined with solve_from_guess")
-plt.xlabel("r")
-plt.ylabel("velocity")
+plt.xlabel("r [{}]".format(validation.r_unit))
+plt.ylabel("velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
 plt.grid(which='both')
 plt.legend()
 plt.show()

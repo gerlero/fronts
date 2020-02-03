@@ -10,6 +10,10 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+r_unit = "cm"
+t_unit = "h"
+
 _filename = os.path.join(sys.path[0], "Nod_Inf.out")
 
 
@@ -59,18 +63,18 @@ if __name__ == '__main__':
 
     plt.title("Solutions")
     for t_, S_ in zip(t, S):
-        plt.plot(r, S_, label="{}, t={}".format(name,t_))
-    plt.xlabel("r")
-    plt.ylabel("water content")
+        plt.plot(r, S_, label="{}, t={} {}".format(name, t_, t_unit))
+    plt.xlabel("r [{}]".format(r_unit))
+    plt.ylabel("water content [-]")
     plt.grid(which='both')
     plt.legend()
     plt.show()
 
     plt.title("Solutions")
     for t_, velocity_ in zip(t, velocity):
-        plt.plot(r, velocity_, label="{}, t={}".format(name,t_))
-    plt.xlabel("r")
-    plt.ylabel("velocity")
+        plt.plot(r, velocity_, label="{}, t={} {}".format(name, t_, t_unit))
+    plt.xlabel("r [{}]".format(r_unit))
+    plt.ylabel("velocity [{}/{}]".format(r_unit, t_unit))
     plt.grid(which='both')
     plt.legend()
     plt.show()
