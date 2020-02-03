@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add optional intrinsic permeability, kinematic viscosity, and gravitational acceleration parameters to `D.van_genuchten()` and `D.richards()`, which can be used in place of the hydraulic conductivity parameter.
 - Update _examples/HF135_ to use intrinsic permeability.
+- Add scripts to plot the diffusivities in all example cases.
 - Add units of measurement to _examples/1INFILTR_ and _examples/HF135_.
 - Add mention of porousMultiphaseFoam software version used to validate _examples/HF135_. 
 - Add this changelog file to the project.
