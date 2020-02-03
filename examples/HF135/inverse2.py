@@ -31,7 +31,7 @@ plt.plot(validation.r, validation.S,
 plt.plot(validation.r, sol.S(validation.r, validation.t), 
          label="Reconstructed with inverse and solve")
 plt.xlabel("r [{}]".format(validation.r_unit))
-plt.ylabel("water content [-]")
+plt.ylabel("saturation [-]")
 plt.grid(which='both')
 plt.legend()
 plt.show()

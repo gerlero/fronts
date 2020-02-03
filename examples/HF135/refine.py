@@ -55,7 +55,7 @@ plt.plot(validation.r, fine.S(validation.r,validation.t),
 plt.plot(validation.r, from_guess.S(validation.r,validation.t), 
 	     label="Refined with solve_from_guess")
 plt.xlabel("r [{}]".format(validation.r_unit))
-plt.ylabel("water content [-]")
+plt.ylabel("saturation [-]")
 plt.grid(which='both')
 plt.legend()
 plt.show()

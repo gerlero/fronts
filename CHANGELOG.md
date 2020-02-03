@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update Hydrus-1D validation data for _examples/1INFILTR_.
+- Change "water content" to "saturation" in _examples/HF135_. 
 
 ## 0.9.5 - 2019-12-26
 
@@ -28,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix `D.constant`, which was previously broken due to a bug.
-- Fix use of the terms "saturation" and "water content" throughout the project.
+- Fix use of the terms "saturation" and "water content" throughout the project [Note: fixed in _examples/HF135_ in 0.9.6].
 
 ## 0.9.4 - 2019-10-09
 

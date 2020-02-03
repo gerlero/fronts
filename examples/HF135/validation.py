@@ -35,7 +35,7 @@ if __name__ == '__main__':
     plt.title("Solution at t={} {}".format(t, t_unit))
     plt.plot(r, S, color='sandybrown', label=name)
     plt.xlabel("r [{}]".format(r_unit))
-    plt.ylabel("water content [-]")
+    plt.ylabel("saturation [-]")
     plt.grid(which='both')
     plt.legend()
     plt.show()

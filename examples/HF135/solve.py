@@ -40,7 +40,7 @@ plt.plot(validation.r, solution.S(validation.r,validation.t),
          color='steelblue', label="Fronts")
 plt.plot(validation.r, validation.S, color='sandybrown', label=validation.name)
 plt.xlabel("r [{}]".format(validation.r_unit))
-plt.ylabel("water content [-]")
+plt.ylabel("saturation [-]")
 plt.grid(which='both')
 plt.legend()
 plt.show()
