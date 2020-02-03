@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename "API documentation" to "reference documentation".
 - Improve README.md file and reference documentation.
 
+### Removed
+
+- Remove _examples/powerlaw/radial_ example. Replaced by new _radial_ example in _examples/HF135_.
+
 ## 0.9.5 - 2019-12-26
 
 ### Changed
