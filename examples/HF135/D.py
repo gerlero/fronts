@@ -30,10 +30,15 @@ D = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
 
 S = np.linspace(S_range[0]+epsilon, S_range[1]-epsilon, 200)
 
-plt.title("Diffusivity")
+
+fig = plt.figure()
+fig.canvas.set_window_title("Diffusivity plot")
+
+plt.title("Diffusivity function")
 plt.plot(S, D(S)) 
 plt.xlabel("saturation [-]")
-plt.ylabel("D [{}**2/{}]".format(r_unit, t_unit))
+plt.ylabel("diffusivity [{}**2/{}]".format(r_unit, t_unit))
 plt.yscale('log')
 plt.grid(which='both')
+
 plt.show()

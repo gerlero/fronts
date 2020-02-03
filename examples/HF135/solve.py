@@ -35,23 +35,30 @@ D = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
 solution = solve(D=D, Si=Si, Sb=Sb, Si_tol=1e-3, verbose=2)
 
 
-plt.title("Solution at t={} {}".format(validation.t, validation.t_unit))
+fig = plt.figure()
+fig.canvas.set_window_title("Saturation plot")
+
+plt.title("Saturation field at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, solution.S(validation.r,validation.t), 
          color='steelblue', label="Fronts")
 plt.plot(validation.r, validation.S, color='sandybrown', label=validation.name)
-plt.xlabel("r [{}]".format(validation.r_unit))
+plt.xlabel("position [{}]".format(validation.r_unit))
 plt.ylabel("saturation [-]")
 plt.grid(which='both')
 plt.legend()
-plt.show()
 
-plt.title("Solution at t={} {}".format(validation.t, validation.t_unit))
+
+fig = plt.figure()
+fig.canvas.set_window_title("Velocity plot")
+
+plt.title("Velocity field at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, solution.flux(validation.r,validation.t),
          color='steelblue', label="Fronts")
 plt.plot(validation.r, validation.velocity, 
          color='sandybrown', label=validation.name)
-plt.xlabel("r [{}]".format(validation.r_unit))
+plt.xlabel("position [{}]".format(validation.r_unit))
 plt.ylabel("true velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
 plt.grid(which='both')
 plt.legend()
+
 plt.show()

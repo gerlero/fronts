@@ -44,24 +44,31 @@ S = analytical.S(o=o)
 
 D_inverse = inverse(o=o, S=S)
 
-plt.title("Diffusivities")
+
+fig = plt.figure()
+fig.canvas.set_window_title("Diffusivity plot")
+
+plt.title("Diffusivity function")
 plt.plot(S, D_analytical(S), label="Analytical")
 plt.plot(S, D_inverse(S), label="Obtained with inverse")
 plt.xlabel("saturation [-]")
-plt.ylabel("D [{}**2/{}]".format(validation.r_unit, validation.t_unit))
+plt.ylabel("diffusivity [{}**2/{}]".format(validation.r_unit, validation.t_unit))
 plt.yscale('log')
 plt.grid(which='both')
 plt.legend()
-plt.show()
 
 
 inverse = solve(D=D_inverse, Si=Si, Sb=Sb, Si_tol=1e-3, verbose=2)
 
-plt.title("Solution in terms of o")
+fig = plt.figure()
+fig.canvas.set_window_title("Saturation plot")
+
+plt.title("Saturation in terms of o")
 plt.plot(o, analytical.S(o=o), label="Using analytical diffusivities")
 plt.plot(o, inverse.S(o=o), label="Using diffusivities obtained from inverse")
 plt.xlabel("o [{}/{}**0.5]".format(validation.r_unit, validation.t_unit))
 plt.ylabel("saturation [-]")
 plt.grid(which='both')
 plt.legend()
+
 plt.show()

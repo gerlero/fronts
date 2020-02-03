@@ -47,28 +47,36 @@ print("----Refined with solve_from_guess----")
 from_guess = solve_from_guess(D=D, Si=Si, Sb=Sb, o_guess=o_guess, 
                               S_guess=S_guess, verbose=2)
 
-plt.title("Solution at t={} {}".format(validation.t, validation.t_unit))
+
+fig = plt.figure()
+fig.canvas.set_window_title("Saturation plot")
+
+plt.title("Saturation field at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, coarse.S(validation.r,validation.t), 
 	     label="Starting solution (solve, high tolerance)")
 plt.plot(validation.r, fine.S(validation.r,validation.t), 
 	     label="Refined with solve")
 plt.plot(validation.r, from_guess.S(validation.r,validation.t), 
 	     label="Refined with solve_from_guess")
-plt.xlabel("r [{}]".format(validation.r_unit))
+plt.xlabel("position [{}]".format(validation.r_unit))
 plt.ylabel("saturation [-]")
 plt.grid(which='both')
 plt.legend()
-plt.show()
 
-plt.title("Solution at t={} {}".format(validation.t, validation.t_unit))
+
+fig = plt.figure()
+fig.canvas.set_window_title("Velocity plot")
+
+plt.title("Velocity field at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, coarse.flux(validation.r,validation.t), 
 	     label="Starting solution (solve, high tolerance)")
 plt.plot(validation.r, fine.flux(validation.r,validation.t), 
 	     label="Refined with solve")
 plt.plot(validation.r, from_guess.flux(validation.r,validation.t), 
 	     label="Refined with solve_from_guess")
-plt.xlabel("r [{}]".format(validation.r_unit))
+plt.xlabel("position [{}]".format(validation.r_unit))
 plt.ylabel("true velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
 plt.grid(which='both')
 plt.legend()
+
 plt.show()

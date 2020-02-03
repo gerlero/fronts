@@ -11,10 +11,9 @@ import matplotlib.pyplot as plt
 
 from fronts import solve_from_guess
 
-
 def D(S, derivatives=0):
 
-    D = 0.5*(1 - np.log(S)) # Exact solution: np.exp(-o)
+    D = 0.5*(1 - np.log(S)) # Exact solution: S(o) = np.exp(-o)
     # Reference: Philip (1960) Table 1, No. 13
     # https://doi.org/10.1071/PH600001
     
@@ -38,11 +37,16 @@ epsilon = 1e-5
 solution = solve_from_guess(D, Si=epsilon, Sb=1, o_guess=o, S_guess=0.5, 
                             verbose=2)
 
-plt.title("Solution in terms of o")
+
+fig = plt.figure()
+fig.canvas.set_window_title("S plot")
+
+plt.title("S(o)")
 plt.plot(o, solution.S(o=o), color='steelblue', label="Fronts")
 plt.plot(o, np.exp(-o), color='sandybrown', label="Exact") 
 plt.xlabel("o")
 plt.ylabel("S")
 plt.grid(which='both')
 plt.legend()
+
 plt.show()

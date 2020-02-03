@@ -27,36 +27,45 @@ result_2 = solve(D, Si=Si, Sb=Sb, dS_dob_bracket=(1e3, 1e4))
 r = np.linspace(0, 30, 200)
 t = 60
 
-plt.title("Solution at t={}".format(t))
+
+fig = plt.figure()
+fig.canvas.set_window_title("S plot")
+
+plt.title("S field at t={}".format(t))
 plt.plot(r, result_1.S(r,t), label="Case 1")
 plt.plot(r, result_2.S(r,t), label="Case 2")
 plt.xlabel("r")
 plt.ylabel("S")
 plt.grid(which='both')
 plt.legend()
-plt.show()
 
-plt.title("Solution at t={}".format(t))
+fig = plt.figure()
+fig.canvas.set_window_title("Flux plot")
+
+plt.title("Flux field at t={}".format(t))
 plt.plot(r, result_1.flux(r,t), label="Case 1")
 plt.plot(r, result_2.flux(r,t), label="Case 2")
 plt.xlabel("r")
 plt.ylabel("flux")
 plt.grid(which='both')
 plt.legend()
-plt.show()
 
 D1 = inverse(o=result_1.o, S=result_1.S(o=result_1.o))
 D2 = inverse(o=result_2.o, S=result_2.S(o=result_2.o))
 
 S = np.linspace(0.1, 1.0, 200)
 
-plt.title("Diffusivities".format(t))
-plt.plot(S, D1(S), label="Case 1")
-plt.plot(S, D2(S), label="Case 2")
+fig = plt.figure()
+fig.canvas.set_window_title("D plot")
+
+plt.title("D")
+plt.plot(S, D1(S), label="inverse of case 1")
+plt.plot(S, D2(S), label="inverse of case 2")
 plt.plot(S, D(S), label="Analytical")
 plt.xlabel("D")
 plt.ylabel("S")
 plt.yscale('log')
 plt.grid(which='both')
 plt.legend()
+
 plt.show()

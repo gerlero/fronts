@@ -32,19 +32,25 @@ t = 60
 
 if __name__ == '__main__':
 
-    plt.title("Solution at t={} {}".format(t, t_unit))
+    fig = plt.figure()
+    fig.canvas.set_window_title("Saturation plot")
+
+    plt.title("Saturation field at t={} {}".format(t, t_unit))
     plt.plot(r, S, color='sandybrown', label=name)
-    plt.xlabel("r [{}]".format(r_unit))
+    plt.xlabel("position [{}]".format(r_unit))
     plt.ylabel("saturation [-]")
     plt.grid(which='both')
     plt.legend()
-    plt.show()
 
-    plt.title("Solution at t={} {}".format(t, t_unit))
+    fig = plt.figure()
+    fig.canvas.set_window_title("Velocity plot")
+
+    plt.title("Velocity field at t={} {}".format(t, t_unit))
     plt.plot(r, velocity, color='sandybrown', label=name)
-    plt.xlabel("r [{}]".format(r_unit))
+    plt.xlabel("position [{}]".format(r_unit))
     plt.ylabel("true velocity [{}/{}]".format(r_unit, t_unit))
     plt.grid(which='both')
     plt.legend()
+    
     plt.show()
 

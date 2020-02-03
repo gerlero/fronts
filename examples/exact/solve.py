@@ -38,11 +38,16 @@ solution = solve(D, Si=epsilon, Sb=1, dS_dob_bracket=(-1.1, -0.9), Si_tol=1e-3,
 
 o = np.linspace(0, 20, 200)
 
-plt.title("Solution in terms of o")
+
+fig = plt.figure()
+fig.canvas.set_window_title("S plot")
+
+plt.title("S(o)")
 plt.plot(o, solution.S(o=o), color='steelblue', label="Fronts")
 plt.plot(o, np.exp(-o), color='sandybrown', label="Exact") 
 plt.xlabel("o")
 plt.ylabel("S")
 plt.grid(which='both')
 plt.legend()
+
 plt.show()

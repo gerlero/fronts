@@ -21,20 +21,27 @@ solution = solve(D=power_law(k=k), Si=Si, Sb=Sb,
 
 r = np.linspace(0, 10, 200)
 
-plt.title("Solution")
+
+fig = plt.figure()
+fig.canvas.set_window_title("S plot")
+
+plt.title("S field")
 plt.plot(r, solution.S(r,t=30), label="t=30")
 plt.plot(r, solution.S(r,t=60), label="t=60")
 plt.xlabel("r")
 plt.ylabel("S")
 plt.grid(which='both')
 plt.legend()
-plt.show()
 
-plt.title("Solution")
+fig = plt.figure()
+fig.canvas.set_window_title("Flux plot")
+
+plt.title("Flux field")
 plt.plot(r, solution.flux(r,t=30), label="t=30")
 plt.plot(r, solution.flux(r,t=60), label="t=60")
 plt.xlabel("r")
 plt.ylabel("flux")
 plt.grid(which='both')
 plt.legend()
+
 plt.show()
