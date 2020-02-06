@@ -220,12 +220,12 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
     fun, jac = ode(D=D, radial=radial)
 
     # Integration events
-    def settled(o, S):
-        return S[1]
+    def settled(o, y):
+        return y[1]
     settled.terminal = True
 
-    def blew_past_Si(o, S):
-        return S[0] - (Si + direction*Si_tol)
+    def blew_past_Si(o, y):
+        return y[0] - (Si + direction*Si_tol)
     blew_past_Si.terminal = True
 
     # Integration data
