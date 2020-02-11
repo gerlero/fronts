@@ -2,6 +2,8 @@
 
 import setuptools
 
+from io import open
+
 requirements = ('scipy>=1.0.0', 'numpy')
 
 classifiers = ('Development Status :: 4 - Beta',
@@ -18,12 +20,12 @@ classifiers = ('Development Status :: 4 - Beta',
 			   'Topic :: Software Development :: Libraries',
 			   'Operating System :: OS Independent')
 
-with open("README.md", 'r') as fh:
+with open("README.md", 'r', encoding='utf-8') as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name='fronts',
-    version='0.9.6',
+    version='0.9.7',
     author="Gabriel S. Gerlero",
     description="Numerical library for one-dimensional nonlinear diffusion problems in semi-infinite domains",
     long_description=long_description,
