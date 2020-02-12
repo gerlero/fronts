@@ -25,7 +25,7 @@ with open("README.md", 'r', encoding='utf-8') as fh:
 
 setuptools.setup(
     name='fronts',
-    version='0.9.7',
+    version='0.9.8-dev',
     author="Gabriel S. Gerlero",
     description="Numerical library for one-dimensional nonlinear diffusion problems in semi-infinite domains",
     long_description=long_description,
