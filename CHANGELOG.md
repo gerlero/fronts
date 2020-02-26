@@ -5,16 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.9.8 - Unreleased
+## [0.9.8] - Unreleased
 
 
-## 0.9.7 - 2020-02-11
+## [0.9.7] - 2020-02-11
 
 ### Fixed
 
 - Fix a problem related to the encoding of README.md that prevented installation with some versions of _pip_.
 
-## 0.9.6 - 2020-02-10
+## [0.9.6] - 2020-02-10
 
 ### Added
 
@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove _examples/powerlaw/radial_ example. Replaced by new _radial_ example in _examples/HF135_.
 
-## 0.9.5 - 2019-12-26
+## [0.9.5] - 2019-12-26
 
 ### Changed
 
@@ -51,13 +51,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix `D.constant`, which was previously broken due to a bug.
 - Fix use of the terms "saturation" and "water content" throughout the project [Note: fixed in _examples/HF135_ in 0.9.6].
 
-## 0.9.4 - 2019-10-09
+## [0.9.4] - 2019-10-09
 
 ### Changed
 
 - Improve README file and reference documentation.
 
-## 0.9.3 - 2019-09-27
+## [0.9.3] - 2019-09-27
 
 ### Added
 
@@ -74,6 +74,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix typo in name of _examples/1INFILTR_.
 - Fix wrong name used in mention of _examples/refine.py_ in the README file.
 
-## 0.9.2 - 2019-09-16
+## [0.9.2] - 2019-09-16
 
 First public pre-release version.
+
+[0.9.8]: https://github.com/gerlero/fronts/compare/v0.9.7...HEAD
+[0.9.7]: https://github.com/gerlero/fronts/compare/v0.9.6...v0.9.7
+[0.9.6]: https://github.com/gerlero/fronts/compare/v0.9.5...v0.9.6
+[0.9.5]: https://github.com/gerlero/fronts/compare/v0.9.4...v0.9.5
+[0.9.4]: https://github.com/gerlero/fronts/compare/v0.9.3...v0.9.4
+[0.9.3]: https://github.com/gerlero/fronts/compare/v0.9.2...v0.9.3
+[0.9.2]: https://github.com/gerlero/fronts/releases/tag/v0.9.2
