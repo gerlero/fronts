@@ -217,10 +217,10 @@ The included examples can be found in the ``examples`` directory of this project
 * subdirectory **``1INFILTR/``** — the _1INFILTR_ test case from [Hydrus-1D](https://www.pc-progress.com/en/Default.aspx?hydrus-1d), in horizontal
     * **``solve.py``**: solve the case with `fronts.solve()`.
     * **``validation.py``**: results for the same case obtained using Hydrus for comparison.
-    * **``D.py``**: plot D for this case.
-* subdirectory **``HF135/``**— lateral flow case in an HF135 nitrocellulose membrane (data from the [PhD work of J.R. Buser](http://hdl.handle.net/1773/38064))
-    * **``solve.py``**: solve the case with `fronts.solve()`.
-    * **``refine.py``**: get a rough approximation of the solution using `fronts.solve()` with a high tolerance, and then refine it with both `fronts.solve()` and `fronts.solve_from_guess()`.
+* subdirectory **``HF135/``**— infiltration into an HF135 nitrocellulose membrane (data from the [PhD work of J.R. Buser](http://hdl.handle.net/1773/38064))
+    * **``solve.py``**: solve the lateral flow case with `fronts.solve()`.
+    * **``refine.py``**: get a rough approximation of the solution to the lateral flow case using `fronts.solve()` with a high tolerance, and then refine it with both `fronts.solve()` and `fronts.solve_from_guess()`.
+    * **``radial.py``**: radial (cylindrical) flow case.
     * 🐌 **``inverse1.py``**: use `fronts.inverse()` to extract _D_ from a solution. Here, the solution is obtained with 
 `fronts.solve()`. The extracted _D_ is then used with `fronts.solve()` and the
 same conditions to verify that an equivalent solution is obtained.
