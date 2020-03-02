@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `__version__` attribute to the main package, which stores the current version as a string.
 - Support extra options during install: e.g., ```$ pip install fronts[examples]``` also installs Matplotlib, which is required to run the examples. Other options: ``[symbolic]``, ``[doc]``, ``[publish]``, and ``[dev]`` (the latter installs all extras).
 
+### Changed
+
+- Update verbose output of `solve()`. Ambiguously named column "Evaluations" replaced with "Calls to D"; now counts all invocations of `D`.
+
 ### Fixed
 
 - Remove unnecessary restriction on the `l` parameter of `D.van_genuchten()`.

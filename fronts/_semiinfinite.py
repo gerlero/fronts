@@ -261,7 +261,7 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
                 Si_residual = ivp_result.y[0,-1] - Si
 
                 if verbose >= 2:
-                    print("{:^15}{:^15}{:^15.2e}{:^15.5e}".format(
+                    print("{:^15}{:^15}{:^15.2e}{:^15.7e}".format(
                            next(counter),
                            ivp_result.nfev+ivp_result.njev,
                            Si_residual,
@@ -271,7 +271,7 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
                 Si_residual = direction*np.inf
 
                 if verbose >= 2:
-                    print("{:^15}{:^15}{:^15}{:^15.5e}".format(
+                    print("{:^15}{:^15}{:^15}{:^15.7e}".format(
                            next(counter),
                            ivp_result.nfev+ivp_result.njev,
                            "*",
@@ -303,7 +303,7 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
     if verbose:
         print("Solved in {} iterations.".format(bisect_result.function_calls))
         print("Si residual: {:.2e}".format(bisect_result.residual))
-        print("dS/do at ob: {:.5e} (bracket: [{:.5e}, {:.5e}])".format(
+        print("dS/do at ob: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
               bisect_result.root,
               bisect_result.bracket[0], bisect_result.bracket[1]))
 
