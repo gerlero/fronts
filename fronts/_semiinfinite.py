@@ -282,7 +282,7 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
 
     if verbose >= 2:
         print("{:^15}{:^15}{:^15}{:^15}".format(
-              "Iteration", "Evaluations", "Si residual", "dS/do at ob"))
+              "Iteration", "Calls to D", "Si residual", "dS/do at ob"))
 
     try:  # Find the dS_dob that makes the initial condition hold
         bisect_result = bisect(integrate, bracket=dS_dob_bracket, ftol=Si_tol,
