@@ -180,8 +180,7 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
         `m` parameter in the Van Genuchten model. Must be strictly between 0
         and 1. Either `n` or `m` must be given (but not both).
     l : float, optional
-        Pore connectivity parameter. The default is 0.5. Must be strictly
-        between 0 and 1.
+        Pore connectivity parameter. The default is 0.5.
     alpha : float, optional
         :math:`\alpha` parameter of the Van Genuchten model. The default is 1.
         Must be positive.
@@ -243,9 +242,6 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
 
     if not (0<m<1):
         raise ValueError("m must be strictly between 0.0 and 1.0")
-
-    if not (0<l<1):
-        raise ValueError("l must be strictly between 0.0 and 1.0")
 
     if alpha <= 0:
         raise ValueError("alpha must be positive")
