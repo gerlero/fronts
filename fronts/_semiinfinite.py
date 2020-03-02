@@ -262,7 +262,9 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
 
                 if verbose >= 2:
                     print("{:^15}{:^15}{:^15.2e}{:^15.5e}".format(
-                           next(counter), ivp_result.nfev, Si_residual,
+                           next(counter),
+                           ivp_result.nfev+ivp_result.njev,
+                           Si_residual,
                            dS_dob))
 
             else:
@@ -270,7 +272,10 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
 
                 if verbose >= 2:
                     print("{:^15}{:^15}{:^15}{:^15.5e}".format(
-                           next(counter), ivp_result.nfev, "*", dS_dob))
+                           next(counter),
+                           ivp_result.nfev+ivp_result.njev,
+                           "*",
+                           dS_dob))
 
         return Si_residual
 
