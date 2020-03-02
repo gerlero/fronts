@@ -35,8 +35,8 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100):
     f : callable
         Continuous scalar function.
     bracket: A sequence of 2 floats
-        An interval bracketing a root. `f` must have different signs at the
-        two endpoints, or a BadBracket exception may be raised.
+        An interval bracketing a root. `f` must have different signs at the two
+        endpoints, or a `BadBracket` exception may be raised.
     ftol : float, optional
         Absolute tolerance for the residual. Must be nonnegative.
     maxiter : int, optional
