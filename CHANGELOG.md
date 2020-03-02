@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Remove unnecessary restriction on the `l` parameter of `D.van_genuchten()`.
+- Fix list of examples in README file.
 
 ## [0.9.7] - 2020-02-11
 

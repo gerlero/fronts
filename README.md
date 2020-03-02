@@ -211,7 +211,6 @@ The included examples can be found in the ``examples`` directory of this project
 
 * subdirectory **``powerlaw/``** — cases based on the introductory example presented above
     * **``solve.py``**: solve the case with `fronts.solve()`.
-    * **``radial.py``**: solve a radial case (with a moving boundary) using `fronts.solve()`.
     * **``inverse.py``**: more examples of usage of `fronts.solve()` and of `fronts.inverse()`.
     * **``D.py``**: plot D for this case.
 * subdirectory **``1INFILTR/``** — the _1INFILTR_ test case from [Hydrus-1D](https://www.pc-progress.com/en/Default.aspx?hydrus-1d), in horizontal
