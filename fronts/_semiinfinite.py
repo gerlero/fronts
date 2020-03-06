@@ -244,7 +244,8 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
 
         except (ValueError, ArithmeticError, UnboundLocalError):
             # Catch D domain errors. Also catch UnboundLocalError caused by
-            # https://github.com/scipy/scipy/issues/10775
+            # https://github.com/scipy/scipy/issues/10775 (fix in SciPy v1.4.0;
+            # we do not require that version as it does not support Python 2.7)
 
             Si_residual = direction*np.inf
 
