@@ -179,7 +179,7 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
                 Final solver mesh, in terms of the Boltzmann variable `o`.
             * `niter` : int
                 Number of iterations required to find the solution.
-            * `dS_dob_bracket` : (float, float)
+            * `dS_dob_bracket` : sequence of two floats
                 Subinterval of `dS_dob_bracket` that contains the value of
                 :math:`dS/do` at the boundary in the solution. May be used in a
                 subsequent call with a smaller `Si_tol` to avoid reduntant

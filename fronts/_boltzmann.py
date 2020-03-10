@@ -172,15 +172,15 @@ def as_o(r=None, t=None, o=None):
 
     Parameters
     ----------
-    r : float or numpy.ndarray, optional
+    r : None or float or numpy.ndarray, optional
         Location(s). If a `numpy.ndarray`, it must have a shape broadcastable
         with `t`. If this parameter is used, you must also pass `t` and cannot
         pass `o`.
-    t : float or numpy.ndarray, optional
+    t : None or float or numpy.ndarray, optional
         Time(s). If a `numpy.ndarray`, it must have a shape broadcastable with
         `r`. Values must be positive. If this parameter is used, you must also
         pass `r` and cannot pass `o`.
-    o : float or numpy.ndarray, optional
+    o : None or float or numpy.ndarray, optional
         Value(s) of the Boltzmann variable. If this parameter is used, you
         cannot pass `r` or `t`.
 
@@ -359,15 +359,15 @@ class BaseSolution(object):
 
         Parameters
         ----------
-        r : float or numpy.ndarray, optional
+        r : None or float or numpy.ndarray, optional
             Location(s). If a `numpy.ndarray`, it must have a shape
             broadcastable with `t`. If this parameter is used, you must also
             pass `t` and cannot pass `o`.
-        t : float or numpy.ndarray, optional
+        t : None or float or numpy.ndarray, optional
             Time(s). If a `numpy.ndarray`, it must have a shape broadcastable
             ith `r`. Values must be positive. If this parameter is used, you
             must also pass `r` and cannot pass `o`.
-        o : float or numpy.ndarray, optional
+        o : None or float or numpy.ndarray, optional
             Value(s) of the Boltzmann variable. If this parameter is used, you
             cannot pass `r` or `t`.
 
@@ -459,15 +459,15 @@ class BaseSolution(object):
 
         Parameters
         ----------
-        r : float or numpy.ndarray, optional
+        r : None or float or numpy.ndarray, optional
             Location(s). If a `numpy.ndarray`, it must have a shape
             broadcastable with `t`. If this parameter is used, you must also
             pass `t` and cannot pass `o`.
-        t : float or numpy.ndarray, optional
+        t : None or float or numpy.ndarray, optional
             Time(s). If a `numpy.ndarray`, it must have a shape broadcastable
             with `r`. Values must be positive. If this parameter is used, you
             must also pass `r` and cannot pass `o`.
-        o : float or numpy.ndarray, optional
+        o : None or float or numpy.ndarray, optional
             Value(s) of the Boltzmann variable. If this parameter is used, you
             cannot pass `r` or `t`.
 

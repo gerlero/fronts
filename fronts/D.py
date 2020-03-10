@@ -107,11 +107,11 @@ def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
 
     Parameters
     ----------
-    Ks : float, optional
+    Ks : None or float, optional
         :math:`K_S`, the saturated hydraulic conductivity. Must be positive. If
         neither `Ks` nor `k` are given, the saturated hydraulic conductivity is
         assumed to be 1.
-    k : float, optional
+    k : None or float, optional
         Intrinsic permeability of the porous medium. Can be given in place of
         `Ks`, which results in the saturated hydraulic conductivity being
         computed using :math:`K_S = kg/\nu`. Must be positive.
@@ -184,11 +184,11 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
     alpha : float, optional
         :math:`\alpha` parameter of the Van Genuchten model. The default is 1.
         Must be positive.
-    Ks : float, optional
+    Ks : None or float, optional
         :math:`K_S`, the saturated hydraulic conductivity. Must be positive. If
         neither `Ks` nor `k` are given, the saturated hydraulic conductivity is
         assumed to be 1.
-    k : float, optional
+    k : None or float, optional
         Intrinsic permeability of the porous medium. Can be given in place of
         `Ks`, which results in the saturated hydraulic conductivity being
         computed using :math:`K_S = kg/\nu`. Must be positive.
@@ -200,7 +200,7 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
         Magnitude of the gravitational acceleration. Only used if `k` is passed
         instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of 
         Earth in SI units.
-    S_range : (float, float), optional
+    S_range : sequence of two floats, optional
         the tuple (:math:`S_r`, :math:`S_s`), where :math:`S_r` is the minimum
         (also known as residual) and :math:`S_s` the maximum water content (or
         saturation, depending on the meaning given to `S`). The default is
@@ -337,11 +337,11 @@ def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
         (in order) as additional return values. While mathematically a scalar
         function, `kr` operates in a vectorized fashion with the same semantics
         when `S` is a `numpy.ndarray`.
-    Ks : float, optional
+    Ks : None or float, optional
         :math:`K_S`, the saturated hydraulic conductivity. Must be positive. If
         neither `Ks` nor `k` are given, the saturated hydraulic conductivity is
         assumed to be 1.
-    k : float, optional
+    k : None or float, optional
         Intrinsic permeability of the porous medium. Can be given in place of
         `Ks`, which results in the saturated hydraulic conductivity being
         computed using :math:`K_S = kg/\nu`. Must be positive.
