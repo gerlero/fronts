@@ -118,9 +118,9 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
     ----------
     D : callable
         Twice-differentiable function that maps the range of `S` to positive
-        values. It can be called as ``D(S)`` to evaluate it at `S`. It can
-        also be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case
-        the first `n` derivatives of the function evaluated at the same `S` are
+        values. It can be called as ``D(S)`` to evaluate it at `S`. It can also
+        be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case the
+        first `n` derivatives of the function evaluated at the same `S` are
         included (in order) as additional return values. While mathematically a
         scalar function, `D` operates in a vectorized fashion with the same
         semantics when `S` is a `numpy.ndarray`.
@@ -208,7 +208,7 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
     repeatedly with the 'Radau' method as implemented in the `scipy.integrate`
     module and a custom shooting algorithm. The boundary condition is satisfied
     exactly as the starting point, and the algorithm  iterates with different
-    values of :math:`dS/do` at the boundary until it finds the solution that 
+    values of :math:`dS/do` at the boundary until it finds the solution that
     also satisfies the initial condition within the specified tolerance. Trial
     values of :math:`dS/do` at the boundary are selected automatically by
     default (taking into account an optional hint if
@@ -223,7 +223,6 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
 
     if maxiter < 0:
         raise ValueError("maxiter must not be negative")
-
 
     if dS_dob_bracket is not None:
         if dS_dob_hint is not None:
@@ -251,9 +250,9 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
 
     # Integration data
     iteration_counter = itertools.count(start=1)
-    saved_integration = {'dS_dob' : None,
-                         'o' : None,
-                         'sol' : None}
+    saved_integration = {'dS_dob': None,
+                         'o': None,
+                         'sol': None}
 
     # Integration function - returns the Si residual
     def integrate(dS_dob, count_iteration=True):
@@ -363,7 +362,7 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
                 ValueError("dS_dob_bracket does not contain target dS/do at "
                            "ob"),
                 None)
-            
+
     iterations = next(iteration_counter) - 1
 
     if verbose:
@@ -430,9 +429,9 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
     ----------
     D : callable
         Twice-differentiable function that maps the range of `S` to positive
-        values. It can be called as ``D(S)`` to evaluate it at `S`. It can
-        also be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case
-        the first `n` derivatives of the function evaluated at the same `S` are
+        values. It can be called as ``D(S)`` to evaluate it at `S`. It can also
+        be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case the
+        first `n` derivatives of the function evaluated at the same `S` are
         included (in order) as additional return values. While mathematically a
         scalar function, `D` operates in a vectorized fashion with the same
         semantics when `S` is a `numpy.ndarray`.
@@ -593,9 +592,9 @@ def inverse(o, S):
     -------
     D : callable
         Twice-differentiable function that maps the range of `S` to positive
-        values. It can be called as ``D(S)`` to evaluate it at `S`. It can
-        also be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case
-        the first `n` derivatives of the function evaluated at the same `S` are
+        values. It can be called as ``D(S)`` to evaluate it at `S`. It can also
+        be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case the
+        first `n` derivatives of the function evaluated at the same `S` are
         included (in order) as additional return values. While mathematically a
         scalar function, `D` operates in a vectorized fashion with the same
         semantics when `S` is a `numpy.ndarray`.
@@ -612,11 +611,11 @@ def inverse(o, S):
     equation for `D`.
 
     While very fast, the scheme used by this function is somewhat limited in
-    its  practical precision because of the use of interpolation (see the 
-    Notes) and the fact that two `S` functions that differ little in their
-    values may actually be the consequence of very different `D` functions. If
-    the goal is to find the parameters for a parameterized `D`, you may opt to
-    perform an optimization run using `solve` instead.
+    its practical precision because of the use of interpolation (see the Notes)
+    and the fact that two `S` functions that differ little in their values may
+    actually be the consequence of very different `D` functions. If the goal is
+    to find the parameters for a parameterized `D`, you may opt to perform an
+    optimization run using `solve` instead.
 
     Depending on the number of points, the returned `D` may take orders of
     magnitude more time to be evaluated than an analytical function. In that
@@ -672,5 +671,3 @@ def inverse(o, S):
         raise ValueError("derivatives must be 0, 1, or 2")
 
     return D
-
-

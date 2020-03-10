@@ -25,7 +25,7 @@ S_range = (0.0473, 0.945)
 k = 5.50e-13  # m**2
 alpha = 0.2555  # 1/m
 n = 2.3521
-Si = 0.102755  # Computed from P0 
+Si = 0.102755  # Computed from P0
 
 Sb = S_range[1] - epsilon
 
@@ -45,7 +45,7 @@ S_guess = coarse.S(o=o_guess)
 
 print()
 print("----Refined with solve_from_guess----")
-from_guess = solve_from_guess(D=D, Si=Si, Sb=Sb, o_guess=o_guess, 
+from_guess = solve_from_guess(D=D, Si=Si, Sb=Sb, o_guess=o_guess,
                               S_guess=S_guess, verbose=2)
 
 
@@ -53,12 +53,12 @@ fig = plt.figure()
 fig.canvas.set_window_title("Saturation plot")
 
 plt.title("Saturation field at t={} {}".format(validation.t, validation.t_unit))
-plt.plot(validation.r, coarse.S(validation.r,validation.t), 
-	     label="Starting solution (solve, higher tolerance)")
-plt.plot(validation.r, fine.S(validation.r,validation.t), 
-	     label="Refined with solve")
-plt.plot(validation.r, from_guess.S(validation.r,validation.t), 
-	     label="Refined with solve_from_guess")
+plt.plot(validation.r, coarse.S(validation.r,validation.t),
+         label="Starting solution (solve, higher tolerance)")
+plt.plot(validation.r, fine.S(validation.r,validation.t),
+         label="Refined with solve")
+plt.plot(validation.r, from_guess.S(validation.r,validation.t),
+         label="Refined with solve_from_guess")
 plt.xlabel("position [{}]".format(validation.r_unit))
 plt.ylabel("saturation [-]")
 plt.grid(which='both')
@@ -69,12 +69,12 @@ fig = plt.figure()
 fig.canvas.set_window_title("Velocity plot")
 
 plt.title("Velocity field at t={} {}".format(validation.t, validation.t_unit))
-plt.plot(validation.r, coarse.flux(validation.r,validation.t), 
-	     label="Starting solution (solve, higher tolerance)")
-plt.plot(validation.r, fine.flux(validation.r,validation.t), 
-	     label="Refined with solve")
-plt.plot(validation.r, from_guess.flux(validation.r,validation.t), 
-	     label="Refined with solve_from_guess")
+plt.plot(validation.r, coarse.flux(validation.r,validation.t),
+         label="Starting solution (solve, higher tolerance)")
+plt.plot(validation.r, fine.flux(validation.r,validation.t),
+         label="Refined with solve")
+plt.plot(validation.r, from_guess.flux(validation.r,validation.t),
+         label="Refined with solve_from_guess")
 plt.xlabel("position [{}]".format(validation.r_unit))
 plt.ylabel("true velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
 plt.grid(which='both')

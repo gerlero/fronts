@@ -33,9 +33,8 @@ fun = (dS_do, d2S_do2)
 ################################
 
 for i, fi in enumerate(fun):
-	for j, yj in enumerate(y):
+    for j, yj in enumerate(y):
 
-		element = sp.diff(fi.subs(D_subs), yj).subs(D_backsubs).simplify()
+        element = sp.diff(fi.subs(D_subs), yj).subs(D_backsubs).simplify()
 
-		print("jacobian[{},{}] = {}".format(i, j, element))
-
+        print("jacobian[{},{}] = {}".format(i, j, element))

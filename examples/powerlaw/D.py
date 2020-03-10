@@ -21,7 +21,7 @@ fig = plt.figure()
 fig.canvas.set_window_title("D plot")
 
 plt.title("D(S)")
-plt.plot(S, D(S)) 
+plt.plot(S, D(S))
 plt.xlabel("S")
 plt.ylabel("D")
 plt.grid(which='both')

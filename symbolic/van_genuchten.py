@@ -29,7 +29,7 @@ D = D.subs(Se, (S - S_range[0])/(S_range[1] - S_range[0]))
 x, (D, dD_dS, d2D_dS2) = sp.cse([sp.diff(D, S, n) for n in range(3)], optimizations='basic')
 
 for var, expr in x:
-	print("{} = {}".format(var, expr))
+    print("{} = {}".format(var, expr))
 
 print("D = {}".format(D))
 print("dD_dS = {}".format(dD_dS))

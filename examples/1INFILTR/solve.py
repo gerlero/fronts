@@ -28,10 +28,10 @@ fig.canvas.set_window_title("Water content plot")
 
 plt.title("Water content fields")
 for t, S in zip(validation.t, validation.S):
-    plt.plot(validation.r, solution.S(validation.r,t), 
+    plt.plot(validation.r, solution.S(validation.r,t),
              label="Fronts, t={} {}".format(t, validation.t_unit))
     plt.plot(validation.r, S, label="{}, t={} {}"
-    		 .format(validation.name, t, validation.t_unit))
+             .format(validation.name, t, validation.t_unit))
 plt.xlabel("r [{}]".format(validation.r_unit))
 plt.ylabel("water content [-]")
 plt.grid(which='both')
@@ -42,10 +42,10 @@ fig.canvas.set_window_title("Velocity plot")
 
 plt.title("Velocity fields")
 for t, velocity in zip(validation.t, validation.velocity):
-    plt.plot(validation.r, solution.flux(validation.r,t), 
+    plt.plot(validation.r, solution.flux(validation.r,t),
              label="Fronts, t={} {}".format(t, validation.t_unit))
     plt.plot(validation.r, velocity, label="{}, t={} {}"
-    		 .format(validation.name, t, validation.t_unit))
+             .format(validation.name, t, validation.t_unit))
 plt.xlabel("r [{}]".format(validation.r_unit))
 plt.ylabel("Darcy velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
 plt.grid(which='both')

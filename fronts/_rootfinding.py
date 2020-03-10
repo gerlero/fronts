@@ -4,6 +4,7 @@ from __future__ import division, absolute_import, print_function
 
 import itertools
 
+
 class Result(object):
     """
     Result from a succesful call to a function in this module.
@@ -78,7 +79,7 @@ def bracket_root(f, interval, growth_factor=2, maxiter=100,
     growth_factor : float, optional
         How much to grow the length of the interval in each iteration.
     maxiter : int or None, optional
-        Maximum number of iterations. Must be nonnegative. An 
+        Maximum number of iterations. Must be nonnegative. An
         `IterationLimitReached` exception will be raised if the bracket is not
         found within the specified number of iterations. If `None`, there is no
         maximum number of iterations.
@@ -165,7 +166,7 @@ def bracket_root(f, interval, growth_factor=2, maxiter=100,
                           function_calls=function_calls)
 
         if maxiter is not None and iteration >= maxiter:
-            raise IterationLimitReached("failed to converge after {} "    
+            raise IterationLimitReached("failed to converge after {} "
                                         "iterations".format(maxiter),
                                         interval=(a,b),
                                         f_interval=(f_a, f_b),
@@ -174,8 +175,6 @@ def bracket_root(f, interval, growth_factor=2, maxiter=100,
         a, b = b, b + (growth_factor+1)*(b-a)
         f_a, f_b = f_b, f(b)
         function_calls += 1
-
-
 
 
 class NotABracketError(ValueError):
@@ -206,7 +205,7 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
     The function must have opposite signs at the endpoints of the bracket.
 
     Compared to SciPy's `scipy.optimize.bisect` function, this function defines
-    convergence with respect to the residual (i.e., the value of `f` when 
+    convergence with respect to the residual (i.e., the value of `f` when
     evaluated at the found approximate root).
 
     Parameters
@@ -221,7 +220,7 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
         Absolute tolerance for the value of `f` at the root. Must be
         nonnegative.
     maxiter : int or None, optional
-        Maximum number of iterations. Must be nonnegative. An 
+        Maximum number of iterations. Must be nonnegative. An
         `IterationLimitReached` exception will be raised if the specified
         tolerance is not achieved within this number of iterations. If `None`,
         there is no maximum number of iterations.
@@ -237,7 +236,7 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
 
     Notes
     -----
-    The function starts by testing the endpoints of the bracket. If a root is 
+    The function starts by testing the endpoints of the bracket. If a root is
     found at one of the endpoints of a valid bracket, no bisection iterations
     are performed and the root is immediately returned. If both endpoints
     qualify as roots, the one where the absolute value of `f` is lower is
@@ -289,7 +288,7 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
     for iteration in itertools.count(start=1):
 
         if maxiter is not None and iteration > maxiter:
-            raise IterationLimitReached("failed to converge after {} "    
+            raise IterationLimitReached("failed to converge after {} "
                                         "iterations".format(maxiter),
                                         interval=(a,b),
                                         f_interval=(f_a, f_b),
@@ -311,4 +310,3 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
                           f_bracket=(f_a, f_b),
                           iterations=iteration,
                           function_calls=function_calls)
-

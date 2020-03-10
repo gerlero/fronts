@@ -2,6 +2,7 @@
 
 from __future__ import division, absolute_import, print_function
 
+
 def constant(D0):
     """
     Return a constant `D` function.
@@ -121,7 +122,7 @@ def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
         approximately the kinematic viscosity of water at 20°C in SI units.
     g : float, optional
         Magnitude of the gravitational acceleration. Only used if `k` is passed
-        instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of 
+        instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of
         Earth in SI units.
 
     Returns
@@ -198,7 +199,7 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
         approximately the kinematic viscosity of water at 20°C in SI units.
     g : float, optional
         Magnitude of the gravitational acceleration. Only used if `k` is passed
-        instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of 
+        instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of
         Earth in SI units.
     S_range : sequence of two floats, optional
         the tuple (:math:`S_r`, :math:`S_s`), where :math:`S_r` is the minimum
@@ -351,7 +352,7 @@ def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
         approximately the kinematic viscosity of water at 20°C in SI units.
     g : float, optional
         Magnitude of the gravitational acceleration. Only used if `k` is passed
-        instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of 
+        instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of
         Earth in SI units.
 
     Returns
@@ -389,4 +390,3 @@ def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
         raise ValueError("derivatives must be 0, 1, or 2")
 
     return D
-

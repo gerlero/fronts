@@ -25,7 +25,7 @@ S_range = (0.0473, 0.945)
 k = 5.50e-13  # m**2
 alpha = 0.2555  # 1/m
 n = 2.3521
-Si = 0.102755  # Computed from P0 
+Si = 0.102755  # Computed from P0
 
 Sb = S_range[1] - epsilon
 
@@ -39,7 +39,7 @@ fig = plt.figure()
 fig.canvas.set_window_title("Saturation plot")
 
 plt.title("Saturation field at t={} {}".format(validation.t, validation.t_unit))
-plt.plot(validation.r, solution.S(validation.r,validation.t), 
+plt.plot(validation.r, solution.S(validation.r,validation.t),
          color='steelblue', label="Fronts")
 plt.plot(validation.r, validation.S, color='sandybrown', label=validation.name)
 plt.xlabel("position [{}]".format(validation.r_unit))
@@ -54,7 +54,7 @@ fig.canvas.set_window_title("Velocity plot")
 plt.title("Velocity field at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, solution.flux(validation.r,validation.t),
          color='steelblue', label="Fronts")
-plt.plot(validation.r, validation.velocity, 
+plt.plot(validation.r, validation.velocity,
          color='sandybrown', label=validation.name)
 plt.xlabel("position [{}]".format(validation.r_unit))
 plt.ylabel("true velocity [{}/{}]".format(validation.r_unit, validation.t_unit))

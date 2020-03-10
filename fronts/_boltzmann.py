@@ -10,6 +10,7 @@ import six
 
 import numpy as np
 
+
 def o(r, t):
     r"""
     Transform to the Boltzmann variable.
@@ -46,6 +47,7 @@ def o(r, t):
     """
     return r/t**0.5
 
+
 def do_dr(r, t):
     r"""
     Spatial derivative of the Boltzmann transformation.
@@ -75,6 +77,7 @@ def do_dr(r, t):
     do_dt
     """
     return 1/t**0.5
+
 
 def do_dt(r, t):
     r"""
@@ -106,6 +109,7 @@ def do_dt(r, t):
     """
     return -o(r,t)/(2*t)
 
+
 def r(o, t):
     """
     Transform back from the Boltzmann variable into `r`.
@@ -133,6 +137,7 @@ def r(o, t):
     """
     return o*t**0.5
 
+
 def t(o, r):
     """
     Transform back from the Boltzmann variable into `t`.
@@ -159,6 +164,7 @@ def t(o, r):
     r
     """
     return (r/o)**2
+
 
 _o = o
 def as_o(r=None, t=None, o=None):
@@ -321,7 +327,6 @@ def ode(D, radial=False):
     return fun, jac
 
 
-
 class BaseSolution(object):
     r"""
     Base class for solutions using the Boltzmann transformation.
@@ -480,8 +485,3 @@ class BaseSolution(object):
             and `t`.
         """
         return self._sol(as_o(r,t,o))[1]
-
-
-
-
-

@@ -31,7 +31,7 @@ fig = plt.figure()
 fig.canvas.set_window_title("Diffusivity plot")
 
 plt.title("Diffusivity function")
-plt.plot(S, D(S)) 
+plt.plot(S, D(S))
 plt.xlabel("water content [-]")
 plt.ylabel("diffusivity [{}**2/{}]".format(r_unit, t_unit))
 plt.yscale('log')

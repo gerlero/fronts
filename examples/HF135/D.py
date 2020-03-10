@@ -24,7 +24,7 @@ S_range = (0.0473, 0.945)
 k = 5.50e-13  # m^2
 alpha = 0.2555  # 1/m
 n = 2.3521
-Si = 0.102755  # Computed from P0 
+Si = 0.102755  # Computed from P0
 
 D = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
 
@@ -35,7 +35,7 @@ fig = plt.figure()
 fig.canvas.set_window_title("Diffusivity plot")
 
 plt.title("Diffusivity function")
-plt.plot(S, D(S)) 
+plt.plot(S, D(S))
 plt.xlabel("saturation [-]")
 plt.ylabel("diffusivity [{}**2/{}]".format(r_unit, t_unit))
 plt.yscale('log')

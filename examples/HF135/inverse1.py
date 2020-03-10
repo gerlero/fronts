@@ -4,7 +4,7 @@
 Lateral flow in a HF135 nitrocellulose membrane.
 
 This example shows how to use `fronts.inverse` to extract the diffusivity
-function D from a solution. Here, the solution is obtained with 
+function D from a solution. Here, the solution is obtained with
 `fronts.solve`. The extracted D is then used with `fronts.solve` and the
 same conditions to verify that an equivalent solution is obtained.
 
@@ -30,7 +30,7 @@ S_range = (0.0473, 0.945)
 k = 5.50e-13  # m**2
 alpha = 0.2555  # 1/m
 n = 2.3521
-Si = 0.102755  # Computed from P0 
+Si = 0.102755  # Computed from P0
 
 Sb = S_range[1] - epsilon
 

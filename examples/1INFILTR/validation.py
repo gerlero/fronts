@@ -87,6 +87,5 @@ if __name__ == '__main__':
     plt.ylabel("Darcy velocity [{}/{}]".format(r_unit, t_unit))
     plt.grid(which='both')
     plt.legend()
-    
-    plt.show()
 
+    plt.show()

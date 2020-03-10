@@ -15,48 +15,48 @@ Solvers
 ~~~~~~~
 
 .. autosummary::
-	:toctree: stubs/
-	   
-	solve
-	solve_from_guess  
-	inverse
+    :toctree: stubs/
+       
+    solve
+    solve_from_guess  
+    inverse
 
 Solutions
 ~~~~~~~~~
 
 .. autosummary::
-	:toctree: stubs/
-	:nosignatures:
-	   
-	Solution
-	BaseSolution
+    :toctree: stubs/
+    :nosignatures:
+       
+    Solution
+    BaseSolution
 
 
 Boltzmann transformation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autosummary::
-	:toctree: stubs/
-	   
-	ode
-	o
-	do_dr
-	do_dt
-	r
-	t
-	as_o
+    :toctree: stubs/
+       
+    ode
+    o
+    do_dr
+    do_dt
+    r
+    t
+    as_o
 
 
 Submodule ``fronts.D``: included D functions
 --------------------------------------------
 
 .. autosummary::
-	:toctree: stubs/
-	
-	D.constant
-	D.power_law
-	D.van_genuchten
-	D.richards
+    :toctree: stubs/
+    
+    D.constant
+    D.power_law
+    D.van_genuchten
+    D.richards
 
 
 * :ref:`genindex`

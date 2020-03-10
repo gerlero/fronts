@@ -24,7 +24,7 @@ name = "porousMultiphaseFoam"
 r_unit = "m"
 t_unit = "s"
 
-r, S, velocity = np.loadtxt(_filename, delimiter=',', skiprows=1, 
+r, S, velocity = np.loadtxt(_filename, delimiter=',', skiprows=1,
                             usecols=(4, 3, 0), unpack=True)
 
 t = 60
@@ -51,6 +51,5 @@ if __name__ == '__main__':
     plt.ylabel("true velocity [{}/{}]".format(r_unit, t_unit))
     plt.grid(which='both')
     plt.legend()
-    
-    plt.show()
 
+    plt.show()
