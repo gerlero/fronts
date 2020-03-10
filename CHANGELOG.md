@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix floating point warnings that sometimes appeared during calls to `solve()` and `solve_from_guess()`.
 - Remove unnecessary restriction on the `l` parameter of `D.van_genuchten()`.
 - Fix list of examples in README file.
 

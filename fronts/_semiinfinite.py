@@ -237,10 +237,14 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
     def integrate(dS_dob, verbose=verbose):
 
         try:
-            ivp_result = solve_ivp(fun, t_span=(ob, np.inf), y0=(Sb, dS_dob),
-                                   method='Radau', jac=jac,
-                                   events=(settled, blew_past_Si),
-                                   dense_output=True)
+            with np.errstate(divide='ignore', invalid='ignore'):
+                ivp_result = solve_ivp(fun,
+                                       t_span=(ob, np.inf),
+                                       y0=(Sb, dS_dob),
+                                       method='Radau',
+                                       jac=jac,
+                                       events=(settled, blew_past_Si),
+                                       dense_output=True)
 
         except (ValueError, ArithmeticError, UnboundLocalError):
             # Catch D domain errors. Also catch UnboundLocalError caused by
@@ -470,9 +474,10 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
     if verbose >= 2:
         print("Solving with solve_bvp")
 
-    bvp_result = solve_bvp(fun, bc=bc, x=o_guess, y=(S_guess, dS_do_guess),
-                           fun_jac=jac, bc_jac=bc_jac,
-                           max_nodes=max_nodes, verbose=verbose)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        bvp_result = solve_bvp(fun, bc=bc, x=o_guess, y=(S_guess, dS_do_guess),
+                               fun_jac=jac, bc_jac=bc_jac,
+                               max_nodes=max_nodes, verbose=verbose)
 
     if not bvp_result.success:
         raise RuntimeError("solve_bvp did not converge: {}".format(
