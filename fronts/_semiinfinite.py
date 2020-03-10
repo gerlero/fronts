@@ -97,7 +97,7 @@ class Solution(BaseSolution):
         return r(o=self._ob, t=t)
 
 
-def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-6, dS_dob_hint=None,
+def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
           dS_dob_bracket=None, maxiter=100, verbose=0):
     r"""
     Solve an instance of the general problem.
