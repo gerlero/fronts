@@ -13,7 +13,7 @@ from scipy.integrate import solve_ivp, solve_bvp
 from scipy.interpolate import PchipInterpolator
 
 from ._boltzmann import ode, BaseSolution, r
-from ._util import bisect, NotABracketError, IterationLimitReached
+from ._rootfinding import bisect, NotABracketError, IterationLimitReached
 
 
 class Solution(BaseSolution):
