@@ -30,7 +30,7 @@ plt.title("Saturation field at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, validation.S,
          label="Original ({})".format(validation.name))
 plt.plot(validation.r, sol.S(validation.r, validation.t),
-         label="Reconstructed with inverse and solve")
+         label="Reconstructed with inverse() and solve()")
 plt.xlabel("r [{}]".format(validation.r_unit))
 plt.ylabel("saturation [-]")
 plt.grid(which='both')
