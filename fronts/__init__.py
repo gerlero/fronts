@@ -1,3 +1,8 @@
+"""
+Numerical library for nonlinear diffusion problems based on the Boltzmann
+transformation.
+"""
+
 from __future__ import division, absolute_import, print_function
 
 from ._boltzmann import ode, BaseSolution, o, do_dr, do_dt, r, t, as_o
