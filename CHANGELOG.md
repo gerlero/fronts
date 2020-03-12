@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.8] - Unreleased
 
+### Added
+
+- Add `__version__` attribute to the main package, which stores the current version as a string.
+
 ### Fixed
 
 - Remove unnecessary restriction on the `l` parameter of `D.van_genuchten()`.
