@@ -27,7 +27,8 @@ setuptools.setup(
     name='fronts',
     version='0.9.8-dev',
     author="Gabriel S. Gerlero",
-    description="Numerical library for one-dimensional nonlinear diffusion problems in semi-infinite domains",
+    description="Numerical library for nonlinear diffusion problems based on " 
+                "the Boltzmann transformation.",
     long_description=long_description,
     long_description_content_type='text/markdown',
     url="https://github.com/gerlero/fronts",
