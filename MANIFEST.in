@@ -1,0 +1,21 @@
+include LICENSE.txt
+include CHANGELOG.md
+
+# doc
+include doc/Makefile
+recursive-include doc *.bat 
+recursive-include doc *.py 
+recursive-include doc *.rst
+prune doc/build
+prune doc/source/stubs
+
+# examples
+recursive-include examples *.csv
+recursive-include examples *.out
+recursive-include examples *.py
+
+# resources
+recursive-include resources *.png
+
+# symbolic
+recursive-include symbolic *.py
