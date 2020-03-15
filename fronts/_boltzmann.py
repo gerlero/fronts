@@ -6,6 +6,7 @@ differential equation.
 """
 
 from __future__ import division, absolute_import, print_function
+import six
 
 import numpy as np
 
@@ -280,7 +281,9 @@ def ode(D, radial=False):
     try:
         k = _k[radial]
     except KeyError:
-        raise ValueError("radial must be one of {}".format(tuple(_k.keys())))
+        six.raise_from(
+            ValueError("radial must be one of {}".format(tuple(_k.keys()))),
+            None)
 
 
     def fun(o, y):

@@ -4,6 +4,7 @@ value problems in semi-infinite domains.
 """
 
 from __future__ import division, absolute_import, print_function
+import six
 
 import itertools
 
@@ -291,14 +292,19 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
         if verbose:
             print("dS_dob_bracket does not contain target dS/do at ob. Try "
                   "again with a correct dS_dob_bracket.")
-        raise ValueError("dS_dob_bracket does not contain target dS/do at ob")
+        six.raise_from(
+            ValueError("dS_dob_bracket does not contain target dS/do at ob"),
+            None)
 
     except IterationLimitReached:
         if verbose:
             print("The solver did not converge after {} iterations.".format(
                   maxiter))
-        raise RuntimeError("solver did not converge after {} iterations."
-                           .format(maxiter))
+        six.raise_from(
+            RuntimeError(
+                "solver did not converge after {} iterations.".format(
+                maxiter)),
+            None)
 
     if verbose:
         print("Solved in {} iterations.".format(bisect_result.function_calls))

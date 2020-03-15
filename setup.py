@@ -55,7 +55,7 @@ setuptools.setup(
                  'Topic :: Scientific/Engineering :: Physics',
                  'Topic :: Software Development :: Libraries',
                  'Operating System :: OS Independent'],
-    install_requires=['scipy>=1.0.0', 'numpy'],
+    install_requires=['scipy>=1.0.0', 'numpy', 'six>=1.9.0'],
     extras_require=extras,
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
     options={"bdist_wheel": {"universal": "1"}}
