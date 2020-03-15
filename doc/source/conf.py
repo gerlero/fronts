@@ -18,12 +18,14 @@ print(sys.path)
 
 # -- Project information -----------------------------------------------------
 
+import fronts
+
 project = 'Fronts'
 copyright = '2019-2020, Gabriel S. Gerlero'
 author = 'Gabriel S. Gerlero'
 
 # The full version, including alpha/beta/rc tags
-release = '0.9.8-dev'
+release = fronts.__version__
 
 
 # -- General configuration ---------------------------------------------------
