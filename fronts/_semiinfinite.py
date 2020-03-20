@@ -13,7 +13,7 @@ from scipy.integrate import solve_ivp, solve_bvp
 from scipy.interpolate import PchipInterpolator
 
 from ._boltzmann import ode, BaseSolution, r
-from ._util import bisect, BadBracket, IterationLimitReached
+from ._util import bisect, NotABracketError, IterationLimitReached
 
 
 class Solution(BaseSolution):
@@ -293,7 +293,7 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
     try:  # Find the dS_dob that makes the initial condition hold
         bisect_result = bisect(integrate, bracket=dS_dob_bracket, ftol=Si_tol,
                                maxiter=maxiter-2)
-    except BadBracket:
+    except NotABracketError:
         if verbose:
             print("dS_dob_bracket does not contain target dS/do at ob. Try "
                   "again with a correct dS_dob_bracket.")
@@ -313,7 +313,7 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
 
     if verbose:
         print("Solved in {} iterations.".format(bisect_result.function_calls))
-        print("Si residual: {:.2e}".format(bisect_result.residual))
+        print("Si residual: {:.2e}".format(bisect_result.f_root))
         print("dS/do at ob: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
               bisect_result.root,
               bisect_result.bracket[0], bisect_result.bracket[1]))
