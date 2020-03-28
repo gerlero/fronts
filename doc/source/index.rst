@@ -7,7 +7,7 @@ For an introduction to the software, please refer to the README file, which is d
 
 .. currentmodule:: fronts
 
-Main module ``fronts``
+Main package `fronts`
 ----------------------
 
 
@@ -47,7 +47,7 @@ Boltzmann transformation
     as_o
 
 
-Submodule ``fronts.D``: included D functions
+Module `fronts.D`: included D functions
 --------------------------------------------
 
 .. autosummary::

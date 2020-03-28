@@ -132,14 +132,14 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
 
-            * `False` (default)
+            *   `False` (default)
                 :math:`\mathbf{\hat{r}}` is any coordinate unit vector in
                 rectangular (Cartesian) coordinates, or an axial unit vector in
                 a cylindrical coordinate system
-            * ``'cylindrical'``
+            *   ``'cylindrical'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 cylindrical coordinate system
-            * ``'spherical'``
+            *   ``'spherical'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 spherical coordinate system
     ob : float, optional
@@ -178,11 +178,11 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
         See `Solution` for a description of the solution object.
         Additional fields specific to this solver are included in the object:
 
-            * `o` : numpy.ndarray, shape (n,)
+            *   `o` *(numpy.ndarray, shape (n,))*
                 Final solver mesh, in terms of the Boltzmann variable `o`.
-            * `niter` : int
+            *   `niter` *(int)*
                 Number of iterations required to find the solution.
-            * `dS_dob_bracket` : sequence of two floats or None
+            *   `dS_dob_bracket` *(sequence of two floats or None)*
                 If available, an interval that contains the value of
                 :math:`dS/do` at the boundary in the solution. May be used as
                 the input `dS_dob_bracket` in a subsequent call with a smaller
@@ -454,14 +454,14 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
 
-            * `False` (default)
+            *   `False` (default)
                 :math:`\mathbf{\hat{r}}` is any coordinate unit vector in
                 rectangular (Cartesian) coordinates, or an axial unit vector in
                 a cylindrical coordinate system
-            * ``'cylindrical'``
+            *   ``'cylindrical'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 cylindrical coordinate system
-            * ``'spherical'``
+            *   ``'spherical'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 spherical coordinate system
     max_nodes : int, optional
@@ -479,11 +479,11 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
         See `Solution` for a description of the solution object.
         Additional fields specific to this solver are included in the object:
 
-            * o : numpy.ndarray, shape (n,)
+            *   `o` *(numpy.ndarray, shape (n,))*
                 Final solver mesh, in terms of the Boltzmann variable o.
-            * niter : int
+            *   `niter` *(int)*
                 Number of iterations required to find the solution.
-            * rms_residuals : numpy.ndarray, shape (n-1,)
+            *   `rms_residuals` *(numpy.ndarray, shape (n-1,))*
                 RMS values of the relative residuals over each mesh interval.
 
     See also

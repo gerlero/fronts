@@ -253,14 +253,14 @@ def ode(D, radial=False):
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
 
-            * `False` (default)
+            *   `False` (default)
                 :math:`\mathbf{\hat{r}}` is any coordinate unit vector in
                 rectangular (Cartesian) coordinates, or an axial unit vector in
                 a cylindrical coordinate system
-            * ``'cylindrical'``
+            *   ``'cylindrical'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 cylindrical coordinate system
-            * ``'spherical'``
+            *   ``'spherical'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 spherical coordinate system
 
