@@ -3,13 +3,20 @@
 import setuptools
 
 from io import open
+import re
 
 with open("README.md", 'r', encoding='utf-8') as f:
     readme = f.read()
 
+with open("fronts/__init__.py", 'r', encoding='utf-8') as f:
+    init = f.read()
+
+version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", init, re.M).group(1)
+# Parse instead of import because we may not have dependencies available yet.
+
 setuptools.setup(
     name='fronts',
-    version='0.9.8-dev',
+    version=version,
     author="Gabriel S. Gerlero",
     author_email="ggerlero@cimec.unl.edu.ar",
     description="Numerical library for nonlinear diffusion problems based on " 
