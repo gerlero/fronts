@@ -288,9 +288,9 @@ def ode(D, radial=False):
     try:
         k = _k[radial]
     except KeyError:
-        six.raise_from(
-            ValueError("radial must be one of {}".format(tuple(_k.keys()))),
-            None)
+        six.raise_from(ValueError("radial must be one of {{{}}}".format(
+                       ", ".join(repr(key) for key in _k))),
+                       None)
 
 
     def fun(o, y):
