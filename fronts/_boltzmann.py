@@ -211,6 +211,7 @@ def as_o(r=None, t=None, o=None):
 
 _k = {False: 0,
       'cylindrical': 1,
+      'polar': 1,
       'spherical': 2}
 
 def ode(D, radial=False):
@@ -249,7 +250,7 @@ def ode(D, radial=False):
         included (in order) as additional return values. While mathematically a
         scalar function, `D` operates in a vectorized fashion with the same
         semantics when `S` is a `numpy.ndarray`.
-    radial : {False, 'cylindrical', 'spherical'}, optional
+    radial : {False, 'cylindrical', 'polar', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
 
@@ -257,9 +258,9 @@ def ode(D, radial=False):
                 :math:`\mathbf{\hat{r}}` is any coordinate unit vector in
                 rectangular (Cartesian) coordinates, or an axial unit vector in
                 a cylindrical coordinate system
-            *   ``'cylindrical'``
+            *   ``'cylindrical'`` or ``'polar'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
-                cylindrical coordinate system
+                cylindrical or polar coordinate system
             *   ``'spherical'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 spherical coordinate system

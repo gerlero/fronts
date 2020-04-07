@@ -128,7 +128,7 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
         :math:`S_i`, the initial value of `S` in the domain.
     Sb : float
         :math:`S_b`, the value of `S` imposed at the boundary.
-    radial : {False, 'cylindrical', 'spherical'}, optional
+    radial : {False, 'cylindrical', 'polar', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
 
@@ -136,9 +136,9 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
                 :math:`\mathbf{\hat{r}}` is any coordinate unit vector in
                 rectangular (Cartesian) coordinates, or an axial unit vector in
                 a cylindrical coordinate system
-            *   ``'cylindrical'``
+            *   ``'cylindrical'`` or ``'polar'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
-                cylindrical coordinate system
+                cylindrical or polar coordinate system
             *   ``'spherical'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 spherical coordinate system
@@ -450,7 +450,7 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
     S_guess : float or numpy.array_like, shape (n_guess,)
         Starting guess of `S` at the points in `o_guess`. If a single value,
         the guess is assumed uniform.
-    radial : {False, 'cylindrical', 'spherical'}, optional
+    radial : {False, 'cylindrical', 'polar', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
 
@@ -458,9 +458,9 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
                 :math:`\mathbf{\hat{r}}` is any coordinate unit vector in
                 rectangular (Cartesian) coordinates, or an axial unit vector in
                 a cylindrical coordinate system
-            *   ``'cylindrical'``
+            *   ``'cylindrical'`` or ``'polar'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
-                cylindrical coordinate system
+                cylindrical or polar coordinate system
             *   ``'spherical'``
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 spherical coordinate system
