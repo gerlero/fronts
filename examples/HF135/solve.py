@@ -32,7 +32,7 @@ Sb = S_range[1] - epsilon
 D = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
 
 
-solution = solve(D=D, Si=Si, Sb=Sb, Si_tol=1e-3, verbose=2)
+solution = solve(D=D, Si=Si, Sb=Sb, verbose=2)
 
 
 fig = plt.figure()

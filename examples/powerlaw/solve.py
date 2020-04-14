@@ -15,11 +15,7 @@ k = 4.0
 Si = 0.1
 Sb = 1.0
 
-solution = solve(D=power_law(k=k), Si=Si, Sb=Sb)
-
-print("Iterations: {}".format(solution.niter))
-print("New dS_dob_bracket: [{:.5e}, {:.5e}]".format(
-	  solution.dS_dob_bracket[0], solution.dS_dob_bracket[1]))
+solution = solve(D=power_law(k=k), Si=Si, Sb=Sb, verbose=2)
 
 r = np.linspace(0, 10, 200)
 

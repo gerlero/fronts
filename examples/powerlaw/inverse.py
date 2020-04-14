@@ -16,12 +16,12 @@ D = power_law(k=k)
 Si = 0.1
 Sb = 1.0
 
-result_1 = solve(D, Si=Si, Sb=Sb)
+result_1 = solve(D, Si=Si, Sb=Sb, verbose=2)
 
 Si = 1.0
 Sb = 0.1
 
-result_2 = solve(D, Si=Si, Sb=Sb, dS_dob_bracket=(1e3, 1e4))
+result_2 = solve(D, Si=Si, Sb=Sb, verbose=2)
 # Reverse Sb and Si
 
 r = np.linspace(0, 30, 200)

@@ -33,8 +33,7 @@ def D(S, derivatives=0):
 
 epsilon = 1e-6
 
-solution = solve(D, Si=epsilon, Sb=1, dS_dob_bracket=(-1.1, -0.9), Si_tol=1e-3,
-			verbose=2)
+solution = solve(D, Si=epsilon, Sb=1, verbose=2)
 
 o = np.linspace(0, 20, 200)
 

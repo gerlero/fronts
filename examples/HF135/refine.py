@@ -32,8 +32,9 @@ Sb = S_range[1] - epsilon
 D = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
 
 print("----Starting solution----")
-coarse = solve(D=D, Si=Si, Sb=Sb, Si_tol=5e-2, verbose=2)
+coarse = solve(D=D, Si=Si, Sb=Sb, Si_tol=5e-2, dS_dob_bracket=(-1,0), verbose=2)
 
+print(coarse.dS_dob_bracket)
 print()
 print("----Refined with solve----")
 fine = solve(D=D, Si=Si, Sb=Sb, dS_dob_bracket=coarse.dS_dob_bracket, verbose=2)
@@ -53,7 +54,7 @@ fig.canvas.set_window_title("Saturation plot")
 
 plt.title("Saturation field at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, coarse.S(validation.r,validation.t), 
-	     label="Starting solution (solve, high tolerance)")
+	     label="Starting solution (solve, higher tolerance)")
 plt.plot(validation.r, fine.S(validation.r,validation.t), 
 	     label="Refined with solve")
 plt.plot(validation.r, from_guess.S(validation.r,validation.t), 
@@ -69,7 +70,7 @@ fig.canvas.set_window_title("Velocity plot")
 
 plt.title("Velocity field at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, coarse.flux(validation.r,validation.t), 
-	     label="Starting solution (solve, high tolerance)")
+	     label="Starting solution (solve, higher tolerance)")
 plt.plot(validation.r, fine.flux(validation.r,validation.t), 
 	     label="Refined with solve")
 plt.plot(validation.r, from_guess.flux(validation.r,validation.t), 

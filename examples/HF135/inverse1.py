@@ -38,7 +38,7 @@ D_analytical = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
 
 analytical = solve(D=D_analytical, Si=Si, Sb=Sb)
 
-o = np.linspace(analytical.o[0], analytical.o[-1], 500)
+o = np.linspace(analytical.o[0], analytical.o[-1], 2000)
 
 S = analytical.S(o=o)
 
@@ -58,7 +58,7 @@ plt.grid(which='both')
 plt.legend()
 
 
-inverse = solve(D=D_inverse, Si=Si, Sb=Sb, Si_tol=1e-3, verbose=2)
+inverse = solve(D=D_inverse, Si=Si, Sb=Sb, verbose=2)
 
 fig = plt.figure()
 fig.canvas.set_window_title("Saturation plot")

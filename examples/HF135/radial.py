@@ -35,7 +35,7 @@ D = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
 
 
 solution = solve(D=D, Si=Si, Sb=Sb, radial='cylindrical', ob=1e-6,
-				 dS_dob_bracket=(0, -1e2), Si_tol=1e-3, verbose=2)
+				 verbose=2)
 
 
 r = np.linspace(0, 5e-2, 200)  # m

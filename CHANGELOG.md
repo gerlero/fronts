@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update `solve()` to employ the new automatic mode by default. `dS_dob_bracket` is still available but now defaults to `None`, which triggers the new behavior.
 - Change default `Si_tol` in `solve()` to 1e-3.
+- Update examples to use the new features of `solve()`.
 - Update verbose output of `solve()`. Ambiguously named column "Evaluations" replaced with "Calls to D"; now counts all invocations of `D`.
 - Improve error messages in Python 3 by suppressing internal exceptions from the exception context.
 

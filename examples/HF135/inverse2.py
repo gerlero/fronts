@@ -22,8 +22,7 @@ import validation
 D_inverse = inverse(o=o(validation.r, validation.t)[::5], S=validation.S[::5])
 # Using only a fifth of the points so that it does not run too slow
 
-sol = solve(D=D_inverse, Si=validation.S[-1], Sb=validation.S[0], 
-               Si_tol=1e-3, verbose=2)
+sol = solve(D=D_inverse, Si=validation.S[-1], Sb=validation.S[0], verbose=2)
 
 
 fig = plt.figure()
