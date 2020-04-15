@@ -146,7 +146,7 @@ def t(o, r):
     ----------
     o : float or numpy.ndarray
         Value(s) of the Boltzmann variable. If a `numpy.ndarray`, it must have
-        a shape broadcastable with `r`.
+        a shape broadcastable with `r`. Values must not be zero.
     r : float or numpy.ndarray
         Location(s). If a `numpy.ndarray`, it must have a shape broadcastable
         with `o`.
