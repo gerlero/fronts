@@ -6,7 +6,7 @@ value problems in semi-infinite domains.
 from __future__ import division, absolute_import, print_function
 import six
 
-import itertools
+from collections import namedtuple
 
 import numpy as np
 from scipy.integrate import solve_ivp, solve_bvp
@@ -95,6 +95,218 @@ class Solution(BaseSolution):
         it may move with time.
         """
         return r(o=self._ob, t=t)
+
+
+class _Shooter(object):
+    """
+    Base shooter class.
+
+    Parameters
+    ----------
+    D : callable
+    Si : float
+    radial : {False, 'cylindrical', 'polar', 'spherical'}
+    ob : float
+    S_direction : {-1, 0, 1}
+    Si_tol : float
+    max_shots : None or int
+    shot_callback : None or callable
+
+    Attributes
+    ----------
+    shots : int
+        Number of calls to `shoot`.
+    best_shot : None or Result
+        Result that corresponds to the call to `shoot` that returned the lowest
+        ``abs(Si_residual)``.
+    """
+
+    def __init__(self, D, Si, radial, ob, S_direction, Si_tol, max_shots,
+                 shot_callback):
+
+        assert not radial or ob > 0
+        assert S_direction in {-1, 0, 1}
+        assert max_shots is None or max_shots >= 0
+        assert shot_callback is None or callable(shot_callback)
+
+        self._fun, self._jac = ode(D, radial)
+        self._Si = Si
+        self._ob = ob
+        self._S_direction = S_direction
+        self._max_shots = max_shots
+        self._shot_callback = shot_callback
+
+        # Integration events
+        def settled(o, y):
+            return y[1]
+        settled.terminal = True
+
+        def blew_past_Si(o, y):
+            return y[0] - (Si + S_direction*Si_tol)
+        blew_past_Si.terminal = True
+
+        self._events = (settled, blew_past_Si)
+
+        self.shots = 0
+        self.best_shot = None
+
+
+    Result = namedtuple("Result", ['Sb', 
+                                   'dS_dob',
+                                   'Si_residual',
+                                   'D_calls',
+                                   'o',
+                                   'sol'])
+
+    def integrate(self, Sb, dS_dob):
+        """
+        Integrate and return the full result.
+
+        Parameters
+        ----------
+        Sb : float
+        dS_dob : float
+
+        Returns
+        -------
+        Result
+        """
+        assert (self._Si-Sb)*self._S_direction >= 0
+        assert dS_dob*self._S_direction >= 0
+
+        with np.errstate(divide='ignore', invalid='ignore'):
+            try:
+                ivp_result = solve_ivp(self._fun,
+                                       t_span=(self._ob, np.inf),
+                                       y0=(Sb, dS_dob),
+                                       method='Radau',
+                                       jac=self._jac,
+                                       events=self._events,
+                                       dense_output=True)
+
+            except (ValueError, ArithmeticError, UnboundLocalError):
+                # Catch D domain errors. Also catch UnboundLocalError caused by
+                # https://github.com/scipy/scipy/issues/10775 (fixed in SciPy
+                # v1.4.0; but we do not require that version because it does
+                # not support Python 2.7)
+
+                return self.Result(Sb=Sb,
+                                   dS_dob=dS_dob,
+                                   Si_residual=self._S_direction*np.inf,
+                                   D_calls=None,
+                                   o=None,
+                                   sol=None)
+
+        if ivp_result.success and ivp_result.t_events[0].size == 1:
+
+            return self.Result(Sb=Sb,
+                               dS_dob=dS_dob,
+                               Si_residual=ivp_result.y[0,-1] - self._Si,
+                               D_calls=ivp_result.nfev + ivp_result.njev,
+                               o=ivp_result.t,
+                               sol=ivp_result.sol)
+
+        else:
+
+            return self.Result(Sb=Sb,
+                               dS_dob=dS_dob,
+                               Si_residual=self._S_direction*np.inf,
+                               D_calls=ivp_result.nfev + ivp_result.njev,
+                               o=None,
+                               sol=None)
+
+
+
+    class ShotLimitReached(RuntimeError):
+        """
+        Exception raised when `shoot` is called after the maximum number of
+        shots has been reached.
+        """
+
+    def shoot(self, *args, **kwargs):
+        """
+        Calls `integrate` and returns the result's `Si_residual`. Each call
+        increments the number of shots.
+
+        It raises a `ShotLimitReached` exception if the maximum number of
+        allowed shots has been reached.
+
+        Parameters are passed through to `result`. After the call, the callback
+        provided to the constructor is invoked (if any).
+
+        Parameters
+        ----------
+        *args, **kwargs
+            Arguments passed through to `integrate`
+
+        Returns
+        -------
+        Si_residual : float
+        """
+        self.shots += 1
+
+        if self._max_shots is not None and self.shots > self._max_shots:
+            raise self.ShotLimitReached
+
+        result = self.integrate(*args, **kwargs)
+
+        if self._shot_callback is not None:
+            self._shot_callback(result)
+
+        if (self.best_shot is None 
+                or abs(result.Si_residual) < abs(self.best_shot.Si_residual)):
+            self.best_shot = result
+
+        return result.Si_residual
+
+
+class _DirichletShooter(_Shooter):
+    """
+    Shooter for Dirichlet problems.
+
+    Parameters
+    ----------
+    D : callable
+    Si : float
+    Sb : float
+    radial : {False, 'cylindrical', 'polar', 'spherical'}
+    ob : float
+    Si_tol : float
+    max_shots : None or int
+    shot_callback : None or callable
+    """
+
+    def __init__(self, D, Si, Sb, radial, ob, Si_tol, max_shots, 
+                 shot_callback):
+
+        S_direction = np.sign(Si-Sb)
+
+        super(_DirichletShooter, self).__init__(D=D,
+                                                Si=Si,
+                                                radial=radial,
+                                                ob=ob,
+                                                S_direction=S_direction,
+                                                Si_tol=Si_tol,
+                                                max_shots=max_shots,
+                                                shot_callback=shot_callback)
+
+        self._Sb = Sb
+
+
+    def integrate(self, dS_dob):
+        """
+        Integrate and return the full result.
+
+        Parameters
+        ----------
+        dS_dob : float
+
+        Returns
+        -------
+        Result
+        """
+        return super(_DirichletShooter, self).integrate(Sb=self._Sb,
+                                                        dS_dob=dS_dob)
 
 
 def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
@@ -207,7 +419,7 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
     the Boltzmann transformation using `ode` and then solving the resulting ODE
     repeatedly with the 'Radau' method as implemented in the `scipy.integrate`
     module and a custom shooting algorithm. The boundary condition is satisfied
-    exactly as the starting point, and the algorithm  iterates with different
+    exactly as the starting point, and the algorithm iterates with different
     values of :math:`dS/do` at the boundary until it finds the solution that
     also satisfies the initial condition within the specified tolerance. Trial
     values of :math:`dS/do` at the boundary are selected automatically by
@@ -216,8 +428,6 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
     scheme assumes that :math:`dS/do` at the boundary varies continuously with
     :math:`S_i`.
     """
-    S_direction = np.sign(Si - Sb)
-
     if radial and ob <= 0:
         raise ValueError("ob must be positive when using a radial coordinate")
 
@@ -228,163 +438,124 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
         if dS_dob_hint is not None:
             raise TypeError("cannot pass both dS_dob_hint and dS_dob_bracket")
 
+        dS_dob_bracket = tuple(x if np.sign(x) == np.sign(Si-Sb) else 0
+                               for x in dS_dob_bracket)
+
     elif dS_dob_hint is None:
         dS_dob_hint = (Si-Sb)/(2*D(Sb)**0.5)
 
-    else:
-        if(np.sign(dS_dob_hint) != S_direction):
-            raise ValueError("sign of dS_dob_hint does not match direction "
-                             "given by Sb and Si")
-
-
-    fun, jac = ode(D=D, radial=radial)
-
-    # Integration events
-    def settled(o, y):
-        return y[1]
-    settled.terminal = True
-
-    def blew_past_Si(o, y):
-        return y[0] - (Si + S_direction*Si_tol)
-    blew_past_Si.terminal = True
-
-    # Integration data
-    iteration_counter = itertools.count(start=1)
-    saved_integration = {'dS_dob': None,
-                         'o': None,
-                         'sol': None}
-
-    # Integration function - returns the Si residual
-    def integrate(dS_dob, count_iteration=True):
-
-        if count_iteration:
-            iteration = next(iteration_counter)
-            if iteration > maxiter:
-                if verbose:
-                    print("The solver did not converge after {} iterations."
-                          .format(maxiter))
-                raise RuntimeError("solver did not converge after {} "
-                                   "iterations.".format(maxiter))
-
-        try:
-            with np.errstate(divide='ignore', invalid='ignore'):
-                ivp_result = solve_ivp(fun,
-                                       t_span=(ob, np.inf),
-                                       y0=(Sb, dS_dob),
-                                       method='Radau',
-                                       jac=jac,
-                                       events=(settled, blew_past_Si),
-                                       dense_output=True)
-
-        except (ValueError, ArithmeticError, UnboundLocalError):
-            # Catch D domain errors. Also catch UnboundLocalError caused by
-            # https://github.com/scipy/scipy/issues/10775 (fix in SciPy v1.4.0;
-            # we do not require that version as it does not support Python 2.7)
-
-            Si_residual = S_direction*np.inf
-
-            if count_iteration and verbose >= 2:
-                print("{:^15}{:^15}{:^15}{:^15.5e}".format(
-                       iteration, "*",  "*", dS_dob))
-
-        else:
-            if ivp_result.success and ivp_result.t_events[0].size == 1:
-
-                saved_integration['dS_dob'] = dS_dob
-                saved_integration['o'] = ivp_result.t
-                saved_integration['sol'] = ivp_result.sol
-
-                Si_residual = ivp_result.y[0,-1] - Si
-
-                if count_iteration and verbose >= 2:
-                    print("{:^15}{:^15}{:^15.2e}{:^15.7e}".format(
-                           iteration,
-                           ivp_result.nfev+ivp_result.njev,
-                           Si_residual,
-                           dS_dob))
-
-            else:
-                Si_residual = S_direction*np.inf
-
-                if count_iteration and verbose >= 2:
-                    print("{:^15}{:^15}{:^15}{:^15.7e}".format(
-                           iteration,
-                           ivp_result.nfev+ivp_result.njev,
-                           "*",
-                           dS_dob))
-
-        return Si_residual
+    elif np.sign(dS_dob_hint) != np.sign(Si-Sb):
+        raise ValueError("sign of dS_dob_hint does not match direction given "
+                         "by Sb and Si")
 
     if verbose >= 2:
         print("{:^15}{:^15}{:^15}{:^15}".format(
-              "Iteration", "Calls to D", "Si residual", "dS/do at ob"))
+               "Iteration",
+               "Si residual",
+               "dS/do|b",
+               "Calls to D"))
 
-
-    if dS_dob_bracket is None:
-        dS_dob_result = bracket_root(integrate,
-                                     interval=(0, dS_dob_hint),
-                                     f_interval=(Sb-Si, None),
-                                     ftol=Si_tol,
-                                     maxiter=None,)
-
-        dS_dob = dS_dob_result.root
-        Si_residual = dS_dob_result.f_root
-        dS_dob_bracket = dS_dob_result.bracket
-        f_bracket = dS_dob_result.f_bracket
-
+        def shot_callback(result):
+            if np.isfinite(result.Si_residual):
+                print("{:^15}{:^15.2e}{:^15.7e}{:^15}".format(
+                       shooter.shots,
+                       result.Si_residual,
+                       result.dS_dob,
+                       result.D_calls))
+            else:
+                print("{:^15}{:^15}{:^15.7e}{:^15}".format(
+                       shooter.shots,
+                       "*",
+                       result.dS_dob,
+                       result.D_calls or "*"))
     else:
-        dS_dob = None
-        dS_dob_bracket = np.clip(dS_dob_bracket,
-                                 min(0, S_direction*np.inf),
-                                 max(0, S_direction*np.inf))
+        shot_callback = None
 
-        f_bracket = tuple(Sb-Si if x==0 else None for x in dS_dob_bracket)
+    shooter = _DirichletShooter(D=D,
+                                Si=Si,
+                                Sb=Sb,
+                                radial=radial,
+                                ob=ob,
+                                Si_tol=Si_tol,
+                                max_shots=maxiter,
+                                shot_callback=shot_callback)
+
+    try:
+
+        if dS_dob_bracket is None:
+            if Si == Sb:
+                dS_dob = 0
+                dS_dob_bracket = (0, 0)
+
+            else:
+                dS_dob_result = bracket_root(shooter.shoot,
+                                             interval=(0, dS_dob_hint),
+                                             f_interval=(Sb-Si, None),
+                                             ftol=Si_tol,
+                                             maxiter=None)
+
+                dS_dob = dS_dob_result.root
+                dS_dob_bracket = dS_dob_result.bracket
+                f_bracket = dS_dob_result.f_bracket
+
+        else:
+            assert dS_dob_hint is None
+            dS_dob = None
+            f_bracket = tuple(Sb-Si if x==0 else None for x in dS_dob_bracket)
 
 
-    if dS_dob is None:
-        try:
-            dS_dob_result = bisect(integrate,
-                                   bracket=dS_dob_bracket,
-                                   f_bracket=f_bracket,
-                                   ftol=Si_tol,
-                                   maxiter=None)
+        if dS_dob is None:
+            try:
+                dS_dob_result = bisect(shooter.shoot,
+                                       bracket=dS_dob_bracket,
+                                       f_bracket=f_bracket,
+                                       ftol=Si_tol,
+                                       maxiter=None)
 
-            dS_dob = dS_dob_result.root
-            Si_residual = dS_dob_result.f_root
-            dS_dob_bracket = dS_dob_result.bracket
-            f_bracket = dS_dob_result.f_bracket
+                dS_dob = dS_dob_result.root
+                dS_dob_bracket = dS_dob_result.bracket
+                f_bracket = dS_dob_result.f_bracket
 
-        except NotABracketError:
-            if verbose:
-                print("dS_dob_bracket does not contain target dS/do at ob. "
-                      "Try again with a correct interval.")
-            six.raise_from(
-                ValueError("dS_dob_bracket does not contain target dS/do at "
-                           "ob"),
-                None)
+            except NotABracketError:
+                assert dS_dob_hint is None
+                if verbose:
+                    print("dS_dob_bracket does not contain target dS/do at ob."
+                          " Try again with a correct interval.")
+                six.raise_from(
+                    ValueError("dS_dob_bracket does not contain target dS/do "
+                               "at ob"),
+                    None)
 
-    iterations = next(iteration_counter) - 1
+    except shooter.ShotLimitReached:
+        if verbose:
+          print("The solver did not converge after {} iterations.".format(
+                maxiter))
+        six.raise_from(
+            RuntimeError("The solver did not converge after {} iterations."
+                         .format(maxiter)),
+            None)
+
+    if shooter.best_shot is not None and shooter.best_shot.dS_dob == dS_dob:
+        result = shooter.best_shot
+    else:
+        result = shooter.integrate(dS_dob=dS_dob)
 
     if verbose:
-        print("Solved in {} iterations.".format(iterations))
-        print("Si residual: {:.2e}".format(Si_residual))
+        print("Solved in {} iterations.".format(shooter.shots))
+        print("Si residual: {:.2e}".format(result.Si_residual))
         if dS_dob_bracket is not None:
             print("dS/do at ob: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
-                  dS_dob_result.root, min(dS_dob_bracket), max(dS_dob_bracket)))
+                  dS_dob, min(dS_dob_bracket), max(dS_dob_bracket)))
         else:
-            print("dS/do at ob: {:.7e}".format(dS_dob_result.root))
+            print("dS/do at ob: {:.7e}".format(dS_dob))
 
-    if saved_integration['dS_dob'] != dS_dob:
-        integrate(dS_dob, count_iteration=False)
-    assert saved_integration['dS_dob'] == dS_dob
-
-    solution = Solution(sol=saved_integration['sol'],
-                        ob=saved_integration['o'][0],
-                        oi=saved_integration['o'][-1],
+    solution = Solution(sol=result.sol,
+                        ob=result.o[0],
+                        oi=result.o[-1],
                         D=D)
 
-    solution.o = saved_integration['o']
-    solution.niter = iterations
+    solution.o = result.o
+    solution.niter = shooter.shots
     solution.dS_dob_bracket = dS_dob_bracket
 
     return solution
