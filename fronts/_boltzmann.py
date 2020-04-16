@@ -121,7 +121,7 @@ def r(o, t):
         a shape broadcastable with `t`.
     t : float or numpy.ndarray
         Time(s). If a `numpy.ndarray`, it must have a shape broadcastable with
-        `o`. Values must be positive.
+        `o`. Values must not be negative.
 
     Returns
     -------

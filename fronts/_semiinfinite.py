@@ -77,7 +77,7 @@ class Solution(BaseSolution):
         Parameters
         ----------
         t : float or numpy.ndarray
-            Time(s). Values must be positive.
+            Time(s). Values must not be negative.
 
         Returns
         -------
