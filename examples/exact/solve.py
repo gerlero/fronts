@@ -31,9 +31,7 @@ def D(theta, derivatives=0):
     raise ValueError("derivatives must be 0, 1, or 2")
 
 
-epsilon = 1e-6
-
-theta = solve(D, i=epsilon, b=1, verbose=2)
+theta = solve(D, i=0, b=1, verbose=2)
 
 o = np.linspace(0, 20, 200)
 

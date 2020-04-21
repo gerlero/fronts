@@ -33,10 +33,7 @@ def D(theta, derivatives=0):
 
 o = np.linspace(0, 20, 100)
 
-epsilon = 1e-5
-
-theta = solve_from_guess(D, i=epsilon, b=1, o_guess=o, guess=0.5,
-                         verbose=2)
+theta = solve_from_guess(D, i=0, b=1, o_guess=o, guess=0.5, verbose=2)
 
 
 fig = plt.figure()
