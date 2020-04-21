@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix floating point warnings that sometimes appeared during calls to `solve()` and `solve_from_guess()`.
 - Remove unnecessary restriction on the `l` parameter of `D.van_genuchten()`.
 - Fix list of examples in README file.
+- Fix _examples/exact_ case in Python 2.7.
 - Fix encoding error when installed in editable mode in Python 2.7.
 
 ## [0.9.7] - 2020-02-11

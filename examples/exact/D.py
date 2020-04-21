@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 def D(theta, derivatives=0):
 
-    D = 0.5*(1 - np.log(theta))  # Exact solution: theta(o) = np.exp(-o)
+    D = 0.5*(1 - np.log(theta))  # Exact solution: theta(o) = np.exp(-o)
     # Reference: Philip (1960) Table 1, No. 13
     # https://doi.org/10.1071/PH600001
 
