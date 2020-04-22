@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 from math import pi
 
-from fronts import solve
+from fronts import solve_flowrate
 from fronts.D import van_genuchten
 
 from validation import r_unit, t_unit
@@ -29,20 +29,17 @@ Si = 0.102755  # Computed from P0
 h = 1.60e-4  # m -- thickness
 eps = 0.76  # porosity
 
-Sb = S_range[1] - epsilon
+flowrate = 1e-9  # m**3/s
 
 D = van_genuchten(n=n, alpha=alpha, k=k, theta_range=S_range)
 
 
-S = solve(D=D, i=Si, b=Sb, radial='cylindrical', ob=1e-6, verbose=2)
+S = solve_flowrate(D=D, i=Si, Qb=flowrate/eps, radial='cylindrical', height=h,
+	               verbose=2)
 
 
 r = np.linspace(0, 5e-2, 200)  # m
 t = (60, 120)  # s
-
-flow_rate = S.flux(r[1], t[0]) * eps * (2*pi*r[1]) * h
-
-print("Flow rate: {:.3e} {}**3/{}".format(flow_rate, r_unit, t_unit))
 
 fig = plt.figure()
 fig.canvas.set_window_title("Saturation plot")

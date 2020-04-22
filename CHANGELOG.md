@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replace use of `S` in documentation with the Greek letter theta.
 - Update examples with the new function signatures and method names.
 - Update examples to use the new features of `solve()`.
+- Update _examples/HF135/radial.py_ to use the new solver `solve_flowrate()`.
 - Update _examples/exact_ case to use an expression for _D_.
 - Update verbose output of `solve()`. Ambiguously named column "Evaluations" replaced with "Calls to D"; now counts all invocations of `D`.
 - Improve error messages in Python 3 by suppressing internal exceptions from the exception context.
