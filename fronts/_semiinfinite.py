@@ -46,6 +46,7 @@ class Solution(BaseSolution):
     D : callable
         `D` used to obtain `sol`. Must be the same function that was passed to
         `ode`.
+        
     """
     def __init__(self, sol, ob, oi, D):
         if ob > oi:
@@ -67,12 +68,24 @@ class Solution(BaseSolution):
         self._ob = ob
         self._oi = oi
 
+    @property
+    def i(self):
+        """float: Initial value of the solution."""
+        return self(o=self._oi)
+
+    @property
+    def ob(self):
+        """float: :math:`o_b`"""
+        return self._ob
+    
     def rb(self, t):
         """
-        :math:`r_b`, the location of the boundary.
+        Boundary location.
 
-        This is the point where the boundary condition of the problem is
-        imposed.
+        Returns :math:`r_b`, the location of the boundary.
+
+        Depending on :math:`o_b`, the boundary may be fixed at :math:`r=0` or
+        it may move with time.
 
         Parameters
         ----------
@@ -83,13 +96,80 @@ class Solution(BaseSolution):
         -------
         rb : float or numpy.ndarray
             The return is of the same type and shape as `t`.
-
-        Notes
-        -----
-        Depending on :math:`o_b`, the boundary may be fixed at :math:`r=0` or
-        it may move with time.
         """
-        return r(o=self._ob, t=t)
+        return r(o=self.ob, t=t)
+
+    @property
+    def b(self):
+        """float: Boundary value of the solution."""
+        return self(o=self.ob)
+
+    def d_drb(self, t):
+        r"""
+        Spatial derivative of the solution at the boundary.
+
+        Evaluates and returns :math:`\partial\theta/\partial r|_b`. Equivalent
+        to ``self.d_dr(self.rb(t), t)``.
+
+        Parameters
+        ----------
+        t : float or numpy.ndarray
+            Time(s). Values must be positive.
+
+        Returns
+        -------
+        float or numpy.ndarray
+            The return is of the same type and shape as `t`.
+        """
+        return self.d_dr(self.rb(t), t)
+
+    def d_dtb(self, t):
+        r"""
+        Time derivative of the solution at the boundary.
+
+        Evaluates and returns :math:`\partial\theta/\partial t|_b`. Equivalent
+        to ``self.d_dt(self.rb(t), t)``.
+
+        Parameters
+        ----------
+        t : float or numpy.ndarray
+            Time(s). Values must be positive.
+
+        Returns
+        -------
+        float or numpy.ndarray
+            The return is of the same type and shape as `t`.
+        """
+        return self.d_dt(self.rb(t), t)
+
+    def fluxb(self, t):
+        r"""
+        Boundary flux.
+
+        Returns the diffusive flux of :math:`\theta` at the boundary, in the
+        direction :math:`\mathbf{\hat{r}}`. Equivalent to
+        ``self.flux(self.rb(t), t)``.
+
+        Parameters
+        ----------
+        t : float or numpy.ndarray
+            Time(s). Values must be positive.
+
+        Returns
+        -------
+        float or numpy.ndarray
+            The return is of the same type and shape as `t`.
+        """
+        return self.flux(self.rb(t), t)
+
+    @property
+    def d_dob(self):
+        """
+        float: Derivative of the solution with respect to the Boltzmann
+        variable at the boundary.
+        """
+        return self.d_do(o=self.ob)
+    
 
 
 class _Shooter(object):
