@@ -324,53 +324,40 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
     if theta_range[1]-theta_range[0] <= 0:
         raise ValueError("theta_range[1] must be greater than theta_range[0]")
 
-    # The following expressions were obtained symbolically
-    # (see ../symbolic/van_genuchten.py)
-
-    x0 = 1/m
-    x1 = -theta_range[0]
-    x3 = 1/(theta_range[0] - theta_range[1])
-    
+    # - Code generated with functionstr() from ../symbolic/generate.py - #
+    # Source: ../symbolic/van_genuchten.py
+    x1 = 1/(theta_range[0] - theta_range[1])
+    x3 = 1/m
+    x8 = l - x3
     def D(theta, derivatives=0):
-    
-        x2 = theta + x1
-        x4 = -x2*x3
-        x5 = x4**x0
-        x6 = 1/x5
-        x7 = (1 - x5)**m
-        x8 = 1/x7
-        x9 = x6*(x7 + x8 - 2)
-        x10 = x0*x9
-        x11 = Ks*x3*x4**l*(m - 1)/alpha
-
-        D = x10*x11
-
+        x0 = theta - theta_range[0]
+        x2 = -x0*x1
+        x4 = x2**x3
+        x5 = (1 - x4)**m
+        x6 = x5 - 2
+        x7 = (x5*x6 + 1)/x5
+        x9 = Ks*x1*x2**x8*x3*(m - 1)/alpha
+        D = x7*x9
         if derivatives == 0: return D
-
-        x12 = (x2/(theta_range[1] + x1))**x0
-        x13 = 1 - x12
-        x14 = x13**m
-        x15 = 1/x14
-        x16 = x14 + x15 - 2
-        x17 = x0*x11
-
-        dD_dtheta = x17*x6*(l*x16 - x0*x16 - x12*(x14 - x15)/x13)/x2
-
+        x10 = (x1*(-theta + theta_range[0]))**x3
+        x11 = (1 - x10)**m
+        x12 = x4/(x10 - 1)
+        x13 = (x11*(x11 - 2) + 1)/x11
+        dD_dtheta = x9*(-x12*x13 + 2*x12*(x11 - 1) + x13*x8)/x0
         if derivatives == 1: return D, dD_dtheta
-
-        x18 = l*x9
-        x19 = 1/(x5 - 1)
-        x20 = x19*(x7 - x8)
-        x21 = 2*x0
-        x22 = x0*x7
-        x23 = x0*x8
-        x24 = x19*x5
-
-        d2D_dtheta2 = x17*(2*l*x20 + x10*(x0 + 1) - x18*x21 + x18*(l - 1) + x19*(-x22*x24 + x22 + x23*x24 - x23 + x24*x7 + x24*x8 - x7 + x8) - x20*x21)/x2**2
-
+        x14 = x4 - 1
+        x15 = x2**(2*x3)/x14**2
+        x16 = 4*x5 - 4
+        x17 = x4/x14
+        x18 = x7*x8
+        x19 = x17*x7
+        x20 = x15*x7
+        x21 = x3*x5
+        x22 = x3*x6
+        d2D_dtheta2 = x9*(-x15*x16 + x16*x17*x8 - 2*x17*x18 + x17*(-x17*x21 - x17*x22 + 3*x17*x5 + x17*x6 + x21 + x22 - 2*x5 + 2) - x18 - x19*x3 + x19 + x20*x3 + x20 + x7*x8**2)/x0**2
         if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
-
-        raise ValueError("derivatives must be 0, 1, or 2")
+        raise ValueError("derivatives must be 0, 1 or 2")
+    # ----------------------- End generated code ----------------------- #
 
     return D
 
