@@ -1303,7 +1303,7 @@ def inverse(o, samples):
     samples, indices = np.unique(samples, return_index=True)
     o = o[indices]
 
-    o_func = PchipInterpolator(x=samples, y=o)
+    o_func = PchipInterpolator(x=samples, y=o, extrapolate=False)
 
     o_antiderivative_func = o_func.antiderivative()
     o_antiderivative_i = o_func.antiderivative()(i)
