@@ -1291,11 +1291,15 @@ def inverse(o, samples):
     Boltzmann-transformed equation for :math:`D`.
     """
 
+    o = np.asarray(o)
+
     if not np.all(np.diff(o) > 0):
         raise ValueError("o must be strictly increasing")
 
-    if not(np.all(np.diff(samples) >= -1e-12)
-            or np.all(np.diff(samples) <= 1e-12)):
+    samples = np.asarray(samples)
+
+    dsamples = np.diff(samples)
+    if not(np.all(dsamples >= -1e-12) or np.all(dsamples <= 1e-12)):
         raise ValueError("samples must be monotonic")
 
     i = samples[-1]
@@ -1306,9 +1310,9 @@ def inverse(o, samples):
     o_func = PchipInterpolator(x=samples, y=o, extrapolate=False)
 
     o_antiderivative_func = o_func.antiderivative()
-    o_antiderivative_i = o_func.antiderivative()(i)
+    o_antiderivative_i = o_antiderivative_func(i)
 
-    o_funcs = [o_func.derivative(i) for i in range(4)]
+    o_funcs = [o_func.derivative(n) for n in range(4)]
 
     def D(theta, derivatives=0):
 
