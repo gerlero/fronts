@@ -17,9 +17,13 @@ version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", init, re.M).group(1)
 extras = {
     'examples': ['matplotlib'],
     'symbolic': ['sympy'],
-    'doc': ['sphinx']
+    'doc': ['sphinx'],
+    'publish': ['setuptools', 'wheel', 'twine']
 }
-extras['dev'] = extras['examples'] + extras['symbolic'] + extras['doc']
+extras['dev'] = extras['examples'] \
+                + extras['symbolic'] \
+                + extras['doc'] \
+                + extras['publish']
 
 setuptools.setup(
     name='fronts',
