@@ -311,20 +311,23 @@ def ode(D, radial=False):
 
         theta, dtheta_do = y
 
-        jacobian = np.empty((2,2)+np.shape(o))
-
         D_, dD_dtheta, d2D_dtheta2 = D(theta, 2)
 
         k_o = k/o if k else 0
 
+        J = np.empty((2,2)+np.shape(o))
+        
         # The following expressions were obtained symbolically
-        # (see ../symbolic/ode_jac.py)
-        jacobian[0,0] = 0
-        jacobian[0,1] = 1
-        jacobian[1,0] = -dtheta_do*(2*D_*d2D_dtheta2*dtheta_do - dD_dtheta*(2*dD_dtheta*dtheta_do + o))/(2*D_**2)
-        jacobian[1,1] = -k_o - 2*dD_dtheta*dtheta_do/D_ - o/(2*D_)
+        # Source: ../symbolic/ode_jac.py
+        x0 = 1/D_
+        x1 = dD_dtheta*dtheta_do
+        x2 = x0*(o + 2*x1)/2
+        J[0,0] = 0
+        J[0,1] = 1
+        J[1,0] = -dtheta_do*x0*(d2D_dtheta2*dtheta_do - dD_dtheta*x2)
+        J[1,1] = -k_o - x0*x1 - x2
 
-        return jacobian
+        return J
 
     return fun, jac
 
