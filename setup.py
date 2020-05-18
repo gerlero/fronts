@@ -14,6 +14,13 @@ with open("fronts/__init__.py", 'r', encoding='utf-8') as f:
 version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", init, re.M).group(1)
 # Parse instead of import because we may not have dependencies available yet.
 
+extras = {
+    'examples': ['matplotlib'],
+    'symbolic': ['sympy'],
+    'doc': ['sphinx']
+}
+extras['dev'] = extras['examples'] + extras['symbolic'] + extras['doc']
+
 setuptools.setup(
     name='fronts',
     version=version,
@@ -45,5 +52,6 @@ setuptools.setup(
                  'Topic :: Software Development :: Libraries',
                  'Operating System :: OS Independent'],
     install_requires=['scipy>=1.0.0', 'numpy'],
+    extras_require=extras,
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*'
 )
