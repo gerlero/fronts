@@ -9,8 +9,8 @@ Users may also want to look at the example cases, available on the GitHub page u
 
 .. currentmodule:: fronts
 
-Main package `fronts`
-----------------------
+Main package ``fronts``
+-----------------------
 
 
 Solvers
@@ -50,8 +50,8 @@ Boltzmann transformation
     as_o
 
 
-Module `fronts.D`: D functions
-------------------------------
+Module ``fronts.D``: Diffusivity functions
+------------------------------------------
 
 .. autosummary::
     :toctree: stubs/

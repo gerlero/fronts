@@ -39,19 +39,19 @@ class Solution(BaseSolution):
     ----------
     sol : callable
         Solution to an ODE obtained with `ode`. For any float or
-        `numpy.ndarray` ``o`` in the closed interval [`ob`, `oi`],
-        ``sol(o)[0]`` are the values of :math:`\theta` at ``o``, and
-        ``sol(o)[1]`` are the values of the derivative :math:`d\theta/do` at 
-        ``o``. `sol` will only be evaluated in this interval.
+        one-dimensional NumPy array ``o`` with values in the closed interval
+        [`ob`, `oi`], ``sol(o)[0]`` are the values of :math:`\theta` at ``o``,
+        and ``sol(o)[1]`` are the values of the derivative :math:`d\theta/do`
+        at `o``. `sol` will only be evaluated in this interval.
     ob : float
-        :math:`o_b`. Determines the behavior of the boundary in the problem.
+        Parameter :math:`o_b`, which determines the behavior of the boundary in
+        the problem.
     oi : float
         Value of the Boltzmann variable at which the solution can be considered
         to be equal to the initial condition. Cannot be less than `ob`.
     D : callable
-        `D` used to obtain `sol`. Must be the same function that was passed to
-        `ode`.
-        
+        Function to evaluate :math:`D` at arbitrary values of the solution.
+        Must be callable with a float or NumPy array as its argument.
     """
     def __init__(self, sol, ob, oi, D):
         if ob > oi:
@@ -80,7 +80,7 @@ class Solution(BaseSolution):
 
     @property
     def ob(self):
-        """float: :math:`o_b`"""
+        """float: Parameter :math:`o_b`."""
         return self._ob
     
     def rb(self, t):
@@ -118,13 +118,12 @@ class Solution(BaseSolution):
 
         Parameters
         ----------
-        t : float or numpy.ndarray
+        t : float or numpy.ndarray, shape (n,)
             Time(s). Values must be positive.
 
         Returns
         -------
-        float or numpy.ndarray
-            The return is of the same type and shape as `t`.
+        float or numpy.ndarray, shape (n,)
         """
         return self.d_dr(self.rb(t), t)
 
@@ -137,13 +136,12 @@ class Solution(BaseSolution):
 
         Parameters
         ----------
-        t : float or numpy.ndarray
+        t : float or numpy.ndarray, shape (n,)
             Time(s). Values must be positive.
 
         Returns
         -------
-        float or numpy.ndarray
-            The return is of the same type and shape as `t`.
+        float or numpy.ndarray, shape (n,)
         """
         return self.d_dt(self.rb(t), t)
 
@@ -157,13 +155,12 @@ class Solution(BaseSolution):
 
         Parameters
         ----------
-        t : float or numpy.ndarray
+        t : float or numpy.ndarray, shape (n,)
             Time(s). Values must be positive.
 
         Returns
         -------
-        float or numpy.ndarray
-            The return is of the same type and shape as `t`.
+        float or numpy.ndarray, shape (n,)
         """
         return self.flux(self.rb(t), t)
 
@@ -391,7 +388,7 @@ class _DirichletShooter(_Shooter):
 def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
           d_dob_bracket=None, maxiter=100, verbose=0):
     r"""
-    Solve an instance of the general problem.
+    Solve a problem with a Dirichlet boundary condition.
 
     Given a positive function `D`, scalars :math:`\theta_i`, :math:`\theta_b`
     and :math:`o_b`, and coordinate unit vector :math:`\mathbf{\hat{r}}`, finds
@@ -409,42 +406,75 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
     ----------
     D : callable or `sympy.Expression` or str or float
         Callable that evaluates :math:`D` and its derivatives, obtained from
-        the :mod:`fronts.D` module or defined in the same manner.
+        the :mod:`fronts.D` module or defined in the same manner---i.e.:
 
-        Alternatively, an expression for :math:`D` in the form of a string or
-        `sympy.Expression` with a single variable.
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its
+                first derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+        
+        When called by this function, ``theta`` is always a single float.
+        However, calls as ``D(theta)`` should also accept a NumPy array
+        argument.
+
+        Alternatively, instead of a callable, the argument can be the
+        expression of :math:`D` in the form of a string or `sympy.Expression`
+        with a single variable. In this case, the solver will differentiate and
+        evaluate the expression as necessary.
     i : float
-        :math:`\theta_i`, the initial value of :math:`\theta` in the domain.
+        Initial condition, :math:`\theta_i`.
     b : float
-        :math:`\theta_b`, the value of :math:`\theta` imposed at the boundary.
+        Imposed boundary value, :math:`\theta_b`.
     radial : {False, 'cylindrical', 'polar', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
 
-            *   `False` (default)
+            *   False (default):
                 :math:`\mathbf{\hat{r}}` is any coordinate unit vector in
                 rectangular (Cartesian) coordinates, or an axial unit vector in
                 a cylindrical coordinate system
-            *   ``'cylindrical'`` or ``'polar'``
+            *   ``'cylindrical'`` or ``'polar'``:
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 cylindrical or polar coordinate system
-            *   ``'spherical'``
+            *   ``'spherical'``:
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 spherical coordinate system
     ob : float, optional
-        :math:`o_b`, which determines the behavior of the boundary. The default
-        is zero, which implies that the boundary always exists at :math:`r=0`.
-        It must be strictly positive if `radial` is not `False`. Be aware that
-        a non-zero value implies a moving boundary.
+        Parameter :math:`o_b`, which determines the behavior of the boundary.
+        The default is zero, which means that the boundary always exists at
+        :math:`r=0`. It must be strictly positive if `radial` is not False. A
+        non-zero value implies a moving boundary.
+
+    Returns
+    -------
+    solution : Solution
+        See :class:`Solution` for a description of the solution object.
+        Additional fields specific to this solver are included in the object:
+
+            *   `o` *(numpy.ndarray, shape (n,))* --
+                Final solver mesh, in terms of the Boltzmann variable.
+            *   `niter` *(int)* --
+                Number of iterations required to find the solution.
+            *   `d_dob_bracket` *(sequence of two floats or None)* --
+                If available, an interval that contains the value of
+                :math:`d\theta/do|_b`. May be used as the input `d_dob_bracket`
+                in a subsequent call with a smaller `itol` for the same problem
+                in order to avoid reduntant iterations. Whether this interval
+                is available or not depends on the strategy used internally by
+                the solver; in particular, this field is never `None` if a
+                `d_dob_bracket` is passed when calling the function.
+
+    Other parameters
+    ----------------
     itol : float, optional
         Absolute tolerance for the initial condition.
     d_dob_hint : None or float, optional
         Optional hint to the solver. If given, it should be a number close to
         the expected value of the derivative of :math:`\theta` with respect to
-        the Boltzmann variable `o` at the boundary (i.e.,
-        :math:`d\theta/do|_b`) in the solution to be found. This parameter is
-        typically not needed.
-    d_dob_bracket : None or sequence of two floats
+        the Boltzmann variable at the boundary (i.e., :math:`d\theta/do|_b`) in
+        the solution to be found. This parameter is typically not needed.
+    d_dob_bracket : None or sequence of two floats, optional
         Optional search interval that brackets the value of
         :math:`d\theta/do|_b` in the solution. If given, the solver will use
         bisection to find a solution in which :math:`d\theta/do|_b` falls
@@ -458,28 +488,9 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
     verbose : {0, 1, 2}, optional
         Level of algorithm's verbosity. Must be one of the following:
 
-            * 0 (default) : work silently.
-            * 1 : display a termination report.
-            * 2 : display progress during iterations.
-
-    Returns
-    -------
-    solution : Solution
-        See `Solution` for a description of the solution object.
-        Additional fields specific to this solver are included in the object:
-
-            *   `o` *(numpy.ndarray, shape (n,))*
-                Final solver mesh, in terms of the Boltzmann variable `o`.
-            *   `niter` *(int)*
-                Number of iterations required to find the solution.
-            *   `d_dob_bracket` *(sequence of two floats or None)*
-                If available, an interval that contains the value of
-                :math:`d\theta/do|_b`. May be used as the input `d_dob_bracket`
-                in a subsequent call with a smaller `itol` for the same problem
-                in order to avoid reduntant iterations. Whether this interval
-                is available or not depends on the strategy used internally by
-                the solver; in particular, this field is never `None` if a
-                `d_dob_bracket` is passed when calling the function.
+            * 0 (default): work silently
+            * 1: display a termination report
+            * 2: also display progress during iterations
 
     See also
     --------
@@ -488,22 +499,18 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
 
     Notes
     -----
-    Given the expression of :math:`r_b` which specifies the location of the
-    boundary, a fixed boundary can be had only if :math:`o_b=0`. Any other
-    :math:`o_b` implies a moving boundary. This restriction affects radial
-    problems in particular.
-
     This function works by transforming the partial differential equation with
-    the Boltzmann transformation using `ode` and then solving the resulting ODE
-    repeatedly with the 'Radau' method as implemented in the `scipy.integrate`
-    module and a custom shooting algorithm. The boundary condition is satisfied
-    exactly as the starting point, and the algorithm iterates with different
-    values of :math:`d\theta/do|_b` until it finds the solution that also
-    satisfies the initial condition within the specified tolerance. Trial
-    values of :math:`d\theta/do|_b` are selected automatically by default
-    (taking into account an optional hint if passed by the user), or by
-    bisecting an optional search interval. This scheme assumes that
-    :math:`d\theta/do|_b` varies continuously with :math:`\theta_i`.
+    the Boltzmann transformation using :func:`ode` and then solving the
+    resulting ODE repeatedly with the 'Radau' method as implemented in the 
+    :mod:`scipy.integrate` module and a custom shooting algorithm. The boundary
+    condition is satisfied exactly as the starting point, and the algorithm
+    iterates with different values of :math:`d\theta/do|_b` until it finds the
+    solution that also verifies the initial condition within the specified
+    tolerance. Trial values of :math:`d\theta/do|_b` are selected automatically
+    by default (using heuristics, which can also take into account an optional
+    hint if passed by the user), or by bisecting an optional search interval.
+    This scheme assumes that :math:`d\theta/do|_b` varies continuously with
+    :math:`\theta_i`.
     """
     if verbose:
         start_time = timer()
@@ -766,43 +773,81 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     ----------
     D : callable or `sympy.Expression` or str or float
         Callable that evaluates :math:`D` and its derivatives, obtained from
-        the :mod:`fronts.D` module or defined in the same manner.
+        the :mod:`fronts.D` module or defined in the same manner---i.e.:
 
-        Alternatively, an expression for :math:`D` in the form of a string or
-        `sympy.Expression` with a single variable.
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its
+                first derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+        
+        where ``theta`` is always a float in the latter two cases, but it may
+        be either a single float or a NumPy array when `D` is called as
+        ``D(theta)``.
+
+        Alternatively, instead of a callable, the argument can be the
+        expression of :math:`D` in the form of a string or `sympy.Expression`
+        with a single variable. In this case, the solver will differentiate and
+        evaluate the expression as necessary.
     i : float
-        :math:`\theta_i`, the initial value of :math:`\theta` in the domain.
+        Initial condition, :math:`\theta_i`.
     Qb : float
-        :math:`Q_b`, flow rate of :math:`\theta` imposed at the boundary. A
-        positive value means that :math:`\theta` is flowing into the domain;
-        negative values mean that :math:`\theta` flows out of the domain.
+        Imposed flow rate of :math:`\theta` at the boundary, :math:`Q_b`.
+
+        The flow rate is considered in the direction of
+        :math:`\mathbf{\hat{r}}`: a positive value means that :math:`\theta` is
+        flowing into the domain; negative values mean that :math:`\theta` flows
+        out of the domain.
     radial : {'cylindrical', 'polar'}
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
 
-            *   ``'cylindrical'``
+            *   ``'cylindrical'`` :
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 cylindrical coordinate system
-            *   ``'polar'``
+            *   ``'polar'`` :
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 polar coordinate system
     ob : float, optional
-        :math:`o_b`, which determines the behavior of the boundary. It must be
-        positive. The boundary acts as a line source or sink in the limit where
-        `ob` tends to zero.
+        Parameter :math:`o_b`, which determines the behavior of the boundary.
+        It must be positive. The boundary acts as a line source or sink in the
+        limit where `ob` tends to zero.
     angle : float, optional
-        Total angle of the domain. Must be positive and no greater than
-        :math:`2\pi`.
+        Total angle covered by the domain. The default is :math:`2\pi`, which
+        means that :math:`\theta` may flow through the boundary in all
+        directions. Must be positive and no greater than :math:`2\pi`.
     height : None or float, optional
         Axial height of the domain if ``radial=='cylindrical'``. Not allowed if
         ``radial=='polar'``.
+
+    Returns
+    -------
+    solution : Solution
+        See :class:`Solution` for a description of the solution object.
+        Additional fields specific to this solver are included in the object:
+
+            *   `o` *(numpy.ndarray, shape (n,))* --
+                Final solver mesh, in terms of the Boltzmann variable.
+            *   `niter` *(int)* --
+                Number of iterations required to find the solution.
+            *   `b_bracket` *(sequence of two floats or None)* --
+                If available, an interval that contains the value of
+                :math:`\theta_b`. May be used as the input `b_bracket` in a
+                subsequent call with a smaller `itol` for the same problem in
+                order to avoid reduntant iterations. Whether this interval is
+                available or not depends on the strategy used internally by the
+                solver; in particular, this field is never `None` if a
+                `b_bracket` is passed when calling the function.
+
+    Other parameters
+    ----------------
     itol : float, optional
-        Absolute tolerance for :math:`\theta_i`.
+        Absolute tolerance for the initial condition.
     b_hint : None or float, optional
         Optional hint to the solver. If given, it should be a number close to
         the expected value of :math:`\theta` at the boundary (i.e.
         :math:`\theta_b`) in the solution to be found.
-    b_bracket : None or sequence of two floats
+    b_bracket : None or sequence of two floats, optional
         Optional search interval that brackets the value of :math:`\theta_b`
         in the solution. If given, the solver will use bisection to find a
         solution in which :math:`\theta_b` falls inside that interval (a
@@ -815,28 +860,9 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     verbose : {0, 1, 2}, optional
         Level of algorithm's verbosity. Must be one of the following:
 
-            * 0 (default) : work silently.
-            * 1 : display a termination report.
-            * 2 : display progress during iterations.
-
-    Returns
-    -------
-    solution : Solution
-        See `Solution` for a description of the solution object.
-        Additional fields specific to this solver are included in the object:
-
-            *   `o` *(numpy.ndarray, shape (n,))*
-                Final solver mesh, in terms of the Boltzmann variable `o`.
-            *   `niter` *(int)*
-                Number of iterations required to find the solution.
-            *   `b_bracket` *(sequence of two floats or None)*
-                If available, an interval that contains the value of
-                :math:`\theta_b`. May be used as the input `b_bracket` in a
-                subsequent call with a smaller `itol` for the same problem in
-                order to avoid reduntant iterations. Whether this interval is
-                available or not depends on the strategy used internally by the
-                solver; in particular, this field is never `None` if a
-                `b_bracket` is passed when calling the function.
+            * 0 (default): work silently
+            * 1: display a termination report
+            * 2: also display progress during iterations
 
     See also
     --------
@@ -845,16 +871,17 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     Notes
     -----
     This function works by transforming the partial differential equation with
-    the Boltzmann transformation using `ode` and then solving the resulting ODE
-    repeatedly with the 'Radau' method as implemented in the `scipy.integrate`
-    module and a custom shooting algorithm. The boundary condition is satisfied
-    exactly as the starting point, and the algorithm iterates with different
-    values of :math:`\theta` at the boundary until it finds the solution that
-    also satisfies the initial condition within the specified tolerance. Trial
-    values of :math:`\theta` at the boundary are selected automatically by
-    default (taking into account an optional hint if passed by the user), or by
-    bisecting an optional search interval. This scheme assumes that
-    :math:`\theta` at the boundary varies continuously with :math:`\theta_i`.
+    the Boltzmann transformation using :func:`ode` and then solving the
+    resulting ODE repeatedly with the 'Radau' method as implemented in the
+    :mod:`scipy.integrate` module and a custom shooting algorithm. The boundary
+    condition is satisfied exactly as the starting point, and the algorithm
+    iterates with different values of :math:`\theta` at the boundary until it
+    finds the solution that also verifies the initial condition within the
+    specified tolerance. Trial values of :math:`\theta` at the boundary are
+    selected automatically by default (using heuristics, which can also take
+    into account an optional hint if passed by the user), or by bisecting an
+    optional search interval. This scheme assumes that :math:`\theta` at the
+    boundary varies continuously with :math:`\theta_i`.
     """
     if verbose:
         start_time = timer()
@@ -1024,8 +1051,7 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
 def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
                      verbose=0):
     r"""
-    Solve an instance of the general problem starting from a guess of the
-    solution.
+    Alternative solver for problems with a Dirichlet boundary condition.
 
     Given a positive function `D`, scalars :math:`\theta_i`, :math:`\theta_b`
     and :math:`o_b`, and coordinate unit vector :math:`\mathbf{\hat{r}}`, finds
@@ -1039,81 +1065,96 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
         r_b(t) = o_b\sqrt t
         \end{cases}
 
-    Alternative to the main `solve` function. This function requires a starting
-    mesh and guess of the solution. It is significantly less robust than
-    `solve`, and will fail to converge in many cases that the latter can easily
-    handle (whether it converges will usually depend heavily on the problem,
-    the starting mesh and the guess of the solution; it will raise a
+    Alternative to the main :func:`solve` function. This function requires a
+    starting  mesh and guess of the solution. It is significantly less robust
+    than :func:`solve`, and will fail to converge in many cases that the latter
+    can easily handle (whether it converges will usually depend heavily on the
+    problem, the starting mesh and the guess of the solution; it will raise a
     `RuntimeError` on failure). However, when it converges it is usually faster
-    than `solve`, which may be an advantage for some use cases. You should
-    nonetheless prefer `solve` unless you have a particular use case for which
-    you have found this function to be better.
+    than :func:`solve`, which may be an advantage for some use cases. You
+    should nonetheless prefer :func:`solve` unless you have a particular use
+    case for which you have found this function to be better.
 
-    Possible use cases include refining a solution (note that `solve` can do
-    that too), optimization runs in which known solutions make good first
+    Possible use cases include refining a solution (note that :func:`solve` can
+    do that too), optimization runs in which known solutions make good first
     approximations of solutions with similar parameters and every second of
     computing time counts, and in the implementation of other solving
-    algorithms. In all these cases, `solve` should probably be used as a
+    algorithms. In all these cases, :func:`solve` should probably be used as a
     fallback for when this function fails.
 
     Parameters
     ----------
     D : callable or `sympy.Expression` or str or float
         Callable that evaluates :math:`D` and its derivatives, obtained from
-        the :mod:`fronts.D` module or defined in the same manner.
+        the :mod:`fronts.D` module or defined in the same manner---i.e.:
 
-        Alternatively, an expression for :math:`D` in the form of a string or
-        `sympy.Expression` with a single variable.
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its
+                first derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+        
+        where ``theta`` may be a single float or a NumPy array.
+
+        Alternatively, instead of a callable, the argument can be the
+        expression of :math:`D` in the form of a string or `sympy.Expression`
+        with a single variable. In this case, the solver will differentiate and
+        evaluate the expression as necessary.
     i : float
-        :math:`\theta_i`, the initial value of :math:`\theta` in the domain.
+        Initial condition, :math:`\theta_i`.
     b : float
-        :math:`\theta_b`, the value of :math:`\theta` imposed at the boundary.
+        Imposed boundary value, :math:`\theta_b`.
     o_guess : numpy.array_like, shape (n_guess,)
-        Starting mesh in terms of the Boltzmann variable `o`. Must be strictly
-        increasing. ``o_guess[0]`` is :math:`o_b`, which determines the
-        behavior of the boundary. If zero, it implies that the boundary always
-        exists at :math:`r=0`. It must be strictly positive if `radial` is not
-        `False`. Be aware that a non-zero value implies a moving boundary. On
-        the other end, ``o_guess[-1]`` must be large enough to contain the
+        Starting mesh in terms of the Boltzmann variable. Must be strictly
+        increasing. ``o_guess[0]`` is taken as the value of the parameter
+        :math:`o_b`, which determines the behavior of the boundary. If zero, it
+        implies that the boundary always exists at :math:`r=0`. It must be
+        strictly positive if `radial` is not False. A non-zero value implies
+        a moving boundary.
+
+        On the other end, ``o_guess[-1]`` must be large enough to contain the
         solution to the semi-infinite problem.
     guess : float or numpy.array_like, shape (n_guess,)
-        Starting guess of :math:`\theta` at the points in `o_guess`. If a
-        single value, the guess is assumed uniform.
+        Starting guess of the solution at the points in `o_guess`. If a single
+        value, the guess is assumed uniform.
     radial : {False, 'cylindrical', 'polar', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
 
-            *   `False` (default)
+            *   False (default):
                 :math:`\mathbf{\hat{r}}` is any coordinate unit vector in
                 rectangular (Cartesian) coordinates, or an axial unit vector in
                 a cylindrical coordinate system
-            *   ``'cylindrical'`` or ``'polar'``
+            *   ``'cylindrical'`` or ``'polar'``:
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 cylindrical or polar coordinate system
-            *   ``'spherical'``
+            *   ``'spherical'``:
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 spherical coordinate system
+
+    Returns
+    -------
+    solution : Solution
+        See :class:`Solution` for a description of the solution object.
+        Additional fields specific to this solver are included in the object:
+
+            *   `o` *(numpy.ndarray, shape (n,))* --
+                Final solver mesh, in terms of the Boltzmann variable.
+            *   `niter` *(int)* --
+                Number of iterations required to find the solution.
+            *   `rms_residuals` *(numpy.ndarray, shape (n-1,))* --
+                RMS values of the relative residuals over each mesh interval.
+
+    Other parameters
+    ----------------
     max_nodes : int, optional
         Maximum allowed number of mesh nodes.
     verbose : {0, 1, 2}, optional
         Level of algorithm's verbosity. Must be one of the following:
 
-            * 0 (default) : work silently.
-            * 1 : display a termination report.
-            * 2 : display progress during iterations.
-
-    Returns
-    -------
-    solution : Solution
-        See `Solution` for a description of the solution object.
-        Additional fields specific to this solver are included in the object:
-
-            *   `o` *(numpy.ndarray, shape (n,))*
-                Final solver mesh, in terms of the Boltzmann variable o.
-            *   `niter` *(int)*
-                Number of iterations required to find the solution.
-            *   `rms_residuals` *(numpy.ndarray, shape (n-1,))*
-                RMS values of the relative residuals over each mesh interval.
+            * 0 (default): work silently
+            * 1: display a termination report
+            * 2: also display progress during iterations
 
     See also
     --------
@@ -1121,15 +1162,10 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
 
     Notes
     -----
-    Given that the location of the boundary is expressed in terms of the
-    Boltzmann variable, a fixed boundary can be had only if ``o_guess[0]`` is
-    0. Any other  ``o_guess[0]`` implies a moving boundary. This restriction
-    affects radial problems in particular.
-
     This function works by transforming the partial differential equation with
-    the Boltzmann transformation using `ode` and then solving the resulting ODE
-    with SciPy's collocation-based boundary value problem solver
-    `scipy.integrate.solve_bvp` and a two-point Dirichlet condition that
+    the Boltzmann transformation using :func:`ode` and then solving the
+    resulting ODE with SciPy's collocation-based boundary value problem solver
+    :func:`scipy.integrate.solve_bvp` and a two-point Dirichlet condition that
     matches the boundary and initial conditions of the problem. Upon that
     solver's convergence, it runs a final check on whether the candidate
     solution also satisfies the semi-infinite condition (which implies
@@ -1197,7 +1233,7 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
 
 def inverse(o, samples):
     r"""
-    Solve an inverse problem.
+    Extract `D` from samples of a solution.
 
     Given a function :math:`\theta` of `r` and `t`, and scalars
     :math:`\theta_i`, :math:`\theta_b` and :math:`o_b`, finds a positive
@@ -1223,20 +1259,25 @@ def inverse(o, samples):
 
     samples : numpy.array_like, shape (n,)
         Values of :math:`\theta` at `o`. Must be monotonic (either
-        non-increasing or non-decreasing) and ``samples[-1]`` must be
-        :math:`\theta_i`.
+        non-increasing or non-decreasing) and ``samples[-1]`` must be the
+        initial value :math:`\theta_i`.
 
     Returns
     -------
     D : callable
-        Twice-differentiable function that maps the range of :math:`\theta` to
-        positive values. It can be called as ``D(theta)`` to evaluate it at
-        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
-        1 or 2, in which case the first ``n`` derivatives of the function
-        evaluated at the same ``theta`` are included (in order) as additional
-        return values. While mathematically a scalar function, `D` operates in
-        a vectorized fashion with the same semantics when ``theta`` is a
-        `numpy.ndarray`.
+        Function to evaluate :math:`D` and its derivatives:
+
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its
+                first derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+        
+        In all cases, the argument ``theta`` may be a single float or a NumPy
+        array.
+
+        :math:`D` is guaranteed to be continuous; however, its derivatives are
+        not.
 
     See also
     --------
@@ -1245,25 +1286,9 @@ def inverse(o, samples):
     Notes
     -----
     An `o` function of :math:`\theta` is constructed by interpolating the input
-    data with a PCHIP monotonic cubic spline. The function `D` is then
-    constructed by applying the expressions that result from solving the
-    Boltzmann-transformed equation for `D`.
-
-    While very fast, the scheme used by this function is somewhat limited in
-    its practical precision because of the use of interpolation (see the Notes)
-    and the fact that two :math:`\theta` functions that differ little in their
-    values may actually be the consequence of very different `D` functions. If
-    the goal is to find the parameters for a parameterized `D`, you may opt to
-    perform an optimization run using `solve` instead.
-
-    Depending on the number of points, the returned `D` may take orders of
-    magnitude more time to be evaluated than an analytical function. In that
-    case, you may notice that solvers work significantly slower when called
-    with this `D`.
-
-    This function also works if the problem has different boundary condition,
-    as long as it is compatible with the Boltzmann transformation so that
-    :math:`\theta` can be considered a function of `o` only.
+    data with a PCHIP monotonic cubic spline. The returned `D` uses the spline
+    to evaluate the expressions that result from solving the
+    Boltzmann-transformed equation for :math:`D`.
     """
 
     if not np.all(np.diff(o) > 0):

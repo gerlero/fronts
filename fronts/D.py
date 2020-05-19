@@ -24,13 +24,16 @@ def constant(D0):
     Returns
     -------
     D : callable
-        Function that maps any value of the solution to the given constant. It
-        can be called as ``D(_)`` to obtain the value. It can also be called as
-        ``D(_, n)`` with `n` equal to 1 or 2, in which case the first `n`
-        derivatives of the function, which are always zero, are included (in
-        order) as additional return values. While mathematically a scalar
-        function, `D` operates in a vectorized fashion with the same semantics
-        when its first argument is a `numpy.ndarray`.
+        Function to evaluate :math:`D` and its derivatives:
+
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its
+                first derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+
+        In all cases, the argument ``theta`` may be a single float or a NumPy
+        array.
 
     Notes
     -----
@@ -64,14 +67,16 @@ def from_expr(expr):
     Returns
     -------
     D : callable
-        Twice-differentiable function that maps values according to the
-        expression. It can be called as ``D(theta)`` to evaluate it at
-        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
-        1 or 2, in which case the first ``n`` derivatives of the function
-        evaluated at the same ``theta`` are included (in order) as additional
-        return values. While mathematically a scalar function, `D` operates in
-        a vectorized fashion with the same semantics when ``theta`` is a
-        `numpy.ndarray`.
+        Function to evaluate :math:`D` and its derivatives:
+
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its
+                first derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+        
+        In all cases, the argument ``theta`` may be a single float or a NumPy
+        array.
 
     Notes
     -----
@@ -139,14 +144,16 @@ def power_law(k, a=1.0, epsilon=0.0):
     Returns
     -------
     D : callable
-        Twice-differentiable function that maps values according to the
-        expression. It can be called as ``D(theta)`` to evaluate it at
-        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
-        1 or 2, in which case the first ``n`` derivatives of the function
-        evaluated at the same ``theta`` are included (in order) as additional
-        return values. While mathematically a scalar function, `D` operates in
-        a vectorized fashion with the same semantics when ``theta`` is a
-        `numpy.ndarray`.
+        Function to evaluate :math:`D` and its derivatives:
+
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its
+                first derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+
+        In all cases, the argument ``theta`` may be a single float or a NumPy
+        array.
 
     Notes
     -----
@@ -275,14 +282,16 @@ def brooks_and_corey(n, l=1.0, alpha=1.0, Ks=None, k=None, nu=1e-6, g=9.81,
     Returns
     -------
     D : callable
-        Twice-differentiable function that maps values of :math:`\theta` in the
-        open interval (:math:`\theta_r`, :math:`\theta_s`) to positive values.
-        It can be called as ``D(theta)`` to evaluate it at ``theta``. It can
-        also be called as ``D(theta, n)`` with ``n`` equal to 1 or 2, in which
-        case the first ``n`` derivatives of the function evaluated at the same
-        ``theta`` are included (in order) as additional return values. While
-        mathematically a scalar function, `D` operates in a vectorized fashion
-        with the same semantics when ``theta`` is a `numpy.ndarray`.
+        Function to evaluate :math:`D` and its derivatives:
+
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its
+                first derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+
+        In all cases, the argument ``theta`` may be a single float or a NumPy
+        array.
 
     References
     ----------
@@ -378,14 +387,16 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
     Returns
     -------
     D : callable
-        Twice-differentiable function that maps values of :math:`\theta` in the
-        open interval (:math:`\theta_r`, :math:`\theta_s`) to positive values.
-        It can be called as ``D(theta)`` to evaluate it at ``theta``. It can
-        also be called as ``D(theta, n)`` with ``n`` equal to 1 or 2, in which
-        case the first ``n`` derivatives of the function evaluated at the same
-        ``theta`` are included (in order) as additional return values. While
-        mathematically a scalar function, `D` operates in a vectorized fashion
-        with the same semantics when ``theta`` is a `numpy.ndarray`.
+        Function to evaluate :math:`D` and its derivatives:
+
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its
+                first derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+
+        In all cases, the argument ``theta`` may be a single float or a NumPy
+        array.
 
     Notes
     -----
@@ -514,14 +525,16 @@ def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
     Returns
     -------
     D : callable
-        Twice-differentiable function that maps values of :math:`\theta` in the
-        domains of both `kr` and `C` to positive values. It can be called as
-        ``D(theta)`` to evaluate it at ``theta``. It can also be called as
-        ``D(theta, n)`` with ``n`` equal to 1 or 2, in which case the first
-        ``n`` derivatives of the function evaluated at the same ``theta`` are
-        included (in order) as additional return values. While mathematically a
-        scalar function, `D` operates in a vectorized fashion with the same
-        semantics when ``theta`` is a `numpy.ndarray`.
+        Function to evaluate :math:`D` and its derivatives:
+
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its
+                first derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+
+        In all cases, the argument ``theta`` may be a single float or a NumPy
+        array.
     """
 
     Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)

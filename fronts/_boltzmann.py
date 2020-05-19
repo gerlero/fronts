@@ -24,18 +24,16 @@ def o(r, t):
     Parameters
     ----------
     r : float or numpy.ndarray
-        Location(s). If a `numpy.ndarray`, it must have a shape broadcastable
-        with `t`.
+        Location(s). If an array, it must have a shape broadcastable with `t`.
     t : float or numpy.ndarray
-        Time(s). If a `numpy.ndarray`, it must have a shape broadcastable with
-        `r`. Values must be positive.
+        Time(s). If an array, it must have a shape broadcastable with `r`.
+        Values must be positive.
 
     Returns
     -------
     o : float or numpy.ndarray
-        The return is a float if both `r` and `t` are floats. Otherwise it is a
-        `numpy.ndarray` of the shape that results from broadcasting `r` and
-        `t`.
+        The return is a float if both `r` and `t` are floats. Otherwise it is
+        an array of the shape that results from broadcasting `r` and `t`.
 
     See also
     --------
@@ -58,18 +56,16 @@ def do_dr(r, t):
     Parameters
     ----------
     r : float or numpy.ndarray
-        Location(s). If a `numpy.ndarray`, it must have a shape broadcastable
-        with `t`.
+        Location(s). If an array, it must have a shape broadcastable with `t`.
     t : float or numpy.ndarray
-        Time(s). If a `numpy.ndarray`, it must have a shape broadcastable with
-        `r`. Values must be positive.
+        Time(s). If an array, it must have a shape broadcastable with `r`.
+        Values must be positive.
 
     Returns
     -------
     do_dr : float or numpy.ndarray
-        The return is a float if both `r` and `t` are floats. Otherwise it is a
-        `numpy.ndarray` of the shape that results from broadcasting `r` and
-        `t`.
+        The return is a float if both `r` and `t` are floats. Otherwise it is
+        an array of the shape that results from broadcasting `r` and `t`.
 
     See also
     --------
@@ -89,18 +85,16 @@ def do_dt(r, t):
     Parameters
     ----------
     r : float or numpy.ndarray
-        Location(s). If a `numpy.ndarray`, it must have a shape broadcastable
-        with `t`.
+        Location(s). If an array, it must have a shape broadcastable with `t`.
     t : float or numpy.ndarray
-        Time(s). If a `numpy.ndarray`, it must have a shape broadcastable with
-        `r`. Values must be positive.
+        Time(s). If an array, it must have a shape broadcastable with `r`.
+        Values must be positive.
 
     Returns
     -------
     do_dt : float or numpy.ndarray
-        The return is a float if both `r` and `t` are floats. Otherwise it is a
-        `numpy.ndarray` of the shape that results from broadcasting `r` and
-        `t`.
+        The return is a float if both `r` and `t` are floats. Otherwise it is
+        an array of the shape that results from broadcasting `r` and `t`.
 
     See also
     --------
@@ -117,18 +111,17 @@ def r(o, t):
     Parameters
     ----------
     o : float or numpy.ndarray
-        Value(s) of the Boltzmann variable. If a `numpy.ndarray`, it must have
-        a shape broadcastable with `t`.
+        Value(s) of the Boltzmann variable. If an array, it must have a shape
+        broadcastable with `t`.
     t : float or numpy.ndarray
-        Time(s). If a `numpy.ndarray`, it must have a shape broadcastable with
-        `o`. Values must not be negative.
+        Time(s). If an array, it must have a shape broadcastable with `o`.
+        Values must not be negative.
 
     Returns
     -------
     r : float or numpy.ndarray
-        The return is a float if both `o` and `t` are floats. Otherwise it is a
-        `numpy.ndarray` of the shape that results from broadcasting `o` and
-        `t`.
+        The return is a float if both `o` and `t` are floats. Otherwise it is
+        an array of the shape that results from broadcasting `o` and `t`.
 
     See also
     --------
@@ -145,18 +138,17 @@ def t(o, r):
     Parameters
     ----------
     o : float or numpy.ndarray
-        Value(s) of the Boltzmann variable. If a `numpy.ndarray`, it must have
-        a shape broadcastable with `r`. Values must not be zero.
+        Value(s) of the Boltzmann variable. If a NumPy array, it must have a
+        shape broadcastable with `r`. Values must not be zero.
     r : float or numpy.ndarray
-        Location(s). If a `numpy.ndarray`, it must have a shape broadcastable
-        with `o`.
+        Location(s). If a NumPy array, it must have a shape broadcastable with
+        `o`.
 
     Returns
     -------
     t : float or numpy.ndarray
-        The return is a float if both `o` and `r` are floats. Otherwise it is a
-        `numpy.ndarray` of the shape that results from broadcasting `o` and
-        `r`.
+        The return is a float if both `o` and `r` are floats. Otherwise it is
+        an array of the shape that results from broadcasting `o` and `r`.
 
     See also
     --------
@@ -179,21 +171,20 @@ def as_o(r=None, t=None, o=None):
     Parameters
     ----------
     r : None or float or numpy.ndarray, optional
-        Location(s). If a `numpy.ndarray`, it must have a shape broadcastable
-        with `t`. If this parameter is used, you must also pass `t` and cannot
-        pass `o`.
+        Location(s). If this parameter is used, `t` must also be given. If an
+        array, it must have a shape broadcastable with `t`.
     t : None or float or numpy.ndarray, optional
-        Time(s). If a `numpy.ndarray`, it must have a shape broadcastable with
-        `r`. Values must be positive. If this parameter is used, you must also
-        pass `r` and cannot pass `o`.
+        Time(s). If an array, it must have a shape broadcastable with `r`.
+        Values must be positive.
     o : None or float or numpy.ndarray, optional
-        Value(s) of the Boltzmann variable. If this parameter is used, you
-        cannot pass `r` or `t`.
+        Value(s) of the Boltzmann variable. If this parameter is used, neither
+        `r` nor `t` can be given.
 
     Returns
     -------
     o : float or numpy.ndarray
-        Passes `o` through if it is given. Otherwise, it returns ``o(r,t)``.
+        Passes `o` through if it is given. Otherwise, it calls the function
+        :func:`o` and returns ``o(r,t)``.
 
     See also
     --------
@@ -219,50 +210,45 @@ def ode(D, radial=False):
     Transform the PDE into an ODE.
 
     Given a positive function `D` and coordinate unit vector
-    :math:`\mathbf{\hat{r}}`, transform the partial differential equation
-    (PDE) in which :math:`\theta` is the unknown function of `r` and `t`:
+    :math:`\mathbf{\hat{r}}`, transforms the partial differential equation
+    (PDE) in which :math:`\theta` is the unknown function of :math:`r` and
+    :math:`t`:
 
     .. math:: \dfrac{\partial\theta}{\partial t} =
         \nabla\cdot\left[D(\theta)\dfrac{\partial\theta}{\partial r}
         \mathbf{\hat{r}}\right]
 
     into an ordinary differential equation (ODE) where :math:`\theta` is an
-    unknown function of the Boltzmann variable `o`.
+    unknown function of the Boltzmann variable :math:`o`.
 
     This function returns the `fun` and `jac` callables that may be used to
-    solve the ODE with the solvers included with SciPy (`scipy.integrate`
+    solve the ODE with the solvers included with SciPy (:mod:`scipy.integrate`
     module). The second-order ODE is expressed as a system of first-order ODEs
-    with independent variable `o` where ``y[0]`` in `fun` and `jac` correspond
-    to the value of the function :math:`\theta` itself and ``y[1]`` to its
-    first derivative :math:`d\theta/do`.
-
-    `fun` and `jac` support both non-vectorized usage (where their first
-    argument is a float) as well as vectorized usage (when `numpy.ndarray`
-    objects are passed as both arguments).
+    with independent variable :math:`o` where ``y[0]`` in `fun` and `jac`
+    correspond to the value of the function :math:`\theta` itself and ``y[1]``
+    to its first derivative :math:`d\theta/do`.
 
     Parameters
     ----------
     D : callable
-        Twice-differentiable function that maps the range of :math:`\theta` to
-        positive values. It can be called as ``D(theta)`` to evaluate it at
-        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
-        1 or 2, in which case the first ``n`` derivatives of the function
-        evaluated at the same ``theta`` are included (in order) as additional
-        return values. While mathematically a scalar function, `D` operates in
-        a vectorized fashion with the same semantics when ``theta`` is a
-        `numpy.ndarray`.
+        Callable as ``D(theta, 1)``, which must return both :math:`D` and its
+        first derivative evaluated at ``theta``. If the returned `jac` will be
+        used, it must also be callable as ``D(theta, 2)`` to obtain :math:`D`,
+        its first derivative, and its second derivative evaluated at ``theta``.
+        To allow vectorized usage of `fun` and `jac`, `D` must be able to
+        accept a NumPy array as ``theta``.
     radial : {False, 'cylindrical', 'polar', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
 
-            *   `False` (default)
+            *   False (default):
                 :math:`\mathbf{\hat{r}}` is any coordinate unit vector in
                 rectangular (Cartesian) coordinates, or an axial unit vector in
                 a cylindrical coordinate system
-            *   ``'cylindrical'`` or ``'polar'``
+            *   ``'cylindrical'`` or ``'polar'``:
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 cylindrical or polar coordinate system
-            *   ``'spherical'``
+            *   ``'spherical'``:
                 :math:`\mathbf{\hat{r}}` is the radial unit vector in a
                 spherical coordinate system
 
@@ -271,9 +257,18 @@ def ode(D, radial=False):
     fun : callable
         Function that returns the right-hand side of the system. The calling
         signature is ``fun(o, y)``.
+        In non-vectorized usage, ``o`` is a float and ``y`` is any sequence of
+        two floats, and `fun` returns a NumPy array with shape (2,). For
+        vectorized usage, ``o`` and ``y`` must be NumPy arrays with shapes (n,)
+        and (2,n) respectively, and the return is a NumPy array of shape (2,n).
     jac : callable
         Function that returns the Jacobian matrix of the right-hand side of the
         system. The calling signature is ``jac(o, y)``.
+        In non-vectorized usage, ``o`` is a scalar and ``y`` is an array-like
+        with shape (2,n), and the return is a NumPy array with shape (2,2). In
+        vectorized usage, ``o`` and ``y`` must be NumPy arrays with shapes (n,)
+        and (2,n) respectively, and the return is a NumPy array of shape
+        (2,2,n).
 
     See also
     --------
@@ -282,7 +277,7 @@ def ode(D, radial=False):
 
     Notes
     -----
-    If `radial` is not `False`, the PDE is undefined at :math:`r=0`, and
+    If `radial` is other than `False`, the PDE is undefined at :math:`r=0`, and
     therefore the returned ODE is also undefined for :math:`o=0`.
     """
 
@@ -351,8 +346,8 @@ class BaseSolution(object):
         at ``o``, and ``sol(o)[1]`` are the values of the derivative
         :math:`d\theta/do` at ``o``.
     D : callable
-        `D` used to obtain `sol`. Must be the same function that was passed to
-        `ode`.
+        Function to evaluate :math:`D` at arbitrary values of the solution.
+        Must be callable with a float or NumPy array as its argument.
 
     See also
     --------
@@ -371,25 +366,17 @@ class BaseSolution(object):
 
         Parameters
         ----------
-        r : None or float or numpy.ndarray, optional
-            Location(s). If a `numpy.ndarray`, it must have a shape
-            broadcastable with `t`. If this parameter is used, you must also
-            pass `t` and cannot pass `o`.
+        r : None or float or numpy.ndarray, shape (n,), optional
+            Location(s). If this parameter is used, `t` must also be given.
         t : None or float or numpy.ndarray, optional
-            Time(s). If a `numpy.ndarray`, it must have a shape broadcastable
-            ith `r`. Values must be positive. If this parameter is used, you
-            must also pass `r` and cannot pass `o`.
-        o : None or float or numpy.ndarray, optional
-            Value(s) of the Boltzmann variable. If this parameter is used, you
-            cannot pass `r` or `t`.
+            Time(s). Values must be positive.
+        o : None or float or numpy.ndarray, shape (n,) optional
+            Value(s) of the Boltzmann variable. If this parameter is used,
+            neither `r` nor `t` can be given.
 
         Returns
         -------
-        float or numpy.ndarray
-            If `o` is passed, the return is of the same type and shape as `o`.
-            Otherwise, return is a float if both `r` and `t` are floats, or a
-            `numpy.ndarray` of the shape that results from broadcasting `r` and
-            `t`.
+        float or numpy.ndarray, shape (n,)
         """
         return self._sol(as_o(r,t,o))[0]
 
@@ -401,19 +388,14 @@ class BaseSolution(object):
 
         Parameters
         ----------
-        r : float or numpy.ndarray
-            Location(s) along the coordinate. If a `numpy.ndarray`, it must
-            have a shape broadcastable with `t`.
-        t : float or numpy.ndarray
-            Time(s). If a `numpy.ndarray`, it must have a shape broadcastable
-            with `r`. Values must be positive.
+        r : float or numpy.ndarray, shape (n,)
+            Location(s) along the coordinate.
+        t : float or numpy.ndarray, shape (n,)
+            Time(s). Values must be positive.
 
         Returns
         -------
-        float or numpy.ndarray
-            The return is a float if both `r` and `t` are floats. Otherwise it
-            is a `numpy.ndarray` of the shape that results from broadcasting
-            `r` and `t`.
+        float or numpy.ndarray, shape (n,)
         """
         return self.d_do(r,t) * do_dr(r,t)
 
@@ -425,19 +407,14 @@ class BaseSolution(object):
 
         Parameters
         ----------
-        r : float or numpy.ndarray
-            Location(s). If a `numpy.ndarray`, it must have a shape
-            broadcastable with `t`.
-        t : float or numpy.ndarray
-            Time(s). If a `numpy.ndarray`, it must have a shape broadcastable
-            with `r`. Values must be positive.
+        r : float or numpy.ndarray, shape (n,)
+            Location(s).
+        t : float or numpy.ndarray, shape (n,)
+            Time(s). Values must be positive.
 
         Returns
         -------
-        float or numpy.ndarray
-            The return is a float if both `r` and `t` are floats. Otherwise it
-            is a `numpy.ndarray` of the shape that results from broadcasting
-            `r` and `t`.
+        float or numpy.ndarray, shape (n,)
         """
         return self.d_do(r,t) * do_dt(r,t)
 
@@ -451,19 +428,14 @@ class BaseSolution(object):
 
         Parameters
         ----------
-        r : float or numpy.ndarray
-            Location(s). If a `numpy.ndarray`, it must have a shape
-            broadcastable with `t`.
-        t : float or numpy.ndarray
-            Time(s). If a `numpy.ndarray`, it must have a shape broadcastable
-            with `r`. Values must be positive.
+        r : float or numpy.ndarray, shape (n,)
+            Location(s).
+        t : float or numpy.ndarray, shape (n,)
+            Time(s). Values must be positive.
 
         Returns
         -------
-        float or numpy.ndarray
-            The return is a float if both `r` and `t` are floats. Otherwise it
-            is a `numpy.ndarray` of the shape that results from broadcasting
-            `r` and `t`.
+        float or numpy.ndarray, shape (n,)
         """
         return -self._D(self(r,t)) * self.d_dr(r,t)
 
@@ -477,24 +449,16 @@ class BaseSolution(object):
 
         Parameters
         ----------
-        r : None or float or numpy.ndarray, optional
-            Location(s). If a `numpy.ndarray`, it must have a shape
-            broadcastable with `t`. If this parameter is used, you must also
-            pass `t` and cannot pass `o`.
-        t : None or float or numpy.ndarray, optional
-            Time(s). If a `numpy.ndarray`, it must have a shape broadcastable
-            with `r`. Values must be positive. If this parameter is used, you
-            must also pass `r` and cannot pass `o`.
-        o : None or float or numpy.ndarray, optional
-            Value(s) of the Boltzmann variable. If this parameter is used, you
-            cannot pass `r` or `t`.
+        r : None or float or numpy.ndarray, shape (n,), optional
+            Location(s). If this parameter is used, `t` must also be given.
+        t : None or float or numpy.ndarray, shape (n,), optional
+            Time(s). Values must be positive.
+        o : None or float or numpy.ndarray, shape (n,), optional
+            Value(s) of the Boltzmann variable. If this parameter is used,
+            neither `r` nor `t` can be given.
 
         Returns
         -------
-        float or numpy.ndarray
-            If `o` is passed, the return is of the same type and shape as `o`.
-            Otherwise, the return is a float if both `r` and `t` are floats, or
-            a `numpy.ndarray` of the shape that results from broadcasting `r`
-            and `t`.
+        float or numpy.ndarray, shape (n,)
         """
         return self._sol(as_o(r,t,o))[1]
