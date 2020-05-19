@@ -299,7 +299,7 @@ def ode(D, radial=False):
 
         d2theta_do2 = -((o/2 + dD_dtheta*dtheta_do)/D_ + k_o)*dtheta_do
 
-        return np.array((dtheta_do, d2theta_do2))
+        return np.array((dtheta_do, d2theta_do2), float)
 
 
     def jac(o, y):
