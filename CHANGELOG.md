@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add new properties `b`, `d_dob`, `i` and `ob`, and methods `d_drb()`, `d_dtb()` and `fluxb()` to the `Solution` class.
 - Add optional `d_dob_hint` parameter to `solve()`. Allows users to pass an optional hint to the new automatic mode, which may accelerate convergence in some scenarios.
 - Add execution time to the verbose output of solvers. Measures total CPU time in Python 3, or wall-clock time in Python 2.7.
+- Add `catch_errors` option to `ode()` that converts _D_ domain errors to invalid values for easier compatibility with SciPy code.
 - Add ``'polar'`` as a valid value for the `radial` parameter of `ode()` and solvers.
 - Add `from_expr()` to the `fronts.D` module, which transforms expressions into callable _D_ functions.
 - Add `__version__` attribute to the main package, which stores the current version as a string.

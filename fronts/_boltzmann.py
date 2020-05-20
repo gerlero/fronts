@@ -205,7 +205,7 @@ _k = {False: 0,
       'polar': 1,
       'spherical': 2}
 
-def ode(D, radial=False):
+def ode(D, radial=False, catch_errors=False):
     r"""
     Transform the PDE into an ODE.
 
@@ -270,6 +270,35 @@ def ode(D, radial=False):
         and (2,n) respectively, and the return is a NumPy array of shape
         (2,2,n).
 
+    Other parameters
+    ----------------
+    catch_errors : bool, optional
+        Whether to catch exceptions that may be attributed to a domain error of
+        `D` and convert them to NaN (or +/-Inf) values in the returns of `fun`
+        and `jac`. If True, the following exceptions will be caught as domain
+        errors:
+
+            *   `ValueError` and `ArithmeticError` (the latter includes
+                `ZeroDivisionError`) raised by a call to `D`
+            *   `ZeroDivisionError` when attempting to divide by a zero value
+                returned by `D`
+            *   `TypeError` when assigning to the return array (usually because
+                Python arithmetic inside `D` caused that function to return a
+                complex value)
+
+        Returning NaN or infinite values signals the domain error to a caller
+        that does not expect `fun` and `jac` to raise exceptions to indicate
+        this condition (such as SciPy).
+
+        This option is useful in non-vectorized usage, and particularly where
+        the invocation of `D` might use native Python mathematical functions
+        and types. It is less relevant in vectorized usage and other cases that
+        involve only NumPy types and functions, as those will not cause these
+        exceptions by default.
+
+        If False (default), the exceptions will be allowed to propagate to the
+        callers of `fun` and `jac`.
+
     See also
     --------
     BaseSolution
@@ -293,34 +322,93 @@ def ode(D, radial=False):
 
         theta, dtheta_do = y
 
-        D_, dD_dtheta = D(theta, 1)
+        try:
+            D1 = D(theta, 1)
+        except (ValueError, ArithmeticError):
+            if catch_errors:
+                return np.array((dtheta_do, np.nan*o), float)
+            else:
+                raise
+
+        D_, dD_dtheta = D1
 
         k_o = k/o if k else 0
 
-        d2theta_do2 = -((o/2 + dD_dtheta*dtheta_do)/D_ + k_o)*dtheta_do
+        N = (o/2 + dD_dtheta*dtheta_do)
 
-        return np.array((dtheta_do, d2theta_do2), float)
+        try:
+            R = N/D_
+        except ZeroDivisionError:
+            if catch_errors:
+                R = N*np.inf
+            else:
+                raise
+
+        d2theta_do2 = -(R + k_o)*dtheta_do
+
+        try:
+            return np.array((dtheta_do, d2theta_do2), float)
+        except TypeError:
+            if catch_errors:
+                return np.array((dtheta_do, np.nan*o), float)
+            else:
+                raise
 
 
     def jac(o, y):
 
         theta, dtheta_do = y
 
-        D_, dD_dtheta, d2D_dtheta2 = D(theta, 2)
+        J = np.empty((2,2)+np.shape(o))
+        J[0,0] = 0
+        J[0,1] = 1
+
+        try:
+            D2 = D(theta, 2)
+        except (ValueError, ArithmeticError):
+            if catch_errors:
+                try:
+                    # This second call to D will not be counted by solvers.
+                    # However, this is a very unlikely edge case.
+                    D1 = D(theta, 1)
+                except (ValueError, ArithmeticError):
+                    J[1,:] = np.nan
+                    return J
+                else:
+                    D_, dD_dtheta = D1
+                    d2D_dtheta2 = np.nan
+            else:
+                raise
+        else:
+            D_, dD_dtheta, d2D_dtheta2 = D2
 
         k_o = k/o if k else 0
 
-        J = np.empty((2,2)+np.shape(o))
-        
-        # The following expressions were obtained symbolically
+        # Jacobian expressions were obtained symbolically
         # Source: ../symbolic/ode_jac.py
-        x0 = 1/D_
+        try:
+            x0 = 1/D_
+        except ZeroDivisionError:
+            if catch_errors:
+                x0 = np.inf
+            else:
+                raise
         x1 = dD_dtheta*dtheta_do
         x2 = x0*(o + 2*x1)/2
-        J[0,0] = 0
-        J[0,1] = 1
-        J[1,0] = -dtheta_do*x0*(d2D_dtheta2*dtheta_do - dD_dtheta*x2)
-        J[1,1] = -k_o - x0*x1 - x2
+        try:
+            J[1,0] = -dtheta_do*x0*(d2D_dtheta2*dtheta_do - dD_dtheta*x2)
+        except TypeError:
+            if catch_errors:
+                J[1,0] = np.nan
+            else:
+                raise
+        try:
+            J[1,1] = -k_o - x0*x1 - x2
+        except TypeError:
+            if catch_errors:
+                J[1,1] = np.nan
+            else:
+                raise
 
         return J
 
@@ -332,7 +420,7 @@ class BaseSolution(object):
     Base class for solutions using the Boltzmann transformation.
 
     Represents a continuously differentiable function :math:`\theta` of `r` and
-    `t` such that: 
+    `t` such that:
 
     .. math::
         \dfrac{\partial\theta}{\partial t} = \nabla\cdot\left[D(\theta)
