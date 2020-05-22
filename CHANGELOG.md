@@ -15,8 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add optional `d_dob_hint` parameter to `solve()`. Allows users to pass an optional hint to the new automatic mode, which may accelerate convergence in some scenarios.
 - Add execution time to the verbose output of solvers. Measures total CPU time in Python 3, or wall-clock time in Python 2.7.
 - Add ``'polar'`` as a valid value for the `radial` parameter of `ode()` and solvers.
+- Add `from_expr()` to the `fronts.D` module, which transforms expressions into callable _D_ functions.
 - Add `__version__` attribute to the main package, which stores the current version as a string.
-- Support extra options during install: e.g., ```$ pip install fronts[examples]``` also installs Matplotlib, which is required to run the examples. Other options: ``[symbolic]``, ``[doc]``, ``[publish]``, and ``[dev]`` (the latter installs all extras).
+- Support extra options during install: e.g., ```$ pip install fronts[examples]``` also installs Matplotlib, which is required to run the examples. Other options: ``[doc]``, ``[publish]``, and ``[dev]`` (the latter installs all extras).
 
 ### Changed
 

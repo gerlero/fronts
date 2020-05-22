@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
-"""Included D functions."""
+"""D functions."""
 
 from __future__ import division, absolute_import, print_function
+
+import numpy as np
+import sympy
 
 
 def constant(D0):
@@ -45,6 +48,67 @@ def constant(D0):
         if derivatives == 0: return D0
 
         return (D0,) + (0,)*derivatives
+
+    return D
+
+
+def from_expr(expr):
+    """
+    Create a `D` function from a SymPy-compatible expression.
+
+    Parameters
+    ----------
+    expr : `sympy.Expression` or str or float
+        SymPy-compatible expression containing up to one free symbol.
+
+    Returns
+    -------
+    D : callable
+        Twice-differentiable function that maps values according to the
+        expression. It can be called as ``D(theta)`` to evaluate it at
+        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
+        1 or 2, in which case the first ``n`` derivatives of the function
+        evaluated at the same ``theta`` are included (in order) as additional
+        return values. While mathematically a scalar function, `D` operates in
+        a vectorized fashion with the same semantics when ``theta`` is a
+        `numpy.ndarray`.
+    """
+
+    expr = sympy.sympify(expr)
+
+    free = expr.free_symbols
+    if len(free) == 1:
+        [theta] = free
+    elif not free:
+        return constant(float(expr))
+    else:
+        raise ValueError("expression cannot contain more than one variable")
+
+    exprs = [expr]
+    for _ in range(2):
+        exprs.append(exprs[-1].diff(theta))
+
+    funcs = tuple(sympy.lambdify(theta, expr, modules=np) for expr in exprs)
+
+    def D(theta, derivatives=0):
+
+        try:
+            # Convert scalars to NumPy scalars; avoids
+            # https://github.com/sympy/sympy/issues/11306
+            theta = np.float64(theta)
+        except TypeError:
+            pass
+
+        if derivatives == 0:
+            return funcs[0](theta)
+
+        if derivatives == 1:
+            return funcs[0](theta), funcs[1](theta)
+
+        if derivatives == 2:
+            return funcs[0](theta), funcs[1](theta), funcs[2](theta)
+
+        raise ValueError("derivatives must be 0, 1 or 2")
 
     return D
 

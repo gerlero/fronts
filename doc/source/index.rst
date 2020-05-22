@@ -50,8 +50,8 @@ Boltzmann transformation
     as_o
 
 
-Module `fronts.D`: included D functions
---------------------------------------------
+Module `fronts.D`: D functions
+------------------------------
 
 .. autosummary::
     :toctree: stubs/
@@ -59,6 +59,7 @@ Module `fronts.D`: included D functions
     D.constant
     D.power_law
     D.van_genuchten
+    D.from_expr
     D.richards
 
 
