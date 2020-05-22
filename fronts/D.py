@@ -55,7 +55,7 @@ def constant(D0):
     return D
 
 
-def from_expr(expr, max_derivatives=2):
+def from_expr(expr, vectorized=True, max_derivatives=2):
     """
     Create a `D` function from a SymPy-compatible expression.
 
@@ -63,6 +63,20 @@ def from_expr(expr, max_derivatives=2):
     ----------
     expr : `sympy.Expression` or str or float
         SymPy-compatible expression containing up to one free symbol.
+    vectorized : bool, optional
+        Whether the returned `D` must be compatible with a solver that uses
+        vectorized calls.
+
+        If True (default), the first argument passed to `D` may always be
+        either a float or a NumPy array. However, if False, calls as
+        ``D(theta, 1)`` or ``D(theta, 2)`` will assume that ``theta`` is a
+        single float, which may allow for optimizations that speed up the
+        evaluations required by a solver that does not use vectorized calls.
+
+        Note that, regardless of this setting, calls to `D` that do not ask for
+        any derivatives (i.e., calls as ``D(theta)``) will always take floats
+        and arrays interchangeably. This behavior ensures that `D` is always
+        compatible with the solution classes.
     max_derivatives : int, optional
         Highest-order derivative of `D` that may be required. Can be 0, 1 or 2.
         The default is 2.
@@ -79,8 +93,10 @@ def from_expr(expr, max_derivatives=2):
                 :math:`D`, its first derivative, and its second derivative at
                 ``theta``
         
-        In all cases, the argument ``theta`` may be a single float or a NumPy
-        array.
+        If `vectorized` is True, the argument ``theta`` may be a single float
+        or a NumPy array in all cases. If `vectorized` is False, ``theta`` may
+        be either a float or an array when `D` is called as ``D(theta)``, but
+        it must be a float otherwise.
 
     Notes
     -----
@@ -122,28 +138,59 @@ def from_expr(expr, max_derivatives=2):
     for _ in range(max_derivatives):
         exprs.append(exprs[-1].diff(theta))
 
-    funcs = tuple(sympy.lambdify(theta, expr, modules=np) for expr in exprs)
 
-    def D(theta, derivatives=0):
+    if vectorized:
+        
+        funcs = tuple(sympy.lambdify(theta, expr, modules=np) for expr in exprs)
 
-        try:
-            # Convert scalars to NumPy scalars; avoids
-            # https://github.com/sympy/sympy/issues/11306
-            theta = np.float64(theta)
-        except TypeError:
-            pass
+        def D(theta, derivatives=0):
 
-        if derivatives == 0:
-            return funcs[0](theta)
+            try:
+                # Convert scalars to NumPy scalars; avoids
+                # https://github.com/sympy/sympy/issues/11306
+                theta = np.float64(theta)
+            except TypeError:
+                pass
 
-        if derivatives == 1:
-            return funcs[0](theta), funcs[1](theta)
+            if derivatives == 0:
+                return funcs[0](theta)
 
-        if derivatives == 2 and max_derivatives == 2:
-            return funcs[0](theta), funcs[1](theta), funcs[2](theta)
+            if derivatives == 1:
+                return funcs[0](theta), funcs[1](theta)
 
-        raise ValueError("derivatives must be one of {{{}}}".format(
-                         ", ".join(str(n) for n in range(max_derivatives+1))))
+            if derivatives == 2 and max_derivatives == 2:
+                return funcs[0](theta), funcs[1](theta), funcs[2](theta)
+
+            raise ValueError("derivatives must be one of {{{}}}".format(
+                        ", ".join(str(n) for n in range(max_derivatives+1))))
+
+    else:
+
+        f0v = sympy.lambdify(theta, exprs[0], modules=np)
+        f01 = sympy.lambdify(theta, exprs[:2], modules='math')
+        if max_derivatives == 2:
+            f2 = sympy.lambdify(theta, exprs[2], modules='math')
+
+        def D(theta, derivatives=0):
+
+            if derivatives == 0:
+                try:
+                    # Convert scalars to NumPy scalars; avoids
+                    # https://github.com/sympy/sympy/issues/11306
+                    theta = np.float64(theta)
+                except TypeError:
+                    pass
+
+                return f0v(theta)
+
+            if derivatives == 1:
+                return f01(theta)
+
+            if derivatives == 2 and max_derivatives == 2:
+                return f01(theta) + [f2(theta)]
+
+            raise ValueError("derivatives must be one of {{{}}}".format(
+                        ", ".join(str(n) for n in range(max_derivatives+1))))
 
     return D
 

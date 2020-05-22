@@ -547,7 +547,9 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
         raise ValueError("maxiter must not be negative")
 
     if not callable(D):
-        D = from_expr(D, max_derivatives=(1 if method=='explicit' else 2))
+        D = from_expr(D,
+                      vectorized=False,
+                      max_derivatives=(1 if method=='explicit' else 2))
 
     if d_dob_bracket is not None:
         if d_dob_hint is not None:
@@ -949,7 +951,9 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
         raise ValueError("maxiter must not be negative")
 
     if not callable(D):
-        D = from_expr(D, max_derivatives=(1 if method=='explicit' else 2))
+        D = from_expr(D,
+                      vectorized=False,
+                      max_derivatives=(1 if method=='explicit' else 2))
 
     if b_bracket is not None:
         if b_hint is not None:
