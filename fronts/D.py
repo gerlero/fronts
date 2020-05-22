@@ -55,7 +55,7 @@ def constant(D0):
     return D
 
 
-def from_expr(expr):
+def from_expr(expr, max_derivatives=2):
     """
     Create a `D` function from a SymPy-compatible expression.
 
@@ -63,6 +63,9 @@ def from_expr(expr):
     ----------
     expr : `sympy.Expression` or str or float
         SymPy-compatible expression containing up to one free symbol.
+    max_derivatives : int, optional
+        Highest-order derivative of `D` that may be required. Can be 0, 1 or 2.
+        The default is 2.
 
     Returns
     -------
@@ -70,10 +73,11 @@ def from_expr(expr):
         Function to evaluate :math:`D` and its derivatives:
 
             *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
-            *   ``D(theta, 1)`` returns both the value of :math:`D` and its
-                first derivative at ``theta``
-            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
-                derivative, and its second derivative at ``theta``
+            *   If `max_derivatives` >= 1, ``D(theta, 1)`` returns both the
+                value of :math:`D` and its first derivative at ``theta``
+            *   If `max_derivatives` is 2, ``D(theta, 2)`` returns the value of
+                :math:`D`, its first derivative, and its second derivative at
+                ``theta``
         
         In all cases, the argument ``theta`` may be a single float or a NumPy
         array.
@@ -94,8 +98,28 @@ def from_expr(expr):
     else:
         raise ValueError("expression cannot contain more than one variable")
 
+    if max_derivatives not in {0, 1, 2}:
+        raise ValueError("max_derivatives must be 0, 1 or 2")
+
+    if max_derivatives == 0:
+
+        func = sympy.lambdify(theta, expr, modules=np)
+
+        def D(theta):
+            try:
+                # Convert scalars to NumPy scalars; avoids
+                # https://github.com/sympy/sympy/issues/11306
+                theta = np.float64(theta)
+            except TypeError:
+                pass
+
+            return func(theta)
+
+        return D
+
+
     exprs = [expr]
-    for _ in range(2):
+    for _ in range(max_derivatives):
         exprs.append(exprs[-1].diff(theta))
 
     funcs = tuple(sympy.lambdify(theta, expr, modules=np) for expr in exprs)
@@ -115,10 +139,11 @@ def from_expr(expr):
         if derivatives == 1:
             return funcs[0](theta), funcs[1](theta)
 
-        if derivatives == 2:
+        if derivatives == 2 and max_derivatives == 2:
             return funcs[0](theta), funcs[1](theta), funcs[2](theta)
 
-        raise ValueError("derivatives must be 0, 1 or 2")
+        raise ValueError("derivatives must be one of {{{}}}".format(
+                         ", ".join(str(n) for n in range(max_derivatives+1))))
 
     return D
 
