@@ -58,6 +58,7 @@ Module `fronts.D`: D functions
     
     D.constant
     D.power_law
+    D.brooks_and_corey
     D.van_genuchten
     D.from_expr
     D.richards

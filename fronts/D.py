@@ -222,6 +222,102 @@ def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
         return 1
 
 
+def brooks_and_corey(n, l=1.0, alpha=1.0, Ks=None, k=None, nu=1e-6, g=9.81,
+                     theta_range=(0.0,1.0)):
+    r"""
+    Return a Brooks and Corey moisture diffusivity function.
+
+    Given the saturated hydraulic conductivity :math:`K_S` and parameters
+    :math:`\alpha`, `n`, `l`, :math:`\theta_r` and :math:`\theta_s`, the Brooks
+    and Corey moisture diffusivity function `D` is defined as:
+
+    .. math:: D(\theta) = \frac{K_S S_e^{1/n + l + 1}}
+                               {\alpha n (\theta_s-\theta_r)}
+        
+
+    where:
+
+    .. math:: S_e = \frac{\theta-\theta_r}{\theta_s-\theta_r}
+
+    and :math:`\theta` is water content.
+
+
+    Parameters
+    ----------
+    n : float
+        `n` parameter.
+    l : float, optional
+        `l` parameter. The default is 1.
+    alpha : float, optional
+        :math:`\alpha` parameter. The default is 1. Must be positive.
+    Ks : None or float, optional
+        :math:`K_S`, the saturated hydraulic conductivity. Must be positive. If
+        neither `Ks` nor `k` are given, the saturated hydraulic conductivity is
+        assumed to be 1.
+    k : None or float, optional
+        Intrinsic permeability of the porous medium. Can be given in place of
+        `Ks`, which results in the saturated hydraulic conductivity being
+        computed using :math:`K_S = kg/\nu`. Must be positive.
+    nu : float, optional
+        :math:`\nu`, the kinematic viscosity of the wetting fluid. Only used if
+        `k` is passed instead of `Ks`. Must be positive. Defaults to 1e-6,
+        approximately the kinematic viscosity of water at 20°C in SI units.
+    g : float, optional
+        Magnitude of the gravitational acceleration. Only used if `k` is passed
+        instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of
+        Earth in SI units.
+    theta_range : sequence of two floats, optional
+        (:math:`\theta_r`, :math:`\theta_s`), where :math:`\theta_r` is the
+        minimum (also known as residual) water content and :math:`\theta_s` is
+        the maximum water content. The default is (0, 1). :math:`\theta_s` must
+        be greater than :math:`\theta_r`.
+
+    Returns
+    -------
+    D : callable
+        Twice-differentiable function that maps values of :math:`\theta` in the
+        open interval (:math:`\theta_r`, :math:`\theta_s`) to positive values.
+        It can be called as ``D(theta)`` to evaluate it at ``theta``. It can
+        also be called as ``D(theta, n)`` with ``n`` equal to 1 or 2, in which
+        case the first ``n`` derivatives of the function evaluated at the same
+        ``theta`` are included (in order) as additional return values. While
+        mathematically a scalar function, `D` operates in a vectorized fashion
+        with the same semantics when ``theta`` is a `numpy.ndarray`.
+
+    References
+    ----------
+    [1] BROOKS, R.; COREY, T. Hydraulic properties of porous media. Hydrology
+    Papers, Colorado State University, 1964, vol. 24, p. 37.
+    """
+
+    if alpha <= 0:
+        raise ValueError("alpha must be positive")
+
+    Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
+
+    if theta_range[1] <= theta_range[0]:
+        raise ValueError("theta_range[1] must be greater than theta_range[0]")
+
+    # - Code generated with functionstr() from ../symbolic/generate.py - #
+    # Source: ../symbolic/brooks_and_corey.py
+    x1 = 1/n
+    x2 = n*(l + 2) + 1
+    x3 = x1*x2
+    def D(theta, derivatives=0):
+        x0 = theta - theta_range[0]
+        x4 = Ks*x1*(-x0/(theta_range[0] - theta_range[1]))**x3/alpha
+        D = x4/x0
+        if derivatives == 0: return D
+        dD_dtheta = x4*(x3 - 1)/x0**2
+        if derivatives == 1: return D, dD_dtheta
+        d2D_dtheta2 = x4*(-3*x3 + 2 + x2**2/n**2)/x0**3
+        if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
+        raise ValueError("derivatives must be 0, 1 or 2")
+    # ----------------------- End generated code ----------------------- #
+
+    return D
+
+
 def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
                   g=9.81, theta_range=(0.0,1.0)):
     r"""
