@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add new solver `solve_flowrate()` to solve radial problems (cylindrical or polar) with a fixed-flowrate boundary condition.
 - Add new automatic mode to `solve()`. Removes the need for users to tune the `d_dob_bracket` (formerly `dS_dob_bracket`) parameter until the function succeeds. In practice, `solve()` can now be expected to return the solution to a problem upon the first call with no parameter tuning required.  The new `solve_flowrate()` also works in a similar manner.
 - Allow expressions of _D_ to be passed directly to the solvers (e.g.: ``solve(D="c**2", ...)``). Removes the need for users to provide the derivatives of custom functions. This functionality uses _SymPy_, which is now installed by default.
+- Add optional explicit integration method to `solve()` and `solve_flowrate()`. Using it requires SciPy 1.4.0 or later (Python 3 only).
 - Add Brooks and Corey moisture diffusivity model to the `fronts.D` module.
 - Add new properties `b`, `d_dob`, `i` and `ob`, and methods `d_drb()`, `d_dtb()` and `fluxb()` to the `Solution` class.
 - Add optional `d_dob_hint` parameter to `solve()`. Allows users to pass an optional hint to the new automatic mode, which may accelerate convergence in some scenarios.

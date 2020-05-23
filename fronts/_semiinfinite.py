@@ -198,12 +198,13 @@ class _Shooter(object):
         ``abs(i_residual)``.
     """
 
-    def __init__(self, D, i, radial, ob, theta_direction, itol, max_shots,
-                 shot_callback):
+    def __init__(self, D, i, radial, ob, theta_direction, itol, method,
+                 max_shots, shot_callback):
 
         assert callable(D)
         assert not radial or ob > 0
         assert theta_direction in {-1, 0, 1}
+        assert method in {'implicit', 'explicit'}
         assert max_shots is None or max_shots >= 0
         assert shot_callback is None or callable(shot_callback)
 
@@ -211,6 +212,7 @@ class _Shooter(object):
         self._i = i
         self._ob = ob
         self._theta_direction = theta_direction
+        self._method = method
         self._max_shots = max_shots
         self._shot_callback = shot_callback
 
@@ -253,27 +255,36 @@ class _Shooter(object):
         assert d_dob*self._theta_direction >= 0
 
         with np.errstate(divide='ignore', invalid='ignore'):
-            try:
+
+            if self._method == 'explicit':
                 ivp_result = solve_ivp(self._fun,
                                        t_span=(self._ob, np.inf),
                                        y0=(b, d_dob),
-                                       method='Radau',
-                                       jac=self._jac,
+                                       method='DOP853',
                                        events=self._events,
                                        dense_output=True)
+            else:
+                try:
+                    ivp_result = solve_ivp(self._fun,
+                                           t_span=(self._ob, np.inf),
+                                           y0=(b, d_dob),
+                                           method='Radau',
+                                           jac=self._jac,
+                                           events=self._events,
+                                           dense_output=True)
 
-            except (ValueError, ArithmeticError, UnboundLocalError):
-                # Catch D domain errors. Also catch UnboundLocalError caused by
-                # https://github.com/scipy/scipy/issues/10775 (fixed in SciPy
-                # v1.4.0; but we do not require that version because it does
-                # not support Python 2.7)
+                except (ValueError, ArithmeticError, UnboundLocalError):
+                    # Catch D domain errors. Also catch UnboundLocalError
+                    # caused by https://github.com/scipy/scipy/issues/10775
+                    # (fixed in SciPy v1.4.0; but we do not require that
+                    # version because it does not support Python 2.7)
 
-                return self.Result(b=b,
-                                   d_dob=d_dob,
-                                   i_residual=self._theta_direction*np.inf,
-                                   D_calls=None,
-                                   o=None,
-                                   sol=None)
+                    return self.Result(b=b,
+                                       d_dob=d_dob,
+                                       i_residual=self._theta_direction*np.inf,
+                                       D_calls=None,
+                                       o=None,
+                                       sol=None)
 
         if ivp_result.success and ivp_result.t_events[0].size == 1:
 
@@ -353,7 +364,8 @@ class _DirichletShooter(_Shooter):
     shot_callback : None or callable
     """
 
-    def __init__(self, D, i, b, radial, ob, itol, max_shots, shot_callback):
+    def __init__(self, D, i, b, radial, ob, itol, method, max_shots,
+                 shot_callback):
 
         theta_direction = np.sign(i - b)
 
@@ -363,6 +375,7 @@ class _DirichletShooter(_Shooter):
                                                 ob=ob,
                                                 theta_direction=theta_direction,
                                                 itol=itol,
+                                                method=method,
                                                 max_shots=max_shots,
                                                 shot_callback=shot_callback)
 
@@ -386,7 +399,7 @@ class _DirichletShooter(_Shooter):
 
 
 def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
-          d_dob_bracket=None, maxiter=100, verbose=0):
+          d_dob_bracket=None, method='implicit', maxiter=100, verbose=0):
     r"""
     Solve a problem with a Dirichlet boundary condition.
 
@@ -481,6 +494,18 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
         inside that interval (a `ValueError` will be raised for an incorrect
         interval). This parameter cannot be passed together with a
         `d_dob_hint`. It is also not needed in typical usage.
+    method : {'implicit', 'explicit'}, optional
+        Selects the integration method used by the solver:
+
+            *   ``'implicit'`` (default):
+                uses a Radau IIA implicit method of order 5. A sensible default
+                choice that will work for any problem
+            *   ``'explicit'``:
+                uses the DOP853 explicit method of order 8. As an explicit
+                method, it trades off general solver robustness and accuracy
+                for faster results in "well-behaved" cases. With this method,
+                the second derivative of :math:`D` is not needed. Requires
+                SciPy 1.4.0 or later (Python 3 only)
     maxiter : int, optional
         Maximum number of iterations. A `RuntimeError` will be raised if the
         specified tolerance is not achieved within this number of iterations.
@@ -501,16 +526,16 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
     -----
     This function works by transforming the partial differential equation with
     the Boltzmann transformation using :func:`ode` and then solving the
-    resulting ODE repeatedly with the 'Radau' method as implemented in the 
-    :mod:`scipy.integrate` module and a custom shooting algorithm. The boundary
-    condition is satisfied exactly as the starting point, and the algorithm
-    iterates with different values of :math:`d\theta/do|_b` until it finds the
-    solution that also verifies the initial condition within the specified
-    tolerance. Trial values of :math:`d\theta/do|_b` are selected automatically
-    by default (using heuristics, which can also take into account an optional
-    hint if passed by the user), or by bisecting an optional search interval.
-    This scheme assumes that :math:`d\theta/do|_b` varies continuously with
-    :math:`\theta_i`.
+    resulting ODE repeatedly with the chosen integration method as implemented
+    in the  :mod:`scipy.integrate` module and a custom shooting algorithm. The
+    boundary condition is satisfied exactly as the starting point, and the
+    algorithm iterates with different values of :math:`d\theta/do|_b` until it
+    finds the solution that also verifies the initial condition within the
+    specified tolerance. Trial values of :math:`d\theta/do|_b` are selected
+    automatically by default (using heuristics, which can also take into
+    account an optional hint if passed by the user), or by bisecting an
+    optional search interval. This scheme assumes that :math:`d\theta/do|_b`
+    varies continuously with :math:`\theta_i`.
     """
     if verbose:
         start_time = timer()
@@ -567,6 +592,7 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
                                 radial=radial,
                                 ob=ob,
                                 itol=itol,
+                                method=method,
                                 max_shots=maxiter,
                                 shot_callback=shot_callback)
 
@@ -667,7 +693,8 @@ class _FlowrateShooter(_Shooter):
     shot_callback : None or callable
     """
 
-    def __init__(self, D, i, rel_flowrate, ob, itol, max_shots, shot_callback):
+    def __init__(self, D, i, rel_flowrate, ob, itol, method, max_shots,
+                 shot_callback):
 
         assert ob > 0
 
@@ -679,6 +706,7 @@ class _FlowrateShooter(_Shooter):
                                                radial='cylindrical',
                                                theta_direction=theta_direction,
                                                itol=itol,
+                                               method=method,
                                                max_shots=max_shots,
                                                shot_callback=shot_callback)
 
@@ -752,8 +780,8 @@ class _FlowrateShooter(_Shooter):
 
 
 def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
-                   itol=1e-3, b_hint=None, b_bracket=None, maxiter=100,
-                   verbose=0):
+                   itol=1e-3, b_hint=None, b_bracket=None, method='implicit',
+                   maxiter=100, verbose=0):
     r"""
     Solve a radial problem with a fixed-flowrate boundary condition.
 
@@ -853,6 +881,18 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
         solution in which :math:`\theta_b` falls inside that interval (a
         `ValueError` will be raised for an incorrect interval). This parameter
         cannot be passed together with a `b_hint`.
+    method : {'implicit', 'explicit'}, optional
+        Selects the integration method used by the solver:
+
+            *   ``'implicit'`` (default):
+                uses a Radau IIA implicit method of order 5. A sensible default
+                choice that will work for any problem
+            *   ``'explicit'``:
+                uses the DOP853 explicit method of order 8. As an explicit
+                method, it trades off general solver robustness and accuracy
+                for faster results in "well-behaved" cases. With this method,
+                the second derivative of :math:`D` is not needed. Requires
+                SciPy 1.4.0 or later (Python 3 only)
     maxiter : int, optional
         Maximum number of iterations. A `RuntimeError` will be raised if the
         specified tolerance is not achieved within this number of iterations.
@@ -872,12 +912,12 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     -----
     This function works by transforming the partial differential equation with
     the Boltzmann transformation using :func:`ode` and then solving the
-    resulting ODE repeatedly with the 'Radau' method as implemented in the
-    :mod:`scipy.integrate` module and a custom shooting algorithm. The boundary
-    condition is satisfied exactly as the starting point, and the algorithm
-    iterates with different values of :math:`\theta` at the boundary until it
-    finds the solution that also verifies the initial condition within the
-    specified tolerance. Trial values of :math:`\theta` at the boundary are
+    resulting ODE repeatedly with the chosen integration method as implemented
+    in the :mod:`scipy.integrate` module and a custom shooting algorithm. The
+    boundary condition is satisfied exactly as the starting point, and the
+    algorithm iterates with different values of :math:`\theta` at the boundary
+    until it finds the solution that also verifies the initial condition within
+    the specified tolerance. Trial values of :math:`\theta` at the boundary are
     selected automatically by default (using heuristics, which can also take
     into account an optional hint if passed by the user), or by bisecting an
     optional search interval. This scheme assumes that :math:`\theta` at the
@@ -963,6 +1003,7 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
                                rel_flowrate=Qb/(angle*(height or 1)),
                                ob=ob,
                                itol=itol,
+                               method=method,
                                max_shots=maxiter,
                                shot_callback=shot_callback)
 
