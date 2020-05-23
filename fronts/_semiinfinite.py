@@ -13,7 +13,7 @@ from scipy.integrate import solve_ivp, solve_bvp
 from scipy.interpolate import PchipInterpolator
 
 from ._boltzmann import ode, BaseSolution, r
-from ._rootfinding import bisect, NotABracketError, IterationLimitReached
+from ._rootfinding import bracket_root, bisect, NotABracketError
 
 
 class Solution(BaseSolution):
@@ -97,8 +97,8 @@ class Solution(BaseSolution):
         return r(o=self._ob, t=t)
 
 
-def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
-          Si_tol=1e-6, maxiter=100, verbose=0):
+def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-6, dS_dob_hint=None,
+          dS_dob_bracket=None, maxiter=100, verbose=0):
     r"""
     Solve an instance of the general problem.
 
@@ -128,15 +128,6 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
         :math:`S_i`, the initial value of `S` in the domain.
     Sb : float
         :math:`S_b`, the value of `S` imposed at the boundary.
-    dS_dob_bracket : (float, float), optional
-        Search interval that contains the value of the derivative of `S` with
-        respect to the Boltzmann variable `o` (i.e., :math:`dS/do`) at the
-        boundary in the solution. The interval can be made as wide as desired,
-        at the cost of additional iterations required to obtain the solution.
-        To refine a solution obtained previously with this same function, pass
-        in that solution's final `dS_dob_bracket`. This parameter is always
-        checked and a `ValueError` is raised if a `dS_dob_bracket` is found not
-        to be valid for the problem.
     radial : {False, 'cylindrical', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
@@ -158,10 +149,22 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
         a non-zero value implies a moving boundary.
     Si_tol : float, optional
         Absolute tolerance for :math:`S_i`.
+    dS_dob_hint : None or float, optional
+        Optional hint to the solver. If given, it should be a number close to
+        the expected value of the derivative of `S` with respect to the
+        Boltzmann variable `o` (i.e., :math:`dS/do`) at the boundary in the
+        solution to be found. This parameter is typically not needed.
+    dS_dob_bracket : None or sequence of two floats
+        Optional search interval that brackets the value of :math:`dS/do` at
+        the boundary in the solution. If given, the solver will use bisection
+        to find a solution in which :math:`dS/do` falls inside that interval (a
+        `ValueError` will be raised for an incorrect interval). This parameter
+        cannot be passed together with a `dS_dob_hint`. It is also not needed
+        in typical usage.
     maxiter : int, optional
         Maximum number of iterations. A `RuntimeError` will be raised if the
         specified tolerance is not achieved within this number of iterations.
-        Must be >= 2.
+        Must be nonnegative.
     verbose : {0, 1, 2}, optional
         Level of algorithm's verbosity. Must be one of the following:
 
@@ -179,11 +182,15 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
                 Final solver mesh, in terms of the Boltzmann variable `o`.
             * `niter` : int
                 Number of iterations required to find the solution.
-            * `dS_dob_bracket` : sequence of two floats
-                Subinterval of `dS_dob_bracket` that contains the value of
-                :math:`dS/do` at the boundary in the solution. May be used in a
-                subsequent call with a smaller `Si_tol` to avoid reduntant
-                iterations if wanting to refine a previously obtained solution.
+            * `dS_dob_bracket` : sequence of two floats or None
+                If available, an interval that contains the value of
+                :math:`dS/do` at the boundary in the solution. May be used as
+                the input `dS_dob_bracket` in a subsequent call with a smaller
+                `Si_tol` for the same problem in order to avoid reduntant
+                iterations. Whether this interval is available or not depends
+                on the strategy used internally by the solver; in particular,
+                this field is never `None` if a `dS_dob_bracket` is passed when
+                calling the function.
 
     See also
     --------
@@ -198,25 +205,38 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
 
     This function works by transforming the partial differential equation with
     the Boltzmann transformation using `ode` and then solving the resulting ODE
-    repeatedly using the 'Radau' method as implemented in
-    `scipy.integrate.solve_ivp` and a custom shooting algorithm. The boundary
-    condition is satisfied exactly as the starting point, and the shooting 
-    algorithm iterates with different values of :math:`dS/do` at the boundary 
-    (chosen from within `dS_dob_bracket` using bisection) until it finds the
-    solution that also satisfies the initial condition within the specified
-    tolerance. This scheme assumes that :math:`dS/do` at the boundary varies
-    continuously with :math:`S_i`.
+    repeatedly with the 'Radau' method as implemented in the `scipy.integrate`
+    module and a custom shooting algorithm. The boundary condition is satisfied
+    exactly as the starting point, and the algorithm  iterates with different
+    values of :math:`dS/do` at the boundary until it finds the solution that 
+    also satisfies the initial condition within the specified tolerance. Trial
+    values of :math:`dS/do` at the boundary are selected automatically by
+    default (taking into account an optional hint if
+    passed by the user), or by bisecting an optional search interval. This
+    scheme assumes that :math:`dS/do` at the boundary varies continuously with
+    :math:`S_i`.
     """
-    direction = np.sign(Si - Sb)
-
-    # Clip dS_dob_bracket according to the search direction
-    dS_dob_bracket = [x if x*direction>0 else 0.0 for x in dS_dob_bracket]
+    S_direction = np.sign(Si - Sb)
 
     if radial and ob <= 0:
         raise ValueError("ob must be positive when using a radial coordinate")
 
-    if maxiter < 2:
-        raise ValueError("maxiter must be >= 2")
+    if maxiter < 0:
+        raise ValueError("maxiter must not be negative")
+
+
+    if dS_dob_bracket is not None:
+        if dS_dob_hint is not None:
+            raise TypeError("cannot pass both dS_dob_hint and dS_dob_bracket")
+
+    elif dS_dob_hint is None:
+        dS_dob_hint = (Si-Sb)/(2*D(Sb)**0.5)
+
+    else:
+        if(np.sign(dS_dob_hint) != S_direction):
+            raise ValueError("sign of dS_dob_hint does not match direction "
+                             "given by Sb and Si")
+
 
     fun, jac = ode(D=D, radial=radial)
 
@@ -226,15 +246,26 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
     settled.terminal = True
 
     def blew_past_Si(o, y):
-        return y[0] - (Si + direction*Si_tol)
+        return y[0] - (Si + S_direction*Si_tol)
     blew_past_Si.terminal = True
 
     # Integration data
-    counter = itertools.count(start=1)
-    saved_integration = {}
+    iteration_counter = itertools.count(start=1)
+    saved_integration = {'dS_dob' : None,
+                         'o' : None,
+                         'sol' : None}
 
     # Integration function - returns the Si residual
-    def integrate(dS_dob, verbose=verbose):
+    def integrate(dS_dob, count_iteration=True):
+
+        if count_iteration:
+            iteration = next(iteration_counter)
+            if iteration > maxiter:
+                if verbose:
+                    print("The solver did not converge after {} iterations."
+                          .format(maxiter))
+                raise RuntimeError("solver did not converge after {} "
+                                   "iterations.".format(maxiter))
 
         try:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -251,11 +282,11 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
             # https://github.com/scipy/scipy/issues/10775 (fix in SciPy v1.4.0;
             # we do not require that version as it does not support Python 2.7)
 
-            Si_residual = direction*np.inf
+            Si_residual = S_direction*np.inf
 
-            if verbose >= 2:
+            if count_iteration and verbose >= 2:
                 print("{:^15}{:^15}{:^15}{:^15.5e}".format(
-                       next(counter), "*",  "*", dS_dob))
+                       iteration, "*",  "*", dS_dob))
 
         else:
             if ivp_result.success and ivp_result.t_events[0].size == 1:
@@ -266,61 +297,87 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
 
                 Si_residual = ivp_result.y[0,-1] - Si
 
-                if verbose >= 2:
+                if count_iteration and verbose >= 2:
                     print("{:^15}{:^15}{:^15.2e}{:^15.7e}".format(
-                           next(counter),
+                           iteration,
                            ivp_result.nfev+ivp_result.njev,
                            Si_residual,
                            dS_dob))
 
             else:
-                Si_residual = direction*np.inf
+                Si_residual = S_direction*np.inf
 
-                if verbose >= 2:
+                if count_iteration and verbose >= 2:
                     print("{:^15}{:^15}{:^15}{:^15.7e}".format(
-                           next(counter),
+                           iteration,
                            ivp_result.nfev+ivp_result.njev,
                            "*",
                            dS_dob))
 
         return Si_residual
 
-
     if verbose >= 2:
         print("{:^15}{:^15}{:^15}{:^15}".format(
               "Iteration", "Calls to D", "Si residual", "dS/do at ob"))
 
-    try:  # Find the dS_dob that makes the initial condition hold
-        bisect_result = bisect(integrate, bracket=dS_dob_bracket, ftol=Si_tol,
-                               maxiter=maxiter-2)
-    except NotABracketError:
-        if verbose:
-            print("dS_dob_bracket does not contain target dS/do at ob. Try "
-                  "again with a correct dS_dob_bracket.")
-        six.raise_from(
-            ValueError("dS_dob_bracket does not contain target dS/do at ob"),
-            None)
 
-    except IterationLimitReached:
-        if verbose:
-            print("The solver did not converge after {} iterations.".format(
-                  maxiter))
-        six.raise_from(
-            RuntimeError(
-                "solver did not converge after {} iterations.".format(
-                maxiter)),
-            None)
+    if dS_dob_bracket is None:
+        dS_dob_result = bracket_root(integrate,
+                                     interval=(0, dS_dob_hint),
+                                     f_interval=(Sb-Si, None),
+                                     ftol=Si_tol,
+                                     maxiter=None,)
+
+        dS_dob = dS_dob_result.root
+        Si_residual = dS_dob_result.f_root
+        dS_dob_bracket = dS_dob_result.bracket
+        f_bracket = dS_dob_result.f_bracket
+
+    else:
+        dS_dob = None
+        dS_dob_bracket = np.clip(dS_dob_bracket,
+                                 min(0, S_direction*np.inf),
+                                 max(0, S_direction*np.inf))
+
+        f_bracket = tuple(Sb-Si if x==0 else None for x in dS_dob_bracket)
+
+
+    if dS_dob is None:
+        try:
+            dS_dob_result = bisect(integrate,
+                                   bracket=dS_dob_bracket,
+                                   f_bracket=f_bracket,
+                                   ftol=Si_tol,
+                                   maxiter=None)
+
+            dS_dob = dS_dob_result.root
+            Si_residual = dS_dob_result.f_root
+            dS_dob_bracket = dS_dob_result.bracket
+            f_bracket = dS_dob_result.f_bracket
+
+        except NotABracketError:
+            if verbose:
+                print("dS_dob_bracket does not contain target dS/do at ob. "
+                      "Try again with a correct interval.")
+            six.raise_from(
+                ValueError("dS_dob_bracket does not contain target dS/do at "
+                           "ob"),
+                None)
+            
+    iterations = next(iteration_counter) - 1
 
     if verbose:
-        print("Solved in {} iterations.".format(bisect_result.function_calls))
-        print("Si residual: {:.2e}".format(bisect_result.f_root))
-        print("dS/do at ob: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
-              bisect_result.root,
-              bisect_result.bracket[0], bisect_result.bracket[1]))
+        print("Solved in {} iterations.".format(iterations))
+        print("Si residual: {:.2e}".format(Si_residual))
+        if dS_dob_bracket is not None:
+            print("dS/do at ob: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
+                  dS_dob_result.root, min(dS_dob_bracket), max(dS_dob_bracket)))
+        else:
+            print("dS/do at ob: {:.7e}".format(dS_dob_result.root))
 
-    if saved_integration['dS_dob'] != bisect_result.root:
-        integrate(bisect_result.root, verbose=0)
-    assert saved_integration['dS_dob'] == bisect_result.root
+    if saved_integration['dS_dob'] != dS_dob:
+        integrate(dS_dob, count_iteration=False)
+    assert saved_integration['dS_dob'] == dS_dob
 
     solution = Solution(sol=saved_integration['sol'],
                         ob=saved_integration['o'][0],
@@ -328,8 +385,8 @@ def solve(D, Si, Sb, dS_dob_bracket=(-1.0, 1.0), radial=False, ob=0.0,
                         D=D)
 
     solution.o = saved_integration['o']
-    solution.niter = bisect_result.function_calls
-    solution.dS_dob_bracket = bisect_result.bracket
+    solution.niter = iterations
+    solution.dS_dob_bracket = dS_dob_bracket
 
     return solution
 

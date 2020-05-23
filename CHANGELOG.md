@@ -9,11 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add new automatic mode to `solve()`. Removes the need for users to tune the `dS_dob_bracket` parameter until the function succeeds. In practice, `solve()` can now be expected to return the solution to a problem upon the first call with no parameter tuning required.
+- Add optional `dS_dob_hint` parameter to `solve()`. Allows users to pass an optional hint to the new automatic mode, which may accelerate convergence in some scenarios.
 - Add `__version__` attribute to the main package, which stores the current version as a string.
 - Support extra options during install: e.g., ```$ pip install fronts[examples]``` also installs Matplotlib, which is required to run the examples. Other options: ``[symbolic]``, ``[doc]``, ``[publish]``, and ``[dev]`` (the latter installs all extras).
 
 ### Changed
 
+- Update `solve()` to employ the new automatic mode by default. `dS_dob_bracket` is still available but now defaults to `None`, which triggers the new behavior.
 - Update verbose output of `solve()`. Ambiguously named column "Evaluations" replaced with "Calls to D"; now counts all invocations of `D`.
 - Improve error messages in Python 3 by suppressing internal exceptions from the exception context.
 
