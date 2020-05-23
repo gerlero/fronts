@@ -72,6 +72,11 @@ def from_expr(expr):
         return values. While mathematically a scalar function, `D` operates in
         a vectorized fashion with the same semantics when ``theta`` is a
         `numpy.ndarray`.
+
+    Notes
+    -----
+    Users will rarely need to call this function, as all built-in solver
+    functions already do so themselves when they receive an expression as `D`.
     """
 
     expr = sympy.sympify(expr)

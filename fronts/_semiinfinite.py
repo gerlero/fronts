@@ -18,6 +18,7 @@ from scipy.interpolate import PchipInterpolator
 
 from ._boltzmann import ode, BaseSolution, r
 from ._rootfinding import bracket_root, bisect, NotABracketError
+from .D import from_expr
 
 
 class Solution(BaseSolution):
@@ -203,6 +204,7 @@ class _Shooter(object):
     def __init__(self, D, i, radial, ob, theta_direction, itol, max_shots,
                  shot_callback):
 
+        assert callable(D)
         assert not radial or ob > 0
         assert theta_direction in {-1, 0, 1}
         assert max_shots is None or max_shots >= 0
@@ -405,15 +407,12 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
 
     Parameters
     ----------
-    D : callable
-        Twice-differentiable function that maps the range of :math:`\theta` to
-        positive values. It can be called as ``D(theta)`` to evaluate it at
-        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
-        1 or 2, in which case the first ``n`` derivatives of the function
-        evaluated at the same ``theta`` are included (in order) as additional
-        return values. While mathematically a scalar function, `D` operates in
-        a vectorized fashion with the same semantics when ``theta`` is a
-        `numpy.ndarray`.
+    D : callable or `sympy.Expression` or str or float
+        Callable that evaluates :math:`D` and its derivatives, obtained from
+        the :mod:`fronts.D` module or defined in the same manner.
+
+        Alternatively, an expression for :math:`D` in the form of a string or
+        `sympy.Expression` with a single variable.
     i : float
         :math:`\theta_i`, the initial value of :math:`\theta` in the domain.
     b : float
@@ -514,6 +513,9 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
 
     if maxiter < 0:
         raise ValueError("maxiter must not be negative")
+
+    if not callable(D):
+        D = from_expr(D)
 
     if d_dob_bracket is not None:
         if d_dob_hint is not None:
@@ -762,15 +764,12 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
 
     Parameters
     ----------
-    D : callable
-        Twice-differentiable function that maps the range of :math:`\theta` to
-        positive values. It can be called as ``D(theta)`` to evaluate it at
-        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
-        1 or 2, in which case the first ``n`` derivatives of the function
-        evaluated at the same ``theta`` are included (in order) as additional
-        return values. While mathematically a scalar function, `D` operates in
-        a vectorized fashion with the same semantics when ``theta`` is a
-        `numpy.ndarray`.
+    D : callable or `sympy.Expression` or str or float
+        Callable that evaluates :math:`D` and its derivatives, obtained from
+        the :mod:`fronts.D` module or defined in the same manner.
+
+        Alternatively, an expression for :math:`D` in the form of a string or
+        `sympy.Expression` with a single variable.
     i : float
         :math:`\theta_i`, the initial value of :math:`\theta` in the domain.
     Qb : float
@@ -881,6 +880,9 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
 
     if maxiter < 0:
         raise ValueError("maxiter must not be negative")
+
+    if not callable(D):
+        D = from_expr(D)
 
     if b_bracket is not None:
         if b_hint is not None:
@@ -1056,15 +1058,12 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
 
     Parameters
     ----------
-    D : callable
-        Twice-differentiable function that maps the range of :math:`\theta` to
-        positive values. It can be called as ``D(theta)`` to evaluate it at
-        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
-        1 or 2, in which case the first ``n`` derivatives of the function
-        evaluated at the same ``theta`` are included (in order) as additional
-        return values. While mathematically a scalar function, `D` operates in
-        a vectorized fashion with the same semantics when ``theta`` is a
-        `numpy.ndarray`.
+    D : callable or `sympy.Expression` or str or float
+        Callable that evaluates :math:`D` and its derivatives, obtained from
+        the :mod:`fronts.D` module or defined in the same manner.
+
+        Alternatively, an expression for :math:`D` in the form of a string or
+        `sympy.Expression` with a single variable.
     i : float
         :math:`\theta_i`, the initial value of :math:`\theta` in the domain.
     b : float
@@ -1142,6 +1141,9 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
     if radial and o_guess[0] <= 0:
         raise ValueError("o_guess[0] must be positive when using a radial "
                          "coordinate")
+
+    if not callable(D):
+        D = from_expr(D)
 
     if np.ndim(guess) == 0:
         guess = np.full_like(o_guess, fill_value=guess)
