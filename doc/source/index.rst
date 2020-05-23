@@ -20,6 +20,7 @@ Solvers
     :toctree: stubs/
        
     solve
+    solve_flowrate
     solve_from_guess  
     inverse
 

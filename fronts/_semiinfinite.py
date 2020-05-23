@@ -216,7 +216,6 @@ class _Shooter(object):
                                sol=None)
 
 
-
     class ShotLimitReached(RuntimeError):
         """
         Exception raised when `shoot` is called after the maximum number of
@@ -407,6 +406,7 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
     See also
     --------
     solve_from_guess
+    solve_flowrate
 
     Notes
     -----
@@ -557,6 +557,376 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
     solution.o = result.o
     solution.niter = shooter.shots
     solution.dS_dob_bracket = dS_dob_bracket
+
+    return solution
+
+
+class _FlowrateShooter(_Shooter):
+    """
+    Shooter for problems with a fixed-flowrate boundary condition.
+
+    Parameters
+    ----------
+    D : callable
+    Si : float
+    rel_flowrate : float
+        Flow rate of `S` per unit angle and (if applicable) height.
+    ob : float
+    Si_tol : float
+    max_shots : None or int
+    shot_callback : None or callable
+    """
+
+    def __init__(self, D, Si, rel_flowrate, ob, Si_tol, max_shots,
+                 shot_callback):
+
+        assert ob > 0
+
+        S_direction = np.sign(-rel_flowrate)
+
+        super(_FlowrateShooter, self).__init__(D=D,
+                                               Si=Si,
+                                               ob=ob,
+                                               radial='cylindrical',
+                                               S_direction=S_direction,
+                                               Si_tol=Si_tol,
+                                               max_shots=max_shots,
+                                               shot_callback=shot_callback)
+
+        self._D_ = D
+        # Flow rate per unit angle and height
+        self._rel_flowrate = rel_flowrate
+
+    class _DError(Exception):
+        pass
+
+    def _D(self, S):
+        """
+        Call ``D(S)`` and return its value if valid.
+
+        Raises a `_DError` exception if the call fails or does not return a
+        finite, positive value.
+
+        Parameters
+        ----------
+        S : float
+
+        Returns
+        -------
+        float
+        """
+        with np.errstate(divide='ignore', invalid='ignore'):
+            try:
+                D = self._D_(S)
+            except (ValueError, ArithmeticError) as e:
+                six.raise_from(self._DError, e)
+
+        try:
+            D = float(D)
+        except TypeError as e:
+            six.raise_from(self._DError, e)
+
+        if not np.isfinite(D) or D <= 0:
+            raise self._DError
+        
+        return D
+
+    def integrate(self, Sb):
+        """
+        Integrate and return the full result.
+
+        Parameters
+        ----------
+        Sb : float
+
+        Returns
+        -------
+        Result
+        """
+        try:
+            Db = self._D(Sb)
+        except self._DError:
+            return self.Result(Sb=Sb,
+                               dS_dob=None,
+                               Si_residual=-self._S_direction*np.inf,
+                               D_calls=1,
+                               o=None,
+                               sol=None)
+
+        dS_dob = -self._rel_flowrate/(Db*self._ob)
+
+        result = super(_FlowrateShooter, self).integrate(Sb=Sb, dS_dob=dS_dob)
+
+        D_calls = result.D_calls+1 if result.D_calls is not None else None
+
+        return result._replace(D_calls=D_calls)
+
+
+def solve_flowrate(D, Si, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
+                   Si_tol=1e-3, Sb_hint=None, Sb_bracket=None, maxiter=100,
+                   verbose=0):
+    r"""
+    Solve a radial problem with a fixed-flowrate boundary condition.
+
+    Given a positive function `D`, scalars :math:`S_i`, :math:`S_b` and
+    :math:`o_b`, and coordinate unit vector :math:`\mathbf{\hat{r}}`, finds a
+    function `S` of `r` and `t` such that:
+
+    .. math:: \begin{cases} \dfrac{\partial S}{\partial t} =
+        \nabla\cdot\left[D(S)\dfrac{\partial S}{\partial r}
+        \mathbf{\hat{r}}\right ] & r>r_b(t),t>0\\
+        S(r,0) = S_i & r>0 \\
+        Q(r_b(t),t) = Q_b & t>0 \\
+        r_b(t) = o_b\sqrt t
+        \end{cases}
+
+    Parameters
+    ----------
+    D : callable
+        Twice-differentiable function that maps the range of `S` to positive
+        values. It can be called as ``D(S)`` to evaluate it at `S`. It can also
+        be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case the
+        first `n` derivatives of the function evaluated at the same `S` are
+        included (in order) as additional return values. While mathematically a
+        scalar function, `D` operates in a vectorized fashion with the same
+        semantics when `S` is a `numpy.ndarray`.
+    Si : float
+        :math:`S_i`, the initial value of `S` in the domain.
+    Qb : float
+        :math:`Q_b`, flow rate of `S` imposed at the boundary. A positive value
+        means that `S` is flowing into the domain; negative values mean that
+        `S` flows out of the domain.
+    radial : {'cylindrical', 'polar'}
+        Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
+        of the following:
+
+            *   ``'cylindrical'``
+                :math:`\mathbf{\hat{r}}` is the radial unit vector in a
+                cylindrical coordinate system
+            *   ``'polar'``
+                :math:`\mathbf{\hat{r}}` is the radial unit vector in a
+                polar coordinate system
+    ob : float, optional
+        :math:`o_b`, which determines the behavior of the boundary. It must be
+        positive. The boundary acts as a line source or sink in the limit where
+        `ob` tends to zero.
+    angle : float, optional
+        Total angle of the domain. Must be positive and no greater than
+        :math:`2\pi`.
+    height : None or float, optional
+        Axial height of the domain if ``radial=='cylindrical'``. Not allowed if
+        ``radial=='polar'``.
+    Si_tol : float, optional
+        Absolute tolerance for :math:`S_i`.
+    Sb_hint : None or float, optional
+        Optional hint to the solver. If given, it should be a number close to
+        the expected value  of `S` at the boundary in the solution to be found.
+    Sb_bracket : None or sequence of two floats
+        Optional search interval that brackets the value of `S` at the boundary 
+        in the solution. If given, the solver will use bisection to find a
+        solution in which `S` falls inside that interval (a `ValueError` will
+        be raised for an incorrect interval). This parameter cannot be passed
+        together with an `Sb_hint`.
+    maxiter : int, optional
+        Maximum number of iterations. A `RuntimeError` will be raised if the
+        specified tolerance is not achieved within this number of iterations.
+        Must be nonnegative.
+    verbose : {0, 1, 2}, optional
+        Level of algorithm's verbosity. Must be one of the following:
+
+            * 0 (default) : work silently.
+            * 1 : display a termination report.
+            * 2 : display progress during iterations.
+
+    Returns
+    -------
+    solution : Solution
+        See `Solution` for a description of the solution object.
+        Additional fields specific to this solver are included in the object:
+
+            *   `o` *(numpy.ndarray, shape (n,))*
+                Final solver mesh, in terms of the Boltzmann variable `o`.
+            *   `niter` *(int)*
+                Number of iterations required to find the solution.
+            *   `Sb_bracket` *(sequence of two floats or None)*
+                If available, an interval that contains the value of `S` at the
+                boundary in the solution. May be used as the input `Sb_bracket`
+                in a subsequent call with a smaller `Si_tol` for the same
+                problem in order to avoid reduntant iterations. Whether this
+                interval is available or not depends n the strategy used
+                internally by the solver; in particular, this field is never
+                `None` if an `Sb_bracket` is passed when calling the function.
+
+    See also
+    --------
+    solve
+
+    Notes
+    -----
+    This function works by transforming the partial differential equation with
+    the Boltzmann transformation using `ode` and then solving the resulting ODE
+    repeatedly with the 'Radau' method as implemented in the `scipy.integrate`
+    module and a custom shooting algorithm. The boundary condition is satisfied
+    exactly as the starting point, and the algorithm iterates with different
+    values of `S` at the boundary until it finds the solution that also
+    satisfies the initial condition within the specified tolerance. Trial
+    values of `S` at the boundary are selected automatically by default (taking
+    into account an optional hint if passed by the user), or by bisecting an
+    optional search interval. This scheme assumes that `S` at the boundary
+    varies continuously with :math:`S_i`.
+    """
+    if ob <= 0:
+        raise ValueError("ob must be positive")
+
+    if not 0 < angle <= 2*np.pi:
+        raise ValueError("angle must be positive and no greater than 2*pi")
+
+    if radial == 'cylindrical':
+        if height is None:
+            raise TypeError("must pass a height if radial == 'cylindrical' "
+                            "(or use radial='polar')")
+        if height <= 0:
+            raise ValueError("height must be positive")
+    elif radial == 'polar':
+        if height is not None:
+            raise TypeError("height parameter not allowed if radial == "
+                            "'polar' (use radial='cylindrical' instead)")
+    else:
+        raise ValueError("radial must be one of {'cylindrical', 'polar'}")
+
+    if maxiter < 0:
+        raise ValueError("maxiter must not be negative")
+
+    if Sb_bracket is not None:
+        if Sb_hint is not None:
+            raise TypeError("cannot pass both Sb_hint and Sb_bracket")
+
+        Sb_bracket = tuple(x if np.sign(Si-x) == np.sign(-Qb) else Si
+                           for x in Sb_bracket)
+
+    elif Sb_hint is None:
+        Sb_hint = Si + np.sign(Qb)
+
+    elif np.sign(Si-Sb_hint) != np.sign(-Qb):
+        raise ValueError("value of Sb_hint disagrees with flowrate sign")
+
+    if verbose >= 2:
+        print("{:^15}{:^15}{:^15}{:^15}{:^15}".format(
+               "Iteration",
+               "Si residual",
+               "Sb",
+               "dS/do|b",
+               "Calls to D"))
+
+        def shot_callback(result):
+            if np.isfinite(result.Si_residual):
+                print("{:^15}{:^15.2e}{:^15.2e}{:^15.7e}{:^15}".format(
+                       shooter.shots,
+                       result.Si_residual,
+                       result.Sb,
+                       result.dS_dob,
+                       result.D_calls))
+
+            elif result.dS_dob is not None:
+                print("{:^15}{:^15}{:^15.2e}{:^15.7e}{:^15}".format(
+                       shooter.shots,
+                       "*",
+                       result.Sb,
+                       result.dS_dob,
+                       result.D_calls or "*"))
+            else:
+                print("{:^15}{:^15}{:^15.2e}{:^15}{:^15}".format(
+                       shooter.shots,
+                       "*",
+                       result.Sb,
+                       "*",
+                       result.D_calls or "*"))
+    else:
+        shot_callback = None
+
+    shooter = _FlowrateShooter(D=D,
+                               Si=Si,
+                               rel_flowrate=Qb/(angle*(height or 1)),
+                               ob=ob,
+                               Si_tol=Si_tol,
+                               max_shots=maxiter,
+                               shot_callback=shot_callback)
+
+    try:
+        if Sb_bracket is None:
+            if Qb == 0:
+                Sb = Si
+                Sb_bracket = (Si, Si)
+        
+            else:
+                Sb_result = bracket_root(shooter.shoot,
+                                        interval=(Si, Sb_hint),
+                                        f_interval=(None, None),
+                                        ftol=Si_tol,
+                                        maxiter=None)
+
+                Sb = Sb_result.root
+                Sb_bracket = Sb_result.bracket
+                f_bracket = Sb_result.f_bracket
+
+        else:
+            assert Sb_hint is None
+            Sb = None
+            f_bracket = tuple(0 if Qb==0 and x==Si else None
+                              for x in Sb_bracket)
+
+        if Sb is None:
+            try:
+                Sb_result = bisect(shooter.shoot,
+                                   bracket=Sb_bracket,
+                                   f_bracket=f_bracket,
+                                   ftol=Si_tol,
+                                   maxiter=None)
+
+                Sb = Sb_result.root
+                Sb_bracket = Sb_result.bracket
+                f_bracket = Sb_result.f_bracket
+
+            except NotABracketError:
+                assert Sb_hint is None
+                if verbose:
+                    print("Sb_bracket does not contain target S at ob. Try "
+                          "again with a correct interval.")
+                six.raise_from(
+                    ValueError("Sb_bracket does not contain target S at ob"),
+                    None)
+
+    except shooter.ShotLimitReached:
+        if verbose:
+          print("The solver did not converge after {} iterations.".format(
+                maxiter))
+        six.raise_from(
+            RuntimeError("The solver did not converge after {} iterations."
+                         .format(maxiter)),
+            None)
+
+    if shooter.best_shot is not None and shooter.best_shot.Sb == Sb:
+        result = shooter.best_shot
+    else:
+        result = shooter.integrate(Sb=Sb)
+
+    if verbose:
+        print("Solved in {} iterations.".format(shooter.shots))
+        print("Si residual: {:.2e}".format(result.Si_residual))
+        if Sb_bracket is not None:
+            print("Sb: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
+                  Sb, min(Sb_bracket), max(Sb_bracket)))
+        else:
+            print("Sb: {:.7e}".format(Sb))
+
+    solution = Solution(sol=result.sol,
+                        ob=result.o[0],
+                        oi=result.o[-1],
+                        D=D)
+
+    solution.o = result.o
+    solution.niter = shooter.shots
+    solution.Sb_bracket = Sb_bracket
 
     return solution
 

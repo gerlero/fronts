@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add new automatic mode to `solve()`. Removes the need for users to tune the `dS_dob_bracket` parameter until the function succeeds. In practice, `solve()` can now be expected to return the solution to a problem upon the first call with no parameter tuning required.
+- Add new solver `solve_flowrate()` to solve radial problems (cylindrical or polar) with a fixed-flowrate boundary condition.
+- Add new automatic mode to `solve()`. Removes the need for users to tune the `dS_dob_bracket` parameter until the function succeeds. In practice, `solve()` can now be expected to return the solution to a problem upon the first call with no parameter tuning required. The new `solve_flowrate()` also works in a similar manner.
 - Add optional `dS_dob_hint` parameter to `solve()`. Allows users to pass an optional hint to the new automatic mode, which may accelerate convergence in some scenarios.
 - Add ``'polar'`` as a valid value for the `radial` parameter of `ode()` and solvers.
 - Add `__version__` attribute to the main package, which stores the current version as a string.
