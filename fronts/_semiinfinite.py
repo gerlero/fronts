@@ -7,6 +7,10 @@ from __future__ import division, absolute_import, print_function
 import six
 
 from collections import namedtuple
+try:
+    from time import process_time as timer
+except ImportError:  # No time.process_time() in Python < 3.3
+    from timeit import default_timer as timer  # Not the same, but close enough
 
 import numpy as np
 from scipy.integrate import solve_ivp, solve_bvp
@@ -502,6 +506,9 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
     bisecting an optional search interval. This scheme assumes that
     :math:`d\theta/do|_b` varies continuously with :math:`\theta_i`.
     """
+    if verbose:
+        start_time = timer()
+
     if radial and ob <= 0:
         raise ValueError("ob must be positive when using a radial coordinate")
 
@@ -602,6 +609,7 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
         if verbose:
           print("The solver did not converge after {} iterations.".format(
                 maxiter))
+          print("Execution time: {:.3f} s".format(timer() - start_time))
         six.raise_from(
             RuntimeError("The solver did not converge after {} iterations."
                          .format(maxiter)),
@@ -612,15 +620,6 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
     else:
         result = shooter.integrate(d_dob=d_dob)
 
-    if verbose:
-        print("Solved in {} iterations.".format(shooter.shots))
-        print("Residual: {:.2e}".format(result.i_residual))
-        if d_dob_bracket is not None:
-            print("d/do|b: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
-                  d_dob, min(d_dob_bracket), max(d_dob_bracket)))
-        else:
-            print("d/do|b: {:.7e}".format(d_dob))
-
     solution = Solution(sol=result.sol,
                         ob=result.o[0],
                         oi=result.o[-1],
@@ -629,6 +628,16 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
     solution.o = result.o
     solution.niter = shooter.shots
     solution.d_dob_bracket = d_dob_bracket
+
+    if verbose:
+        print("Solved in {} iterations.".format(shooter.shots))
+        print("Residual: {:.2e}".format(result.i_residual))
+        if d_dob_bracket is not None:
+            print("d/do|b: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
+                  d_dob, min(d_dob_bracket), max(d_dob_bracket)))
+        else:
+            print("d/do|b: {:.7e}".format(d_dob))
+        print("Execution time: {:.3f} s".format(timer() - start_time))
 
     return solution
 
@@ -848,6 +857,9 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     bisecting an optional search interval. This scheme assumes that
     :math:`\theta` at the boundary varies continuously with :math:`\theta_i`.
     """
+    if verbose:
+        start_time = timer()
+
     if ob <= 0:
         raise ValueError("ob must be positive")
 
@@ -974,6 +986,7 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
         if verbose:
           print("The solver did not converge after {} iterations.".format(
                 maxiter))
+          print("Execution time: {:.3f} s".format(timer() - start_time))
         six.raise_from(
             RuntimeError("The solver did not converge after {} iterations."
                          .format(maxiter)),
@@ -984,15 +997,6 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     else:
         result = shooter.integrate(b=b)
 
-    if verbose:
-        print("Solved in {} iterations.".format(shooter.shots))
-        print("Residual: {:.2e}".format(result.i_residual))
-        if b_bracket is not None:
-            print("Boundary value: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
-                  b, min(b_bracket), max(b_bracket)))
-        else:
-            print("Boundary value: {:.7e}".format(b))
-
     solution = Solution(sol=result.sol,
                         ob=result.o[0],
                         oi=result.o[-1],
@@ -1001,6 +1005,16 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     solution.o = result.o
     solution.niter = shooter.shots
     solution.b_bracket = b_bracket
+
+    if verbose:
+        print("Solved in {} iterations.".format(shooter.shots))
+        print("Residual: {:.2e}".format(result.i_residual))
+        if b_bracket is not None:
+            print("Boundary value: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
+                  b, min(b_bracket), max(b_bracket)))
+        else:
+            print("Boundary value: {:.7e}".format(b))
+        print("Execution time: {:.3f} s".format(timer() - start_time))
 
     return solution
 
@@ -1122,6 +1136,8 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
     solution also satisfies the semi-infinite condition (which implies
     :math:`d\theta/do\to0` as :math:`o\to\infty`).
     """
+    if verbose:
+        start_time = timer()
 
     if radial and o_guess[0] <= 0:
         raise ValueError("o_guess[0] must be positive when using a radial "
@@ -1143,22 +1159,22 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
     def bc_jac(yb, yi):
         return dbc_dyb, dbc_dyi
 
-    if verbose >= 2:
-        print("Solving with solve_bvp")
-
     with np.errstate(divide='ignore', invalid='ignore'):
         bvp_result = solve_bvp(fun, bc=bc, x=o_guess, y=(guess, d_do_guess),
                                fun_jac=jac, bc_jac=bc_jac,
                                max_nodes=max_nodes, verbose=verbose)
 
     if not bvp_result.success:
-        raise RuntimeError("solve_bvp did not converge: {}".format(
+        if verbose:
+            print("Execution time: {:.3f} s".format(timer() - start_time))
+        raise RuntimeError("The solver did not converge: {}".format(
                             bvp_result.message))
 
     if abs(bvp_result.y[1,-1]) > 1e-6:
         if verbose:
             print("The given mesh is too small for the problem. Try again "
                   "after extending o_guess towards the right")
+            print("Execution time: {:.3f} s".format(timer() - start_time))
 
         raise RuntimeError("o_guess cannot contain solution")
 
@@ -1170,6 +1186,9 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
     solution.o = bvp_result.x
     solution.niter = bvp_result.niter
     solution.rms_residuals = bvp_result.rms_residuals
+
+    if verbose:
+        print("Execution time: {:.3f} s".format(timer() - start_time))
 
     return solution
 
