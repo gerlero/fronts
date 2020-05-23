@@ -45,8 +45,9 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-autodoc_default_options = {"members": True,
-                           "inherited-members": True}
+autodoc_default_options = {'members': True,
+                           'inherited-members': True,
+                           'special-members': '__call__'}
 
 autosummary_generate = True
 

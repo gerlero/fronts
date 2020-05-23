@@ -17,10 +17,10 @@ from fronts import solve, inverse, o
 
 import validation
 
-D_inverse = inverse(o=o(validation.r, validation.t)[::5], S=validation.S[::5])
+D_inverse = inverse(o=o(validation.r, validation.t)[::5], samples=validation.S[::5])
 # Using only a fifth of the points so that it does not run too slow
 
-sol = solve(D=D_inverse, Si=validation.S[-1], Sb=validation.S[0], verbose=2)
+S = solve(D=D_inverse, i=validation.S[-1], b=validation.S[0], verbose=2)
 
 
 fig = plt.figure()
@@ -29,7 +29,7 @@ fig.canvas.set_window_title("Saturation plot")
 plt.title("Saturation field at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, validation.S,
          label="Original ({})".format(validation.name))
-plt.plot(validation.r, sol.S(validation.r, validation.t),
+plt.plot(validation.r, S(validation.r, validation.t),
          label="Reconstructed with inverse() and solve()")
 plt.xlabel("r [{}]".format(validation.r_unit))
 plt.ylabel("saturation [-]")

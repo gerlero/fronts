@@ -24,7 +24,7 @@ _filename = os.path.join(sys.path[0], "Nod_Inf.out")
 
 t = []
 r = None
-S = []
+theta = []
 velocity = []
 
 with open(_filename) as file:
@@ -40,25 +40,28 @@ with open(_filename) as file:
 
             t.append(found)
 
-            r_, S_, velocity_ = np.loadtxt(_filename, skiprows=i+5, max_rows=1001,
-                                           usecols=(1, 3, 6), unpack=True)
+            r_, theta_, velocity_ = np.loadtxt(_filename,
+                                               skiprows=i+5,
+                                               max_rows=1001,
+                                               usecols=(1, 3, 6),
+                                               unpack=True)
 
             if r is None:
                 r = -r_
             else:
                 assert np.all(r == -r_)
 
-            S.append(S_)
+            theta.append(theta_)
             velocity.append(-velocity_)
 
 t = np.asarray(t)
 r = np.asarray(r)
-S = np.asarray(S)
+theta = np.asarray(theta)
 velocity = np.asarray(velocity)
 
 assert(np.ndim(t) == 1)
 assert(np.ndim(r) == 1)
-assert(np.ndim(S) == 2)
+assert(np.ndim(theta) == 2)
 assert(np.ndim(velocity) == 2)
 
 
@@ -70,8 +73,8 @@ if __name__ == '__main__':
     fig.canvas.set_window_title("Water content plot")
 
     plt.title("Water content fields")
-    for t_, S_ in zip(t, S):
-        plt.plot(r, S_, label="{}, t={} {}".format(name, t_, t_unit))
+    for t_, theta_ in zip(t, theta):
+        plt.plot(r, theta_, label="{}, t={} {}".format(name, t_, t_unit))
     plt.xlabel("r [{}]".format(r_unit))
     plt.ylabel("water content [-]")
     plt.grid(which='both')

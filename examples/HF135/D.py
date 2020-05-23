@@ -26,7 +26,7 @@ alpha = 0.2555  # 1/m
 n = 2.3521
 Si = 0.102755  # Computed from P0
 
-D = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
+D = van_genuchten(n=n, alpha=alpha, k=k, theta_range=S_range)
 
 S = np.linspace(S_range[0]+epsilon, S_range[1]-epsilon, 200)
 

@@ -34,15 +34,15 @@ Si = 0.102755  # Computed from P0
 
 Sb = S_range[1] - epsilon
 
-D_analytical = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
+D_analytical = van_genuchten(n=n, alpha=alpha, k=k, theta_range=S_range)
 
-analytical = solve(D=D_analytical, Si=Si, Sb=Sb)
+analytical = solve(D=D_analytical, i=Si, b=Sb)
 
 o = np.linspace(analytical.o[0], analytical.o[-1], 2000)
 
-S = analytical.S(o=o)
+S = analytical(o=o)
 
-D_inverse = inverse(o=o, S=S)
+D_inverse = inverse(o=o, samples=S)
 
 
 fig = plt.figure()
@@ -58,14 +58,14 @@ plt.grid(which='both')
 plt.legend()
 
 
-inverse = solve(D=D_inverse, Si=Si, Sb=Sb, verbose=2)
+inverse = solve(D=D_inverse, i=Si, b=Sb, verbose=2)
 
 fig = plt.figure()
 fig.canvas.set_window_title("Saturation plot")
 
 plt.title("Saturation in terms of o")
-plt.plot(o, analytical.S(o=o), label="Using analytical diffusivities")
-plt.plot(o, inverse.S(o=o), label="Using diffusivities obtained with inverse()")
+plt.plot(o, analytical(o=o), label="Using analytical diffusivities")
+plt.plot(o, inverse(o=o), label="Using diffusivities obtained with inverse()")
 plt.xlabel("o [{}/{}**0.5]".format(validation.r_unit, validation.t_unit))
 plt.ylabel("saturation [-]")
 plt.grid(which='both')

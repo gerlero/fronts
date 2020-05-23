@@ -29,17 +29,17 @@ Si = 0.102755  # Computed from P0
 
 Sb = S_range[1] - epsilon
 
-D = van_genuchten(n=n, alpha=alpha, k=k, S_range=S_range)
+D = van_genuchten(n=n, alpha=alpha, k=k, theta_range=S_range)
 
 
-solution = solve(D=D, Si=Si, Sb=Sb, verbose=2)
+S = solve(D=D, i=Si, b=Sb, verbose=2)
 
 
 fig = plt.figure()
 fig.canvas.set_window_title("Saturation plot")
 
 plt.title("Saturation field at t={} {}".format(validation.t, validation.t_unit))
-plt.plot(validation.r, solution.S(validation.r,validation.t),
+plt.plot(validation.r, S(validation.r,validation.t),
          color='steelblue', label="Fronts")
 plt.plot(validation.r, validation.S, color='sandybrown', label=validation.name)
 plt.xlabel("position [{}]".format(validation.r_unit))
@@ -52,7 +52,7 @@ fig = plt.figure()
 fig.canvas.set_window_title("Velocity plot")
 
 plt.title("Velocity field at t={} {}".format(validation.t, validation.t_unit))
-plt.plot(validation.r, solution.flux(validation.r,validation.t),
+plt.plot(validation.r, S.flux(validation.r,validation.t),
          color='steelblue', label="Fronts")
 plt.plot(validation.r, validation.velocity,
          color='sandybrown', label=validation.name)

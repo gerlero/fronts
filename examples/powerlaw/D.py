@@ -15,14 +15,14 @@ k = 4.0
 
 D = power_law(k=k)
 
-S = np.linspace(0, 1, 200)
+c = np.linspace(0, 1, 200)
 
 fig = plt.figure()
 fig.canvas.set_window_title("D plot")
 
-plt.title("D(S)")
-plt.plot(S, D(S))
-plt.xlabel("S")
+plt.title("D(c)")
+plt.plot(c, D(c))
+plt.xlabel("c")
 plt.ylabel("D")
 plt.grid(which='both')
 plt.yscale('log')

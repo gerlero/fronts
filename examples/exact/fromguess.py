@@ -12,21 +12,21 @@ import matplotlib.pyplot as plt
 from fronts import solve_from_guess
 
 
-def D(S, derivatives=0):
+def D(theta, derivatives=0):
 
-    D = 0.5*(1 - np.log(S)) # Exact solution: S(o) = np.exp(-o)
+    D = 0.5*(1 - np.log(theta))  # Exact solution: theta(o) = np.exp(-o)
     # Reference: Philip (1960) Table 1, No. 13
     # https://doi.org/10.1071/PH600001
 
     if derivatives == 0: return D
 
-    dD_dS = -0.5/S
+    dD_dtheta = -0.5/theta
 
-    if derivatives == 1: return D, dD_dS
+    if derivatives == 1: return D, dD_dtheta
 
-    d2D_dS2 = -dD_dS/S
+    d2D_dtheta2 = -dD_dtheta/theta
 
-    if derivatives == 2: return D, dD_dS, d2D_dS2
+    if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
 
     raise ValueError("derivatives must be 0, 1, or 2")
 
@@ -35,18 +35,18 @@ o = np.linspace(0, 20, 100)
 
 epsilon = 1e-5
 
-solution = solve_from_guess(D, Si=epsilon, Sb=1, o_guess=o, S_guess=0.5,
-                            verbose=2)
+theta = solve_from_guess(D, i=epsilon, b=1, o_guess=o, guess=0.5,
+                         verbose=2)
 
 
 fig = plt.figure()
-fig.canvas.set_window_title("S plot")
+fig.canvas.set_window_title("theta plot")
 
-plt.title("S(o)")
-plt.plot(o, solution.S(o=o), color='steelblue', label="Fronts")
+plt.title("theta(o)")
+plt.plot(o, theta(o=o), color='steelblue', label="Fronts")
 plt.plot(o, np.exp(-o), color='sandybrown', label="Exact")
 plt.xlabel("o")
-plt.ylabel("S")
+plt.ylabel("theta")
 plt.grid(which='both')
 plt.legend()
 

@@ -13,23 +13,25 @@ import sympy as sp
 o = sp.Symbol('o', real=True, nonnegative=True)
 
 D_ = sp.Symbol('D_', real=True, positive=True)
-dD_dS, d2D_dS2 = sp.symbols('dD_dS, d2D_dS2', real=True)
-S, dS_do, d2S_do2 = sp.symbols('S, dS_do, d2S_do2', real=True)
+dD_dtheta, d2D_dtheta2 = sp.symbols('dD_dtheta, d2D_dtheta2', real=True)
+theta, dtheta_do, d2theta_do2 = sp.symbols('theta, dtheta_do, d2theta_do2', real=True)
 
 k = sp.Symbol('k', integer=True, nonnegative=True)
 
 D = sp.Function('D', real=True, positive=True)
 
-D_subs = [(D_, D(S)), (dD_dS, D(S).diff(S)), (d2D_dS2, D(S).diff(S, 2))]
+D_subs = [(D_, D(theta)),
+		  (dD_dtheta, D(theta).diff(theta)),
+		  (d2D_dtheta2, D(theta).diff(theta, 2))]
 
 D_backsubs = [sub[::-1] for sub in D_subs[::-1]]
 
 ################################
-y = S, dS_do
+y = theta, dtheta_do
 
-d2S_do2 = -((o/2 + dD_dS*dS_do)/D_ + k/o)*dS_do
+d2theta_do2 = -((o/2 + dD_dtheta*dtheta_do)/D_ + k/o)*dtheta_do
 
-fun = (dS_do, d2S_do2)
+fun = (dtheta_do, d2theta_do2)
 ################################
 
 for i, fi in enumerate(fun):

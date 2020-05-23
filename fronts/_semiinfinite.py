@@ -18,14 +18,14 @@ from ._rootfinding import bracket_root, bisect, NotABracketError
 
 class Solution(BaseSolution):
     r"""
-    Continuous solution to a problem.
+    Solution to a problem.
 
-    A subclass of `BaseSolution`, its methods describe a continuous solution to
-    a problem of finding a function `S` of `r` and `t` such that:
+    Represents a continuously differentiable function :math:`\theta` of `r` and
+    `t` such that:
 
     .. math::
-         \dfrac{\partial S}{\partial t} = \nabla\cdot\left[D\left(S\right)
-                        \dfrac{\partial S}{\partial r}\mathbf{\hat{r}}\right]
+        \dfrac{\partial\theta}{\partial t} = \nabla\cdot\left[D(\theta)
+                    \dfrac{\partial \theta}{\partial r}\mathbf{\hat{r}}\right]
 
     with `r` bounded at :math:`r_b(t)=o_b\sqrt t` on the left and unbounded to
     the right. For :math:`r<r_b(t)`, the methods will evaluate to NaNs.
@@ -33,24 +33,19 @@ class Solution(BaseSolution):
     Parameters
     ----------
     sol : callable
-        Solution to the corresponding ODE obtained with `ode`. For any `o` in
-        the closed interval [`ob`, `oi`], ``sol(o)[0]`` is the value of
-        `S` at `o`, and ``sol(o)[1]`` is the value of the derivative
-        :math:`dS/do` at `o`. `sol` will only be evaluated in this interval.
+        Solution to an ODE obtained with `ode`. For any float or
+        `numpy.ndarray` ``o`` in the closed interval [`ob`, `oi`],
+        ``sol(o)[0]`` are the values of :math:`\theta` at ``o``, and
+        ``sol(o)[1]`` are the values of the derivative :math:`d\theta/do` at 
+        ``o``. `sol` will only be evaluated in this interval.
     ob : float
-        :math:`o_b`, which determines the behavior of the boundary.
+        :math:`o_b`. Determines the behavior of the boundary in the problem.
     oi : float
         Value of the Boltzmann variable at which the solution can be considered
-        to be equal to the initial condition. Must be :math:`\geq o_b`.
+        to be equal to the initial condition. Cannot be less than `ob`.
     D : callable
         `D` used to obtain `sol`. Must be the same function that was passed to
         `ode`.
-
-    See also
-    --------
-    solve
-    solve_from_guess
-    ode
     """
     def __init__(self, sol, ob, oi, D):
         if ob > oi:
@@ -104,11 +99,11 @@ class _Shooter(object):
     Parameters
     ----------
     D : callable
-    Si : float
+    i : float
     radial : {False, 'cylindrical', 'polar', 'spherical'}
     ob : float
-    S_direction : {-1, 0, 1}
-    Si_tol : float
+    theta_direction : {-1, 0, 1}
+    itol : float
     max_shots : None or int
     shot_callback : None or callable
 
@@ -118,21 +113,21 @@ class _Shooter(object):
         Number of calls to `shoot`.
     best_shot : None or Result
         Result that corresponds to the call to `shoot` that returned the lowest
-        ``abs(Si_residual)``.
+        ``abs(i_residual)``.
     """
 
-    def __init__(self, D, Si, radial, ob, S_direction, Si_tol, max_shots,
+    def __init__(self, D, i, radial, ob, theta_direction, itol, max_shots,
                  shot_callback):
 
         assert not radial or ob > 0
-        assert S_direction in {-1, 0, 1}
+        assert theta_direction in {-1, 0, 1}
         assert max_shots is None or max_shots >= 0
         assert shot_callback is None or callable(shot_callback)
 
         self._fun, self._jac = ode(D, radial)
-        self._Si = Si
+        self._i = i
         self._ob = ob
-        self._S_direction = S_direction
+        self._theta_direction = theta_direction
         self._max_shots = max_shots
         self._shot_callback = shot_callback
 
@@ -141,44 +136,44 @@ class _Shooter(object):
             return y[1]
         settled.terminal = True
 
-        def blew_past_Si(o, y):
-            return y[0] - (Si + S_direction*Si_tol)
-        blew_past_Si.terminal = True
+        def blew_past_i(o, y):
+            return y[0] - (i + theta_direction*itol)
+        blew_past_i.terminal = True
 
-        self._events = (settled, blew_past_Si)
+        self._events = (settled, blew_past_i)
 
         self.shots = 0
         self.best_shot = None
 
 
-    Result = namedtuple("Result", ['Sb', 
-                                   'dS_dob',
-                                   'Si_residual',
+    Result = namedtuple("Result", ['b', 
+                                   'd_dob',
+                                   'i_residual',
                                    'D_calls',
                                    'o',
                                    'sol'])
 
-    def integrate(self, Sb, dS_dob):
+    def integrate(self, b, d_dob):
         """
         Integrate and return the full result.
 
         Parameters
         ----------
-        Sb : float
-        dS_dob : float
+        b : float
+        d_dob : float
 
         Returns
         -------
         Result
         """
-        assert (self._Si-Sb)*self._S_direction >= 0
-        assert dS_dob*self._S_direction >= 0
+        assert (self._i - b)*self._theta_direction >= 0
+        assert d_dob*self._theta_direction >= 0
 
         with np.errstate(divide='ignore', invalid='ignore'):
             try:
                 ivp_result = solve_ivp(self._fun,
                                        t_span=(self._ob, np.inf),
-                                       y0=(Sb, dS_dob),
+                                       y0=(b, d_dob),
                                        method='Radau',
                                        jac=self._jac,
                                        events=self._events,
@@ -190,27 +185,27 @@ class _Shooter(object):
                 # v1.4.0; but we do not require that version because it does
                 # not support Python 2.7)
 
-                return self.Result(Sb=Sb,
-                                   dS_dob=dS_dob,
-                                   Si_residual=self._S_direction*np.inf,
+                return self.Result(b=b,
+                                   d_dob=d_dob,
+                                   i_residual=self._theta_direction*np.inf,
                                    D_calls=None,
                                    o=None,
                                    sol=None)
 
         if ivp_result.success and ivp_result.t_events[0].size == 1:
 
-            return self.Result(Sb=Sb,
-                               dS_dob=dS_dob,
-                               Si_residual=ivp_result.y[0,-1] - self._Si,
+            return self.Result(b=b,
+                               d_dob=d_dob,
+                               i_residual=ivp_result.y[0,-1] - self._i,
                                D_calls=ivp_result.nfev + ivp_result.njev,
                                o=ivp_result.t,
                                sol=ivp_result.sol)
 
         else:
 
-            return self.Result(Sb=Sb,
-                               dS_dob=dS_dob,
-                               Si_residual=self._S_direction*np.inf,
+            return self.Result(b=b,
+                               d_dob=d_dob,
+                               i_residual=self._theta_direction*np.inf,
                                D_calls=ivp_result.nfev + ivp_result.njev,
                                o=None,
                                sol=None)
@@ -224,7 +219,7 @@ class _Shooter(object):
 
     def shoot(self, *args, **kwargs):
         """
-        Calls `integrate` and returns the result's `Si_residual`. Each call
+        Calls `integrate` and returns the result's `i_residual`. Each call
         increments the number of shots.
 
         It raises a `ShotLimitReached` exception if the maximum number of
@@ -240,7 +235,7 @@ class _Shooter(object):
 
         Returns
         -------
-        Si_residual : float
+        i_residual : float
         """
         self.shots += 1
 
@@ -253,10 +248,10 @@ class _Shooter(object):
             self._shot_callback(result)
 
         if (self.best_shot is None 
-                or abs(result.Si_residual) < abs(self.best_shot.Si_residual)):
+                or abs(result.i_residual) < abs(self.best_shot.i_residual)):
             self.best_shot = result
 
-        return result.Si_residual
+        return result.i_residual
 
 
 class _DirichletShooter(_Shooter):
@@ -266,79 +261,79 @@ class _DirichletShooter(_Shooter):
     Parameters
     ----------
     D : callable
-    Si : float
-    Sb : float
+    i : float
+    b : float
     radial : {False, 'cylindrical', 'polar', 'spherical'}
     ob : float
-    Si_tol : float
+    itol : float
     max_shots : None or int
     shot_callback : None or callable
     """
 
-    def __init__(self, D, Si, Sb, radial, ob, Si_tol, max_shots, 
-                 shot_callback):
+    def __init__(self, D, i, b, radial, ob, itol, max_shots, shot_callback):
 
-        S_direction = np.sign(Si-Sb)
+        theta_direction = np.sign(i - b)
 
         super(_DirichletShooter, self).__init__(D=D,
-                                                Si=Si,
+                                                i=i,
                                                 radial=radial,
                                                 ob=ob,
-                                                S_direction=S_direction,
-                                                Si_tol=Si_tol,
+                                                theta_direction=theta_direction,
+                                                itol=itol,
                                                 max_shots=max_shots,
                                                 shot_callback=shot_callback)
 
-        self._Sb = Sb
+        self._b = b
 
 
-    def integrate(self, dS_dob):
+    def integrate(self, d_dob):
         """
         Integrate and return the full result.
 
         Parameters
         ----------
-        dS_dob : float
+        d_dob : float
 
         Returns
         -------
         Result
         """
-        return super(_DirichletShooter, self).integrate(Sb=self._Sb,
-                                                        dS_dob=dS_dob)
+        return super(_DirichletShooter, self).integrate(b=self._b,
+                                                        d_dob=d_dob)
 
 
-def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
-          dS_dob_bracket=None, maxiter=100, verbose=0):
+def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
+          d_dob_bracket=None, maxiter=100, verbose=0):
     r"""
     Solve an instance of the general problem.
 
-    Given a positive function `D`, scalars :math:`S_i`, :math:`S_b` and
-    :math:`o_b`, and coordinate unit vector :math:`\mathbf{\hat{r}}`, finds a
-    function `S` of `r` and `t` such that:
+    Given a positive function `D`, scalars :math:`\theta_i`, :math:`\theta_b`
+    and :math:`o_b`, and coordinate unit vector :math:`\mathbf{\hat{r}}`, finds
+    a function :math:`\theta` of `r` and `t` such that:
 
-    .. math:: \begin{cases} \dfrac{\partial S}{\partial t} =
-        \nabla\cdot\left[D\left(S\right)\dfrac{\partial S}{\partial r}
+    .. math:: \begin{cases} \dfrac{\partial\theta}{\partial t} =
+        \nabla\cdot\left[D(\theta)\dfrac{\partial\theta}{\partial r}
         \mathbf{\hat{r}}\right ] & r>r_b(t),t>0\\
-        S(r, 0) = S_i & r>0 \\
-        S(r_b(t), t) = S_b & t>0 \\
+        \theta(r, 0) = \theta_i & r>0 \\
+        \theta(r_b(t), t) = \theta_b & t>0 \\
         r_b(t) = o_b\sqrt t
         \end{cases}
 
     Parameters
     ----------
     D : callable
-        Twice-differentiable function that maps the range of `S` to positive
-        values. It can be called as ``D(S)`` to evaluate it at `S`. It can also
-        be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case the
-        first `n` derivatives of the function evaluated at the same `S` are
-        included (in order) as additional return values. While mathematically a
-        scalar function, `D` operates in a vectorized fashion with the same
-        semantics when `S` is a `numpy.ndarray`.
-    Si : float
-        :math:`S_i`, the initial value of `S` in the domain.
-    Sb : float
-        :math:`S_b`, the value of `S` imposed at the boundary.
+        Twice-differentiable function that maps the range of :math:`\theta` to
+        positive values. It can be called as ``D(theta)`` to evaluate it at
+        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
+        1 or 2, in which case the first ``n`` derivatives of the function
+        evaluated at the same ``theta`` are included (in order) as additional
+        return values. While mathematically a scalar function, `D` operates in
+        a vectorized fashion with the same semantics when ``theta`` is a
+        `numpy.ndarray`.
+    i : float
+        :math:`\theta_i`, the initial value of :math:`\theta` in the domain.
+    b : float
+        :math:`\theta_b`, the value of :math:`\theta` imposed at the boundary.
     radial : {False, 'cylindrical', 'polar', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
@@ -358,20 +353,21 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
         is zero, which implies that the boundary always exists at :math:`r=0`.
         It must be strictly positive if `radial` is not `False`. Be aware that
         a non-zero value implies a moving boundary.
-    Si_tol : float, optional
-        Absolute tolerance for :math:`S_i`.
-    dS_dob_hint : None or float, optional
+    itol : float, optional
+        Absolute tolerance for the initial condition.
+    d_dob_hint : None or float, optional
         Optional hint to the solver. If given, it should be a number close to
-        the expected value of the derivative of `S` with respect to the
-        Boltzmann variable `o` (i.e., :math:`dS/do`) at the boundary in the
-        solution to be found. This parameter is typically not needed.
-    dS_dob_bracket : None or sequence of two floats
-        Optional search interval that brackets the value of :math:`dS/do` at
-        the boundary in the solution. If given, the solver will use bisection
-        to find a solution in which :math:`dS/do` falls inside that interval (a
-        `ValueError` will be raised for an incorrect interval). This parameter
-        cannot be passed together with a `dS_dob_hint`. It is also not needed
-        in typical usage.
+        the expected value of the derivative of :math:`\theta` with respect to
+        the Boltzmann variable `o` at the boundary (i.e.,
+        :math:`d\theta/do|_b`) in the solution to be found. This parameter is
+        typically not needed.
+    d_dob_bracket : None or sequence of two floats
+        Optional search interval that brackets the value of
+        :math:`d\theta/do|_b` in the solution. If given, the solver will use
+        bisection to find a solution in which :math:`d\theta/do|_b` falls
+        inside that interval (a `ValueError` will be raised for an incorrect
+        interval). This parameter cannot be passed together with a
+        `d_dob_hint`. It is also not needed in typical usage.
     maxiter : int, optional
         Maximum number of iterations. A `RuntimeError` will be raised if the
         specified tolerance is not achieved within this number of iterations.
@@ -393,15 +389,14 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
                 Final solver mesh, in terms of the Boltzmann variable `o`.
             *   `niter` *(int)*
                 Number of iterations required to find the solution.
-            *   `dS_dob_bracket` *(sequence of two floats or None)*
+            *   `d_dob_bracket` *(sequence of two floats or None)*
                 If available, an interval that contains the value of
-                :math:`dS/do` at the boundary in the solution. May be used as
-                the input `dS_dob_bracket` in a subsequent call with a smaller
-                `Si_tol` for the same problem in order to avoid reduntant
-                iterations. Whether this interval is available or not depends
-                on the strategy used internally by the solver; in particular,
-                this field is never `None` if a `dS_dob_bracket` is passed when
-                calling the function.
+                :math:`d\theta/do|_b`. May be used as the input `d_dob_bracket`
+                in a subsequent call with a smaller `itol` for the same problem
+                in order to avoid reduntant iterations. Whether this interval
+                is available or not depends on the strategy used internally by
+                the solver; in particular, this field is never `None` if a
+                `d_dob_bracket` is passed when calling the function.
 
     See also
     --------
@@ -420,13 +415,12 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
     repeatedly with the 'Radau' method as implemented in the `scipy.integrate`
     module and a custom shooting algorithm. The boundary condition is satisfied
     exactly as the starting point, and the algorithm iterates with different
-    values of :math:`dS/do` at the boundary until it finds the solution that
-    also satisfies the initial condition within the specified tolerance. Trial
-    values of :math:`dS/do` at the boundary are selected automatically by
-    default (taking into account an optional hint if
-    passed by the user), or by bisecting an optional search interval. This
-    scheme assumes that :math:`dS/do` at the boundary varies continuously with
-    :math:`S_i`.
+    values of :math:`d\theta/do|_b` until it finds the solution that also
+    satisfies the initial condition within the specified tolerance. Trial
+    values of :math:`d\theta/do|_b` are selected automatically by default
+    (taking into account an optional hint if passed by the user), or by
+    bisecting an optional search interval. This scheme assumes that
+    :math:`d\theta/do|_b` varies continuously with :math:`\theta_i`.
     """
     if radial and ob <= 0:
         raise ValueError("ob must be positive when using a radial coordinate")
@@ -434,96 +428,94 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
     if maxiter < 0:
         raise ValueError("maxiter must not be negative")
 
-    if dS_dob_bracket is not None:
-        if dS_dob_hint is not None:
-            raise TypeError("cannot pass both dS_dob_hint and dS_dob_bracket")
+    if d_dob_bracket is not None:
+        if d_dob_hint is not None:
+            raise TypeError("cannot pass both d_dob_hint and d_dob_bracket")
 
-        dS_dob_bracket = tuple(x if np.sign(x) == np.sign(Si-Sb) else 0
-                               for x in dS_dob_bracket)
+        d_dob_bracket = tuple(x if np.sign(x) == np.sign(i - b) else 0
+                              for x in d_dob_bracket)
 
-    elif dS_dob_hint is None:
-        dS_dob_hint = (Si-Sb)/(2*D(Sb)**0.5)
+    elif d_dob_hint is None:
+        d_dob_hint = (i - b)/(2*D(b)**0.5)
 
-    elif np.sign(dS_dob_hint) != np.sign(Si-Sb):
-        raise ValueError("sign of dS_dob_hint does not match direction given "
-                         "by Sb and Si")
+    elif np.sign(d_dob_hint) != np.sign(i - b):
+        raise ValueError("sign of d_dob_hint does not match direction given by"
+                         "b and i")
 
     if verbose >= 2:
         print("{:^15}{:^15}{:^15}{:^15}".format(
                "Iteration",
-               "Si residual",
-               "dS/do|b",
+               "Residual",
+               "d/do|b",
                "Calls to D"))
 
         def shot_callback(result):
-            if np.isfinite(result.Si_residual):
+            if np.isfinite(result.i_residual):
                 print("{:^15}{:^15.2e}{:^15.7e}{:^15}".format(
                        shooter.shots,
-                       result.Si_residual,
-                       result.dS_dob,
+                       result.i_residual,
+                       result.d_dob,
                        result.D_calls))
             else:
                 print("{:^15}{:^15}{:^15.7e}{:^15}".format(
                        shooter.shots,
                        "*",
-                       result.dS_dob,
+                       result.d_dob,
                        result.D_calls or "*"))
     else:
         shot_callback = None
 
     shooter = _DirichletShooter(D=D,
-                                Si=Si,
-                                Sb=Sb,
+                                i=i,
+                                b=b,
                                 radial=radial,
                                 ob=ob,
-                                Si_tol=Si_tol,
+                                itol=itol,
                                 max_shots=maxiter,
                                 shot_callback=shot_callback)
 
     try:
-
-        if dS_dob_bracket is None:
-            if Si == Sb:
-                dS_dob = 0
-                dS_dob_bracket = (0, 0)
+        if d_dob_bracket is None:
+            if i == b:
+                d_dob = 0
+                d_dob_bracket = (0, 0)
 
             else:
-                dS_dob_result = bracket_root(shooter.shoot,
-                                             interval=(0, dS_dob_hint),
-                                             f_interval=(Sb-Si, None),
-                                             ftol=Si_tol,
-                                             maxiter=None)
+                d_dob_result = bracket_root(shooter.shoot,
+                                            interval=(0, d_dob_hint),
+                                            f_interval=(b-i, None),
+                                            ftol=itol,
+                                            maxiter=None)
 
-                dS_dob = dS_dob_result.root
-                dS_dob_bracket = dS_dob_result.bracket
-                f_bracket = dS_dob_result.f_bracket
+                d_dob = d_dob_result.root
+                d_dob_bracket = d_dob_result.bracket
+                f_bracket = d_dob_result.f_bracket
 
         else:
-            assert dS_dob_hint is None
-            dS_dob = None
-            f_bracket = tuple(Sb-Si if x==0 else None for x in dS_dob_bracket)
+            assert d_dob_hint is None
+            d_dob = None
+            f_bracket = tuple(b-i if x==0 else None for x in d_dob_bracket)
 
 
-        if dS_dob is None:
+        if d_dob is None:
             try:
-                dS_dob_result = bisect(shooter.shoot,
-                                       bracket=dS_dob_bracket,
-                                       f_bracket=f_bracket,
-                                       ftol=Si_tol,
-                                       maxiter=None)
+                d_dob_result = bisect(shooter.shoot,
+                                      bracket=d_dob_bracket,
+                                      f_bracket=f_bracket,
+                                      ftol=itol,
+                                      maxiter=None)
 
-                dS_dob = dS_dob_result.root
-                dS_dob_bracket = dS_dob_result.bracket
-                f_bracket = dS_dob_result.f_bracket
+                d_dob = d_dob_result.root
+                d_dob_bracket = d_dob_result.bracket
+                f_bracket = d_dob_result.f_bracket
 
             except NotABracketError:
-                assert dS_dob_hint is None
+                assert d_dob_hint is None
                 if verbose:
-                    print("dS_dob_bracket does not contain target dS/do at ob."
-                          " Try again with a correct interval.")
+                    print("d_dob_bracket does not contain target d/do|b. Try "
+                          "again with a correct interval.")
                 six.raise_from(
-                    ValueError("dS_dob_bracket does not contain target dS/do "
-                               "at ob"),
+                    ValueError("d_dob_bracket does not contain target d/do|b"),
                     None)
 
     except shooter.ShotLimitReached:
@@ -535,19 +527,19 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
                          .format(maxiter)),
             None)
 
-    if shooter.best_shot is not None and shooter.best_shot.dS_dob == dS_dob:
+    if shooter.best_shot is not None and shooter.best_shot.d_dob == d_dob:
         result = shooter.best_shot
     else:
-        result = shooter.integrate(dS_dob=dS_dob)
+        result = shooter.integrate(d_dob=d_dob)
 
     if verbose:
         print("Solved in {} iterations.".format(shooter.shots))
-        print("Si residual: {:.2e}".format(result.Si_residual))
-        if dS_dob_bracket is not None:
-            print("dS/do at ob: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
-                  dS_dob, min(dS_dob_bracket), max(dS_dob_bracket)))
+        print("Residual: {:.2e}".format(result.i_residual))
+        if d_dob_bracket is not None:
+            print("d/do|b: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
+                  d_dob, min(d_dob_bracket), max(d_dob_bracket)))
         else:
-            print("dS/do at ob: {:.7e}".format(dS_dob))
+            print("d/do|b: {:.7e}".format(d_dob))
 
     solution = Solution(sol=result.sol,
                         ob=result.o[0],
@@ -556,7 +548,7 @@ def solve(D, Si, Sb, radial=False, ob=0.0, Si_tol=1e-3, dS_dob_hint=None,
 
     solution.o = result.o
     solution.niter = shooter.shots
-    solution.dS_dob_bracket = dS_dob_bracket
+    solution.d_dob_bracket = d_dob_bracket
 
     return solution
 
@@ -568,28 +560,27 @@ class _FlowrateShooter(_Shooter):
     Parameters
     ----------
     D : callable
-    Si : float
+    i : float
     rel_flowrate : float
-        Flow rate of `S` per unit angle and (if applicable) height.
+        Flow rate per unit angle and (if applicable) height.
     ob : float
-    Si_tol : float
+    itol : float
     max_shots : None or int
     shot_callback : None or callable
     """
 
-    def __init__(self, D, Si, rel_flowrate, ob, Si_tol, max_shots,
-                 shot_callback):
+    def __init__(self, D, i, rel_flowrate, ob, itol, max_shots, shot_callback):
 
         assert ob > 0
 
-        S_direction = np.sign(-rel_flowrate)
+        theta_direction = np.sign(-rel_flowrate)
 
         super(_FlowrateShooter, self).__init__(D=D,
-                                               Si=Si,
+                                               i=i,
                                                ob=ob,
                                                radial='cylindrical',
-                                               S_direction=S_direction,
-                                               Si_tol=Si_tol,
+                                               theta_direction=theta_direction,
+                                               itol=itol,
                                                max_shots=max_shots,
                                                shot_callback=shot_callback)
 
@@ -600,16 +591,16 @@ class _FlowrateShooter(_Shooter):
     class _DError(Exception):
         pass
 
-    def _D(self, S):
+    def _D(self, theta):
         """
-        Call ``D(S)`` and return its value if valid.
+        Call `D` and return its value if valid.
 
         Raises a `_DError` exception if the call fails or does not return a
         finite, positive value.
 
         Parameters
         ----------
-        S : float
+        float
 
         Returns
         -------
@@ -617,7 +608,7 @@ class _FlowrateShooter(_Shooter):
         """
         with np.errstate(divide='ignore', invalid='ignore'):
             try:
-                D = self._D_(S)
+                D = self._D_(theta)
             except (ValueError, ArithmeticError) as e:
                 six.raise_from(self._DError, e)
 
@@ -631,51 +622,51 @@ class _FlowrateShooter(_Shooter):
         
         return D
 
-    def integrate(self, Sb):
+    def integrate(self, b):
         """
         Integrate and return the full result.
 
         Parameters
         ----------
-        Sb : float
+        b : float
 
         Returns
         -------
         Result
         """
         try:
-            Db = self._D(Sb)
+            Db = self._D(b)
         except self._DError:
-            return self.Result(Sb=Sb,
-                               dS_dob=None,
-                               Si_residual=-self._S_direction*np.inf,
+            return self.Result(b=b,
+                               d_dob=None,
+                               i_residual=-self._theta_direction*np.inf,
                                D_calls=1,
                                o=None,
                                sol=None)
 
-        dS_dob = -self._rel_flowrate/(Db*self._ob)
+        d_dob = -self._rel_flowrate/(Db*self._ob)
 
-        result = super(_FlowrateShooter, self).integrate(Sb=Sb, dS_dob=dS_dob)
+        result = super(_FlowrateShooter, self).integrate(b=b, d_dob=d_dob)
 
         D_calls = result.D_calls+1 if result.D_calls is not None else None
 
         return result._replace(D_calls=D_calls)
 
 
-def solve_flowrate(D, Si, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
-                   Si_tol=1e-3, Sb_hint=None, Sb_bracket=None, maxiter=100,
+def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
+                   itol=1e-3, b_hint=None, b_bracket=None, maxiter=100,
                    verbose=0):
     r"""
     Solve a radial problem with a fixed-flowrate boundary condition.
 
-    Given a positive function `D`, scalars :math:`S_i`, :math:`S_b` and
-    :math:`o_b`, and coordinate unit vector :math:`\mathbf{\hat{r}}`, finds a
-    function `S` of `r` and `t` such that:
+    Given a positive function `D`, scalars :math:`\theta_i`, :math:`\theta_b`
+    and :math:`o_b`, and coordinate unit vector :math:`\mathbf{\hat{r}}`, finds
+    a function :math:`\theta` of `r` and `t` such that:
 
-    .. math:: \begin{cases} \dfrac{\partial S}{\partial t} =
-        \nabla\cdot\left[D(S)\dfrac{\partial S}{\partial r}
+    .. math:: \begin{cases} \dfrac{\partial\theta}{\partial t} =
+        \nabla\cdot\left[D(\theta)\dfrac{\partial\theta}{\partial r}
         \mathbf{\hat{r}}\right ] & r>r_b(t),t>0\\
-        S(r,0) = S_i & r>0 \\
+        \theta(r,0) = \theta_i & r>0 \\
         Q(r_b(t),t) = Q_b & t>0 \\
         r_b(t) = o_b\sqrt t
         \end{cases}
@@ -683,19 +674,20 @@ def solve_flowrate(D, Si, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     Parameters
     ----------
     D : callable
-        Twice-differentiable function that maps the range of `S` to positive
-        values. It can be called as ``D(S)`` to evaluate it at `S`. It can also
-        be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case the
-        first `n` derivatives of the function evaluated at the same `S` are
-        included (in order) as additional return values. While mathematically a
-        scalar function, `D` operates in a vectorized fashion with the same
-        semantics when `S` is a `numpy.ndarray`.
-    Si : float
-        :math:`S_i`, the initial value of `S` in the domain.
+        Twice-differentiable function that maps the range of :math:`\theta` to
+        positive values. It can be called as ``D(theta)`` to evaluate it at
+        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
+        1 or 2, in which case the first ``n`` derivatives of the function
+        evaluated at the same ``theta`` are included (in order) as additional
+        return values. While mathematically a scalar function, `D` operates in
+        a vectorized fashion with the same semantics when ``theta`` is a
+        `numpy.ndarray`.
+    i : float
+        :math:`\theta_i`, the initial value of :math:`\theta` in the domain.
     Qb : float
-        :math:`Q_b`, flow rate of `S` imposed at the boundary. A positive value
-        means that `S` is flowing into the domain; negative values mean that
-        `S` flows out of the domain.
+        :math:`Q_b`, flow rate of :math:`\theta` imposed at the boundary. A
+        positive value means that :math:`\theta` is flowing into the domain;
+        negative values mean that :math:`\theta` flows out of the domain.
     radial : {'cylindrical', 'polar'}
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
@@ -716,17 +708,18 @@ def solve_flowrate(D, Si, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     height : None or float, optional
         Axial height of the domain if ``radial=='cylindrical'``. Not allowed if
         ``radial=='polar'``.
-    Si_tol : float, optional
-        Absolute tolerance for :math:`S_i`.
-    Sb_hint : None or float, optional
+    itol : float, optional
+        Absolute tolerance for :math:`\theta_i`.
+    b_hint : None or float, optional
         Optional hint to the solver. If given, it should be a number close to
-        the expected value  of `S` at the boundary in the solution to be found.
-    Sb_bracket : None or sequence of two floats
-        Optional search interval that brackets the value of `S` at the boundary 
+        the expected value of :math:`\theta` at the boundary (i.e.
+        :math:`\theta_b`) in the solution to be found.
+    b_bracket : None or sequence of two floats
+        Optional search interval that brackets the value of :math:`\theta_b`
         in the solution. If given, the solver will use bisection to find a
-        solution in which `S` falls inside that interval (a `ValueError` will
-        be raised for an incorrect interval). This parameter cannot be passed
-        together with an `Sb_hint`.
+        solution in which :math:`\theta_b` falls inside that interval (a
+        `ValueError` will be raised for an incorrect interval). This parameter
+        cannot be passed together with a `b_hint`.
     maxiter : int, optional
         Maximum number of iterations. A `RuntimeError` will be raised if the
         specified tolerance is not achieved within this number of iterations.
@@ -748,14 +741,14 @@ def solve_flowrate(D, Si, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
                 Final solver mesh, in terms of the Boltzmann variable `o`.
             *   `niter` *(int)*
                 Number of iterations required to find the solution.
-            *   `Sb_bracket` *(sequence of two floats or None)*
-                If available, an interval that contains the value of `S` at the
-                boundary in the solution. May be used as the input `Sb_bracket`
-                in a subsequent call with a smaller `Si_tol` for the same
-                problem in order to avoid reduntant iterations. Whether this
-                interval is available or not depends n the strategy used
-                internally by the solver; in particular, this field is never
-                `None` if an `Sb_bracket` is passed when calling the function.
+            *   `b_bracket` *(sequence of two floats or None)*
+                If available, an interval that contains the value of
+                :math:`\theta_b`. May be used as the input `b_bracket` in a
+                subsequent call with a smaller `itol` for the same problem in
+                order to avoid reduntant iterations. Whether this interval is
+                available or not depends on the strategy used internally by the
+                solver; in particular, this field is never `None` if a
+                `b_bracket` is passed when calling the function.
 
     See also
     --------
@@ -768,12 +761,12 @@ def solve_flowrate(D, Si, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     repeatedly with the 'Radau' method as implemented in the `scipy.integrate`
     module and a custom shooting algorithm. The boundary condition is satisfied
     exactly as the starting point, and the algorithm iterates with different
-    values of `S` at the boundary until it finds the solution that also
-    satisfies the initial condition within the specified tolerance. Trial
-    values of `S` at the boundary are selected automatically by default (taking
-    into account an optional hint if passed by the user), or by bisecting an
-    optional search interval. This scheme assumes that `S` at the boundary
-    varies continuously with :math:`S_i`.
+    values of :math:`\theta` at the boundary until it finds the solution that
+    also satisfies the initial condition within the specified tolerance. Trial
+    values of :math:`\theta` at the boundary are selected automatically by
+    default (taking into account an optional hint if passed by the user), or by
+    bisecting an optional search interval. This scheme assumes that
+    :math:`\theta` at the boundary varies continuously with :math:`\theta_i`.
     """
     if ob <= 0:
         raise ValueError("ob must be positive")
@@ -797,103 +790,104 @@ def solve_flowrate(D, Si, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     if maxiter < 0:
         raise ValueError("maxiter must not be negative")
 
-    if Sb_bracket is not None:
-        if Sb_hint is not None:
-            raise TypeError("cannot pass both Sb_hint and Sb_bracket")
+    if b_bracket is not None:
+        if b_hint is not None:
+            raise TypeError("cannot pass both b_hint and b_bracket")
 
-        Sb_bracket = tuple(x if np.sign(Si-x) == np.sign(-Qb) else Si
-                           for x in Sb_bracket)
+        b_bracket = tuple(x if np.sign(i-x) == np.sign(-Qb) else i
+                           for x in b_bracket)
 
-    elif Sb_hint is None:
-        Sb_hint = Si + np.sign(Qb)
+    elif b_hint is None:
+        b_hint = i + np.sign(Qb)
 
-    elif np.sign(Si-Sb_hint) != np.sign(-Qb):
-        raise ValueError("value of Sb_hint disagrees with flowrate sign")
+    elif np.sign(i-b_hint) != np.sign(-Qb):
+        raise ValueError("value of b_hint disagrees with flowrate sign")
 
     if verbose >= 2:
         print("{:^15}{:^15}{:^15}{:^15}{:^15}".format(
                "Iteration",
-               "Si residual",
-               "Sb",
-               "dS/do|b",
+               "Residual",
+               "Boundary value",
+               "d/do|b",
                "Calls to D"))
 
         def shot_callback(result):
-            if np.isfinite(result.Si_residual):
+            if np.isfinite(result.i_residual):
                 print("{:^15}{:^15.2e}{:^15.2e}{:^15.7e}{:^15}".format(
                        shooter.shots,
-                       result.Si_residual,
-                       result.Sb,
-                       result.dS_dob,
+                       result.i_residual,
+                       result.b,
+                       result.d_dob,
                        result.D_calls))
 
-            elif result.dS_dob is not None:
+            elif result.d_dob is not None:
                 print("{:^15}{:^15}{:^15.2e}{:^15.7e}{:^15}".format(
                        shooter.shots,
                        "*",
-                       result.Sb,
-                       result.dS_dob,
+                       result.b,
+                       result.d_dob,
                        result.D_calls or "*"))
             else:
                 print("{:^15}{:^15}{:^15.2e}{:^15}{:^15}".format(
                        shooter.shots,
                        "*",
-                       result.Sb,
+                       result.b,
                        "*",
                        result.D_calls or "*"))
     else:
         shot_callback = None
 
     shooter = _FlowrateShooter(D=D,
-                               Si=Si,
+                               i=i,
                                rel_flowrate=Qb/(angle*(height or 1)),
                                ob=ob,
-                               Si_tol=Si_tol,
+                               itol=itol,
                                max_shots=maxiter,
                                shot_callback=shot_callback)
 
     try:
-        if Sb_bracket is None:
+        if b_bracket is None:
             if Qb == 0:
-                Sb = Si
-                Sb_bracket = (Si, Si)
+                b = i
+                b_bracket = (i, i)
         
             else:
-                Sb_result = bracket_root(shooter.shoot,
-                                        interval=(Si, Sb_hint),
+                b_result = bracket_root(shooter.shoot,
+                                        interval=(i, b_hint),
                                         f_interval=(None, None),
-                                        ftol=Si_tol,
+                                        ftol=itol,
                                         maxiter=None)
 
-                Sb = Sb_result.root
-                Sb_bracket = Sb_result.bracket
-                f_bracket = Sb_result.f_bracket
+                b = b_result.root
+                b_bracket = b_result.bracket
+                f_bracket = b_result.f_bracket
 
         else:
-            assert Sb_hint is None
-            Sb = None
-            f_bracket = tuple(0 if Qb==0 and x==Si else None
-                              for x in Sb_bracket)
+            assert b_hint is None
+            b = None
+            f_bracket = tuple(0 if Qb==0 and x==i else None for x in b_bracket)
 
-        if Sb is None:
+        if b is None:
             try:
-                Sb_result = bisect(shooter.shoot,
-                                   bracket=Sb_bracket,
-                                   f_bracket=f_bracket,
-                                   ftol=Si_tol,
-                                   maxiter=None)
+                b_result = bisect(shooter.shoot,
+                                  bracket=b_bracket,
+                                  f_bracket=f_bracket,
+                                  ftol=itol,
+                                  maxiter=None)
 
-                Sb = Sb_result.root
-                Sb_bracket = Sb_result.bracket
-                f_bracket = Sb_result.f_bracket
+                b = b_result.root
+                b_bracket = b_result.bracket
+                f_bracket = b_result.f_bracket
 
             except NotABracketError:
-                assert Sb_hint is None
+                assert b_hint is None
                 if verbose:
-                    print("Sb_bracket does not contain target S at ob. Try "
-                          "again with a correct interval.")
+                    print("b_bracket does not contain target boundary value. "
+                          "Try again with a correct interval.")
                 six.raise_from(
-                    ValueError("Sb_bracket does not contain target S at ob"),
+                    ValueError(
+                        "b_bracket does not contain target bounday value"
+                        ),
                     None)
 
     except shooter.ShotLimitReached:
@@ -905,19 +899,19 @@ def solve_flowrate(D, Si, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
                          .format(maxiter)),
             None)
 
-    if shooter.best_shot is not None and shooter.best_shot.Sb == Sb:
+    if shooter.best_shot is not None and shooter.best_shot.b == b:
         result = shooter.best_shot
     else:
-        result = shooter.integrate(Sb=Sb)
+        result = shooter.integrate(b=b)
 
     if verbose:
         print("Solved in {} iterations.".format(shooter.shots))
-        print("Si residual: {:.2e}".format(result.Si_residual))
-        if Sb_bracket is not None:
-            print("Sb: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
-                  Sb, min(Sb_bracket), max(Sb_bracket)))
+        print("Residual: {:.2e}".format(result.i_residual))
+        if b_bracket is not None:
+            print("Boundary value: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
+                  b, min(b_bracket), max(b_bracket)))
         else:
-            print("Sb: {:.7e}".format(Sb))
+            print("Boundary value: {:.7e}".format(b))
 
     solution = Solution(sol=result.sol,
                         ob=result.o[0],
@@ -926,26 +920,26 @@ def solve_flowrate(D, Si, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
 
     solution.o = result.o
     solution.niter = shooter.shots
-    solution.Sb_bracket = Sb_bracket
+    solution.b_bracket = b_bracket
 
     return solution
 
 
-def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
-                    verbose=0):
+def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
+                     verbose=0):
     r"""
     Solve an instance of the general problem starting from a guess of the
     solution.
 
-    Given a positive function `D`, scalars :math:`S_i`, :math:`S_b` and
-    :math:`o_b`, and coordinate unit vector :math:`\mathbf{\hat{r}}`, finds a
-    function `S` of `r` and `t` such that:
+    Given a positive function `D`, scalars :math:`\theta_i`, :math:`\theta_b`
+    and :math:`o_b`, and coordinate unit vector :math:`\mathbf{\hat{r}}`, finds
+    a function :math:`\theta` of `r` and `t` such that:
 
-    .. math:: \begin{cases} \dfrac{\partial S}{\partial t} =
-        \nabla\cdot\left[D\left(S\right)\dfrac{\partial S}{\partial r}
+    .. math:: \begin{cases} \dfrac{\partial\theta}{\partial t} =
+        \nabla\cdot\left[D(\theta))\dfrac{\partial\theta}{\partial r}
         \mathbf{\hat{r}}\right ] & r>r_b(t),t>0\\
-        S(r, 0) = S_i & r>0 \\
-        S(r_b(t), t) = S_b & t>0 \\
+        \theta(r, 0) = \theta_i & r>0 \\
+        \theta(r_b(t), t) = \theta_b & t>0 \\
         r_b(t) = o_b\sqrt t
         \end{cases}
 
@@ -969,17 +963,18 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
     Parameters
     ----------
     D : callable
-        Twice-differentiable function that maps the range of `S` to positive
-        values. It can be called as ``D(S)`` to evaluate it at `S`. It can also
-        be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case the
-        first `n` derivatives of the function evaluated at the same `S` are
-        included (in order) as additional return values. While mathematically a
-        scalar function, `D` operates in a vectorized fashion with the same
-        semantics when `S` is a `numpy.ndarray`.
-    Si : float
-        :math:`S_i`, the initial value of `S` in the domain.
-    Sb : float
-        :math:`S_b`, the value of `S` imposed at the boundary.
+        Twice-differentiable function that maps the range of :math:`\theta` to
+        positive values. It can be called as ``D(theta)`` to evaluate it at
+        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
+        1 or 2, in which case the first ``n`` derivatives of the function
+        evaluated at the same ``theta`` are included (in order) as additional
+        return values. While mathematically a scalar function, `D` operates in
+        a vectorized fashion with the same semantics when ``theta`` is a
+        `numpy.ndarray`.
+    i : float
+        :math:`\theta_i`, the initial value of :math:`\theta` in the domain.
+    b : float
+        :math:`\theta_b`, the value of :math:`\theta` imposed at the boundary.
     o_guess : numpy.array_like, shape (n_guess,)
         Starting mesh in terms of the Boltzmann variable `o`. Must be strictly
         increasing. ``o_guess[0]`` is :math:`o_b`, which determines the
@@ -988,9 +983,9 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
         `False`. Be aware that a non-zero value implies a moving boundary. On
         the other end, ``o_guess[-1]`` must be large enough to contain the
         solution to the semi-infinite problem.
-    S_guess : float or numpy.array_like, shape (n_guess,)
-        Starting guess of `S` at the points in `o_guess`. If a single value,
-        the guess is assumed uniform.
+    guess : float or numpy.array_like, shape (n_guess,)
+        Starting guess of :math:`\theta` at the points in `o_guess`. If a
+        single value, the guess is assumed uniform.
     radial : {False, 'cylindrical', 'polar', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
@@ -1045,23 +1040,23 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
     matches the boundary and initial conditions of the problem. Upon that
     solver's convergence, it runs a final check on whether the candidate
     solution also satisfies the semi-infinite condition (which implies
-    :math:`dS/do\to0` as :math:`o\to\infty`).
+    :math:`d\theta/do\to0` as :math:`o\to\infty`).
     """
 
     if radial and o_guess[0] <= 0:
         raise ValueError("o_guess[0] must be positive when using a radial "
                          "coordinate")
 
-    if np.ndim(S_guess) == 0:
-        S_guess = np.full_like(o_guess, fill_value=S_guess)
+    if np.ndim(guess) == 0:
+        guess = np.full_like(o_guess, fill_value=guess)
 
-    dS_do_guess = np.gradient(S_guess, o_guess)
+    d_do_guess = np.gradient(guess, o_guess)
 
     fun, jac = ode(D=D, radial=radial)
 
     # Boundary conditions
     def bc(yb, yi):
-        return (yb[0]-Sb, yi[0]-Si)
+        return (yb[0]-b, yi[0]-i)
 
     dbc_dyb = np.array(((1, 0), (0, 0)))
     dbc_dyi = np.array(((0, 0), (1, 0)))
@@ -1072,7 +1067,7 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
         print("Solving with solve_bvp")
 
     with np.errstate(divide='ignore', invalid='ignore'):
-        bvp_result = solve_bvp(fun, bc=bc, x=o_guess, y=(S_guess, dS_do_guess),
+        bvp_result = solve_bvp(fun, bc=bc, x=o_guess, y=(guess, d_do_guess),
                                fun_jac=jac, bc_jac=bc_jac,
                                max_nodes=max_nodes, verbose=verbose)
 
@@ -1099,46 +1094,48 @@ def solve_from_guess(D, Si, Sb, o_guess, S_guess, radial=False, max_nodes=1000,
     return solution
 
 
-def inverse(o, S):
+def inverse(o, samples):
     r"""
     Solve an inverse problem.
 
-    Given a function `S` of `r` and `t`, and scalars :math:`S_i`, :math:`S_b`
-    and :math:`o_b`, finds a positive function `D` of the values of `S` such
-    that:
+    Given a function :math:`\theta` of `r` and `t`, and scalars
+    :math:`\theta_i`, :math:`\theta_b` and :math:`o_b`, finds a positive
+    function `D` of the values of :math:`\theta` such that:
 
-    .. math:: \begin{cases} \dfrac{\partial S}{\partial t} =
-        \dfrac{\partial}{\partial r}\left(D\left(S\right)\dfrac{\partial S}
+    .. math:: \begin{cases} \dfrac{\partial\theta}{\partial t} =
+        \dfrac{\partial}{\partial r}\left(D(\theta)\dfrac{\partial\theta}
         {\partial r}\right) & r>r_b(t),t>0\\
-        S(r, 0) = S_i & r>0 \\
-        S(r_b(t), t) = S_b & t>0 \\
+        \theta(r, 0) = \theta_i & r>0 \\
+        \theta(r_b(t), t) = \theta_b & t>0 \\
         r_b(t) = o_b\sqrt t
         \end{cases}
 
-    `S` is taken as its values on a discrete set of points expressed in terms
-    of the Boltzmann variable. Problems in radial coordinates are not
+    :math:`\theta` is taken as its values on a discrete set of points expressed
+    in terms of the Boltzmann variable. Problems in radial coordinates are not
     supported.
 
     Parameters
     ----------
     o : numpy.array_like, shape (n,)
-        Points where `S` is known, expressed in terms of the Boltzmann
-        variable. Must be strictly increasing.
+        Points where :math:`\theta` is known, expressed in terms of the
+        Boltzmann variable. Must be strictly increasing.
 
-    S : numpy.array_like, shape (n,)
-        Values of the solution at `o`. Must be monotonic (either non-increasing
-        or non-decreasing) and ``S[-1]`` must be :math:`S_i`.
+    samples : numpy.array_like, shape (n,)
+        Values of :math:`\theta` at `o`. Must be monotonic (either
+        non-increasing or non-decreasing) and ``samples[-1]`` must be
+        :math:`\theta_i`.
 
     Returns
     -------
     D : callable
-        Twice-differentiable function that maps the range of `S` to positive
-        values. It can be called as ``D(S)`` to evaluate it at `S`. It can also
-        be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case the
-        first `n` derivatives of the function evaluated at the same `S` are
-        included (in order) as additional return values. While mathematically a
-        scalar function, `D` operates in a vectorized fashion with the same
-        semantics when `S` is a `numpy.ndarray`.
+        Twice-differentiable function that maps the range of :math:`\theta` to
+        positive values. It can be called as ``D(theta)`` to evaluate it at
+        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
+        1 or 2, in which case the first ``n`` derivatives of the function
+        evaluated at the same ``theta`` are included (in order) as additional
+        return values. While mathematically a scalar function, `D` operates in
+        a vectorized fashion with the same semantics when ``theta`` is a
+        `numpy.ndarray`.
 
     See also
     --------
@@ -1146,17 +1143,17 @@ def inverse(o, S):
 
     Notes
     -----
-    An `o` function of `S` is constructed by interpolating the input data with
-    a PCHIP monotonic cubic spline. The function `D` is then constructed by
-    applying the expressions that result from solving the Boltzmann-transformed
-    equation for `D`.
+    An `o` function of :math:`\theta` is constructed by interpolating the input
+    data with a PCHIP monotonic cubic spline. The function `D` is then
+    constructed by applying the expressions that result from solving the
+    Boltzmann-transformed equation for `D`.
 
     While very fast, the scheme used by this function is somewhat limited in
     its practical precision because of the use of interpolation (see the Notes)
-    and the fact that two `S` functions that differ little in their values may
-    actually be the consequence of very different `D` functions. If the goal is
-    to find the parameters for a parameterized `D`, you may opt to perform an
-    optimization run using `solve` instead.
+    and the fact that two :math:`\theta` functions that differ little in their
+    values may actually be the consequence of very different `D` functions. If
+    the goal is to find the parameters for a parameterized `D`, you may opt to
+    perform an optimization run using `solve` instead.
 
     Depending on the number of points, the returned `D` may take orders of
     magnitude more time to be evaluated than an analytical function. In that
@@ -1165,49 +1162,50 @@ def inverse(o, S):
 
     This function also works if the problem has different boundary condition,
     as long as it is compatible with the Boltzmann transformation so that
-    `S` can be considered a function of `o` only.
+    :math:`\theta` can be considered a function of `o` only.
     """
 
     if not np.all(np.diff(o) > 0):
         raise ValueError("o must be strictly increasing")
 
-    if not(np.all(np.diff(S) >= -1e-12) or np.all(np.diff(S) <= 1e-12)):
-        raise ValueError("S must be monotonic")
+    if not(np.all(np.diff(samples) >= -1e-12)
+            or np.all(np.diff(samples) <= 1e-12)):
+        raise ValueError("samples must be monotonic")
 
-    Si = S[-1]
+    i = samples[-1]
 
-    S, indices = np.unique(S, return_index=True)
+    samples, indices = np.unique(samples, return_index=True)
     o = o[indices]
 
-    o_func = PchipInterpolator(x=S, y=o)
+    o_func = PchipInterpolator(x=samples, y=o)
 
     o_antiderivative_func = o_func.antiderivative()
-    o_antiderivative_Si = o_func.antiderivative()(Si)
+    o_antiderivative_i = o_func.antiderivative()(i)
 
     o_funcs = [o_func.derivative(i) for i in range(4)]
 
-    def D(S, derivatives=0):
+    def D(theta, derivatives=0):
 
-        IodS = o_antiderivative_func(S) - o_antiderivative_Si
+        Iodtheta = o_antiderivative_func(theta) - o_antiderivative_i
 
-        do_dS = o_funcs[1](S)
+        do_dtheta = o_funcs[1](theta)
 
-        D = -(do_dS*IodS)/2
+        D = -(do_dtheta*Iodtheta)/2
 
         if derivatives == 0: return D
 
-        o = o_funcs[0](S)
-        d2o_dS2 = o_funcs[2](S)
+        o = o_funcs[0](theta)
+        d2o_dtheta2 = o_funcs[2](theta)
 
-        dD_dS = -(d2o_dS2*IodS + do_dS*o)/2
+        dD_dtheta = -(d2o_dtheta2*Iodtheta + do_dtheta*o)/2
 
-        if derivatives == 1: return D, dD_dS
+        if derivatives == 1: return D, dD_dtheta
 
-        d3o_dS3 = o_funcs[3](S)
+        d3o_dtheta3 = o_funcs[3](theta)
 
-        d2D_dS2 = -(d3o_dS3*IodS + 2*d2o_dS2*o + do_dS**2)/2
+        d2D_dtheta2 = -(d3o_dtheta3*Iodtheta + 2*d2o_dtheta2*o + do_dtheta**2)/2
 
-        if derivatives == 2: return D, dD_dS, d2D_dS2
+        if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
 
         raise ValueError("derivatives must be 0, 1, or 2")
 

@@ -220,21 +220,21 @@ def ode(D, radial=False):
 
     Given a positive function `D` and coordinate unit vector
     :math:`\mathbf{\hat{r}}`, transform the partial differential equation
-    (PDE) in which `S` is the unknown function of `r` and `t`:
+    (PDE) in which :math:`\theta` is the unknown function of `r` and `t`:
 
-    .. math:: \dfrac{\partial S}{\partial t} =
-        \nabla\cdot\left[D\left(S\right)\dfrac{\partial S}{\partial r}
+    .. math:: \dfrac{\partial\theta}{\partial t} =
+        \nabla\cdot\left[D(\theta)\dfrac{\partial\theta}{\partial r}
         \mathbf{\hat{r}}\right]
 
-    into an ordinary differential equation (ODE) where `S` is an unknown
-    function of the Boltzmann variable `o`.
+    into an ordinary differential equation (ODE) where :math:`\theta` is an
+    unknown function of the Boltzmann variable `o`.
 
     This function returns the `fun` and `jac` callables that may be used to
     solve the ODE with the solvers included with SciPy (`scipy.integrate`
     module). The second-order ODE is expressed as a system of first-order ODEs
     with independent variable `o` where ``y[0]`` in `fun` and `jac` correspond
-    to the value of the function `S` itself and ``y[1]`` to its first
-    derivative :math:`dS/do`.
+    to the value of the function :math:`\theta` itself and ``y[1]`` to its
+    first derivative :math:`d\theta/do`.
 
     `fun` and `jac` support both non-vectorized usage (where their first
     argument is a float) as well as vectorized usage (when `numpy.ndarray`
@@ -243,13 +243,14 @@ def ode(D, radial=False):
     Parameters
     ----------
     D : callable
-        Twice-differentiable function that maps the range of `S` to positive
-        values. It can be called as ``D(S)`` to evaluate it at `S`. It can
-        also be called as ``D(S, n)`` with `n` equal to 1 or 2, in which case
-        the first `n` derivatives of the function evaluated at the same `S` are
-        included (in order) as additional return values. While mathematically a
-        scalar function, `D` operates in a vectorized fashion with the same
-        semantics when `S` is a `numpy.ndarray`.
+        Twice-differentiable function that maps the range of :math:`\theta` to
+        positive values. It can be called as ``D(theta)`` to evaluate it at
+        ``theta``. It can also be called as ``D(theta, n)`` with ``n`` equal to
+        1 or 2, in which case the first ``n`` derivatives of the function
+        evaluated at the same ``theta`` are included (in order) as additional
+        return values. While mathematically a scalar function, `D` operates in
+        a vectorized fashion with the same semantics when ``theta`` is a
+        `numpy.ndarray`.
     radial : {False, 'cylindrical', 'polar', 'spherical'}, optional
         Choice of coordinate unit vector :math:`\mathbf{\hat{r}}`. Must be one
         of the following:
@@ -295,24 +296,24 @@ def ode(D, radial=False):
 
     def fun(o, y):
 
-        S, dS_do = y
+        theta, dtheta_do = y
 
-        D_, dD_dS = D(S, 1)
+        D_, dD_dtheta = D(theta, 1)
 
         k_o = k/o if k else 0
 
-        d2S_do2 = -((o/2 + dD_dS*dS_do)/D_ + k_o)*dS_do
+        d2theta_do2 = -((o/2 + dD_dtheta*dtheta_do)/D_ + k_o)*dtheta_do
 
-        return np.array((dS_do, d2S_do2))
+        return np.array((dtheta_do, d2theta_do2))
 
 
     def jac(o, y):
 
-        S, dS_do = y
+        theta, dtheta_do = y
 
         jacobian = np.empty((2,2)+np.shape(o))
 
-        D_, dD_dS, d2D_dS2 = D(S, 2)
+        D_, dD_dtheta, d2D_dtheta2 = D(theta, 2)
 
         k_o = k/o if k else 0
 
@@ -320,8 +321,8 @@ def ode(D, radial=False):
         # (see ../symbolic/ode_jac.py)
         jacobian[0,0] = 0
         jacobian[0,1] = 1
-        jacobian[1,0] = -dS_do*(2*D_*d2D_dS2*dS_do - dD_dS*(2*dD_dS*dS_do + o))/(2*D_**2)
-        jacobian[1,1] = -k_o - 2*dD_dS*dS_do/D_ - o/(2*D_)
+        jacobian[1,0] = -dtheta_do*(2*D_*d2D_dtheta2*dtheta_do - dD_dtheta*(2*dD_dtheta*dtheta_do + o))/(2*D_**2)
+        jacobian[1,1] = -k_o - 2*dD_dtheta*dtheta_do/D_ - o/(2*D_)
 
         return jacobian
 
@@ -332,19 +333,20 @@ class BaseSolution(object):
     r"""
     Base class for solutions using the Boltzmann transformation.
 
-    Its methods describe a continuous solution to any problem of finding a
-    function `S` of `r` and `t` such that:
+    Represents a continuously differentiable function :math:`\theta` of `r` and
+    `t` such that: 
 
     .. math::
-         \dfrac{\partial S}{\partial t} = \nabla\cdot\left[D\left(S\right)
-                        \dfrac{\partial S}{\partial r}\mathbf{\hat{r}}\right]
+        \dfrac{\partial\theta}{\partial t} = \nabla\cdot\left[D(\theta)
+                    \dfrac{\partial \theta}{\partial r}\mathbf{\hat{r}}\right]
 
     Parameters
     ----------
     sol : callable
         Solution to an ODE obtained with `ode`. For any float or
-        `numpy.ndarray` `o`, ``sol(o)[0]`` are the values of `S` at `o`, and
-        ``sol(o)[1]`` the values of the derivative `dS/do` at `o`.
+        `numpy.ndarray` ``o``, ``sol(o)[0]`` are the values of :math:`\theta`
+        at ``o``, and ``sol(o)[1]`` are the values of the derivative
+        :math:`d\theta/do` at ``o``.
     D : callable
         `D` used to obtain `sol`. Must be the same function that was passed to
         `ode`.
@@ -357,11 +359,12 @@ class BaseSolution(object):
         self._sol = sol
         self._D = D
 
-    def S(self, r=None, t=None, o=None):
-        """
-        `S`, the unknown function.
+    def __call__(self, r=None, t=None, o=None):
+        r"""
+        Evaluate the solution.
 
-        May be called either with parameters `r` and `t`, or with just `o`.
+        Evaluates and returns :math:`\theta`. May be called either with
+        arguments `r` and `t`, or with just `o`.
 
         Parameters
         ----------
@@ -379,7 +382,7 @@ class BaseSolution(object):
 
         Returns
         -------
-        S : float or numpy.ndarray
+        float or numpy.ndarray
             If `o` is passed, the return is of the same type and shape as `o`.
             Otherwise, return is a float if both `r` and `t` are floats, or a
             `numpy.ndarray` of the shape that results from broadcasting `r` and
@@ -387,9 +390,11 @@ class BaseSolution(object):
         """
         return self._sol(as_o(r,t,o))[0]
 
-    def dS_dr(self, r, t):
+    def d_dr(self, r, t):
         r"""
-        :math:`\partial S/\partial r`, spatial derivative of `S`.
+        Spatial derivative of the solution.
+
+        Evaluates and returns :math:`\partial\theta/\partial r`.
 
         Parameters
         ----------
@@ -402,16 +407,18 @@ class BaseSolution(object):
 
         Returns
         -------
-        dS_dr : float or numpy.ndarray
+        float or numpy.ndarray
             The return is a float if both `r` and `t` are floats. Otherwise it
             is a `numpy.ndarray` of the shape that results from broadcasting
             `r` and `t`.
         """
-        return self.dS_do(r,t) * do_dr(r,t)
+        return self.d_do(r,t) * do_dr(r,t)
 
-    def dS_dt(self, r, t):
+    def d_dt(self, r, t):
         r"""
-        :math:`\partial S/\partial t`, time derivative of `S`.
+        Time derivative of the solution.
+
+        Evaluates and returns :math:`\partial\theta/\partial t`.
 
         Parameters
         ----------
@@ -424,19 +431,20 @@ class BaseSolution(object):
 
         Returns
         -------
-        dS_dt : float or numpy.ndarray
+        float or numpy.ndarray
             The return is a float if both `r` and `t` are floats. Otherwise it
             is a `numpy.ndarray` of the shape that results from broadcasting
             `r` and `t`.
         """
-        return self.dS_do(r,t) * do_dt(r,t)
+        return self.d_do(r,t) * do_dt(r,t)
 
     def flux(self, r, t):
         r"""
-        Diffusive flux of `S`.
+        Diffusive flux.
 
-        Returns the diffusive flux of `S` in the direction
-        :math:`\mathbf{\hat{r}}`, equal to :math:`-D(S)\partial S/\partial r`.
+        Returns the diffusive flux of :math:`\theta` in the direction
+        :math:`\mathbf{\hat{r}}`, equal to
+        :math:`-D(\theta)\partial\theta/\partial r`.
 
         Parameters
         ----------
@@ -449,19 +457,20 @@ class BaseSolution(object):
 
         Returns
         -------
-        flux : float or numpy.ndarray
+        float or numpy.ndarray
             The return is a float if both `r` and `t` are floats. Otherwise it
             is a `numpy.ndarray` of the shape that results from broadcasting
             `r` and `t`.
         """
-        return -self._D(self.S(r,t)) * self.dS_dr(r,t)
+        return -self._D(self(r,t)) * self.d_dr(r,t)
 
-    def dS_do(self, r=None, t=None, o=None):
+    def d_do(self, r=None, t=None, o=None):
         r"""
-        :math:`dS/do`, derivative of `S` with respect to the Boltzmann
-        variable.
+        Boltzmann-variable derivative of the solution.
 
-        May be called either with parameters `r` and `t`, or with just `o`.
+        Evaluates and returns :math:`d\theta/do`, the derivative of
+        :math:`\theta` with respect to the Boltzmann variable. May be called
+        either with arguments `r` and `t`, or with just `o`.
 
         Parameters
         ----------
@@ -479,7 +488,7 @@ class BaseSolution(object):
 
         Returns
         -------
-        dS_do : float or numpy.ndarray
+        float or numpy.ndarray
             If `o` is passed, the return is of the same type and shape as `o`.
             Otherwise, the return is a float if both `r` and `t` are floats, or
             a `numpy.ndarray` of the shape that results from broadcasting `r`

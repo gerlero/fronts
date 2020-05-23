@@ -20,18 +20,18 @@ epsilon = 1e-6
 Ks = 25  # cm/h
 alpha = 0.01433  # 1/cm
 n = 1.506
-S_range = (0, 0.3308)
+theta_range = (0, 0.3308)
 
-D = van_genuchten(n=n, alpha=alpha, Ks=Ks, S_range=S_range)
+D = van_genuchten(n=n, alpha=alpha, Ks=Ks, theta_range=theta_range)
 
-S = np.linspace(S_range[0]+epsilon, S_range[1]-epsilon, 200)
+theta = np.linspace(theta_range[0]+epsilon, theta_range[1]-epsilon, 200)
 
 
 fig = plt.figure()
 fig.canvas.set_window_title("Diffusivity plot")
 
 plt.title("Diffusivity function")
-plt.plot(S, D(S))
+plt.plot(theta, D(theta))
 plt.xlabel("water content [-]")
 plt.ylabel("diffusivity [{}**2/{}]".format(r_unit, t_unit))
 plt.yscale('log')

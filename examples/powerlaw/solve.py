@@ -12,20 +12,20 @@ from fronts.D import power_law
 
 
 k = 4.0
-Si = 0.1
-Sb = 1.0
+ci = 0.1
+cb = 1.0
 
-solution = solve(D=power_law(k=k), Si=Si, Sb=Sb, verbose=2)
+c = solve(D=power_law(k=k), i=ci, b=cb, verbose=2)
 
 r = np.linspace(0, 10, 200)
 
 
 fig = plt.figure()
-fig.canvas.set_window_title("S plot")
+fig.canvas.set_window_title("c plot")
 
-plt.title("S field")
-plt.plot(r, solution.S(r,t=30), label="t=30")
-plt.plot(r, solution.S(r,t=60), label="t=60")
+plt.title("c field")
+plt.plot(r, c(r,t=30), label="t=30")
+plt.plot(r, c(r,t=60), label="t=60")
 plt.xlabel("r")
 plt.ylabel("S")
 plt.grid(which='both')
@@ -35,8 +35,8 @@ fig = plt.figure()
 fig.canvas.set_window_title("Flux plot")
 
 plt.title("Flux field")
-plt.plot(r, solution.flux(r,t=30), label="t=30")
-plt.plot(r, solution.flux(r,t=60), label="t=60")
+plt.plot(r, c.flux(r,t=30), label="t=30")
+plt.plot(r, c.flux(r,t=60), label="t=60")
 plt.xlabel("r")
 plt.ylabel("flux")
 plt.grid(which='both')
