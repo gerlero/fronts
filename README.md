@@ -1,202 +1,111 @@
-# <img alt="Fronts" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/logo.png" height="100">
+<img alt="Fronts" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/logo.png" height="100">
 
-Fronts is a Python numerical library for solving one-dimensional transient nonlinear diffusion problems in semi-infinite domains.
+Fronts is a Python numerical library for nonlinear diffusion problems based on the Boltzmann transformation.
 
-Fronts finds solutions to initial-boundary value problems of the form:
+```python
+Python 3.8.3 (default, May 15 2020, 14:39:37)
+>>> import fronts
+>>> θ = fronts.solve(D="exp(7*θ)/2", i=0, b=1)  # i: initial value, b: boundary value
+>>> θ(r=10, t=3) 
+0.9169685387070694
+>>> θ.d_dr(10,3)  # ∂θ/∂r
+-0.01108790437249313
+>>> print("Welcome to the Fronts project page.")
+```
 
-> **General problem**
-> 
-> Given a scalar-valued positive function _D_, scalars _Si_, _Sb_ and _ob_, and coordinate unit vector **ȓ**, find a function _S_ of _r_ and _t_ such that:
-> 
-> <img alt="General problem" src="https://latex.codecogs.com/svg.latex?%5Cbegin%7Bcases%7D%20%5Cdfrac%7B%5Cpartial%20S%7D%7B%5Cpartial%20t%7D%20%3D%20%5Cnabla%5Ccdot%5Cleft%5BD%5Cleft%28S%5Cright%29%5Cdfrac%7B%5Cpartial%20S%7D%7B%5Cpartial%20r%7D%5Cmathbf%7B%5Chat%7Br%7D%7D%5Cright%20%5D%20%26%20r%3Er_b%28t%29%2Ct%3E0%5C%5C%20S%28r%2C%200%29%20%3D%20S_i%20%26%20r%3E0%20%5C%5C%20S%28r_b%28t%29%2C%20t%29%20%3D%20S_b%20%26%20t%3E0%20%5C%5C%20r_b%28t%29%20%3D%20o_b%5Csqrt%20t%5Cend%7Bcases%7D">
+[![PyPI](https://img.shields.io/pypi/v/fronts?color=%2300b0f0)](https://pypi.org/project/fronts/) [![Documentation](https://img.shields.io/readthedocs/fronts)](https://fronts.readthedocs.io/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fronts)](https://pypi.org/project/fronts/) [![PyPI - License](https://img.shields.io/pypi/l/fronts?color=%230085a0)](https://github.com/gerlero/fronts/blob/master/LICENSE.txt) 
 
-Fronts works by transforming the governing nonlinear partial differential equation (PDE) into a more manageable (but still nonlinear) ordinary differential equation (ODE), using a technique known as the [Boltzmann transformation](https://en.wikipedia.org/wiki/Boltzmann–Matano_analysis), which it then solves with a combination of numerical ODE solvers and specialized logic.
+## Overview
 
-For this class of problems, you will find that Fronts can be easier to use, faster, and more robust than the classical numerical PDE solvers you would otherwise have to use.
+With Fronts, you can effortlessly find solutions to many problems of nonlinear diffusion along a semi-infinite axis **r**, i.e.:
 
-In some instances, Fronts can also solve the inverse problem of finding _D_ when _S_ is given. And, if you need something a little different, Fronts gives you easy access to the underlying ODE so that you can use your own solving algorithm or boundary condition (which you are then welcome to contribute to the project!).
+<img alt="Nonlinear diffusion equation" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/pde.svg">
 
-Fronts is open source and works great with [NumPy](https://numpy.org) and [SciPy](https://www.scipy.org/scipylib/index.html). 
+where _D_ is a known positive function and _θ_ is an unkown function of _r_ and _t_.
 
+Fronts includes functionality to solve problems with a Dirichlet boundary condition (start with [``fronts.solve()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.solve.html)), as well as some radial problems with a fixed-flowrate boundary condition (with [``fronts.solve_flowrate()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.solve_flowrate.html)). In every case, _D_ can be any function defined by the user or obtained from the [``fronts.D``](https://fronts.readthedocs.io/en/stable) module. 
 
-## Common problem
+It works by transforming the above nonlinear partial differential equation (PDE) into a more manageable (but still nonlinear) ordinary differential equation (ODE), using a technique known as the [Boltzmann transformation](https://en.wikipedia.org/wiki/Boltzmann–Matano_analysis), which it then solves with a combination of high-order numerical ODE integration (provided by the [SciPy library](https://scipy.org/scipylib/index.html)) and specialized logic.
 
-If the general problem supported by Fronts looks too complicated, note that in the common case where **ȓ** is a Cartesian unit vector and the boundary is fixed at _r_=0, the problem can be reduced to what we call the common problem:
+For this class of problems, you will find that Fronts can be easier to use, faster, and more robust than the classical numerical PDE solvers you would otherwise have to use. Moreover, the solutions found by Fronts are such that their partial derivatives and flux fields are also available in continuous form. Finally, a considerable effort has been made to have Fronts "just work" in practice, with no adjustment of numerical parameters required (in fact, the functions mentioned so far do not even require a starting mesh).
 
-> **Common problem**
-> 
-> Given a scalar-valued positive function _D_, and scalars _Si_ and _Sb_, find a function _S_ of _r_ and _t_ such that:
->
-> <img alt="Common problem" src="https://latex.codecogs.com/svg.latex?%5Cbegin%7Bcases%7D%20%5Cdfrac%7B%5Cpartial%20S%7D%7B%5Cpartial%20t%7D%20%3D%20%5Cdfrac%7B%5Cpartial%7D%7B%5Cpartial%20r%7D%20%5Cleft%28D%5Cleft%28S%5Cright%29%5Cdfrac%7B%5Cpartial%20S%7D%7B%5Cpartial%20r%7D%5Cright%29%20%26%20r%3E0%2Ct%3E0%5C%5C%20S%28r%2C%200%29%20%3D%20S_i%20%26%20r%3E0%20%5C%5C%20S%280%2C%20t%29%20%3D%20S_b%20%26%20t%3E0%20%5Cend%7Bcases%7D">
+Fronts can also help you solve the inverse problem of finding _D_ when _θ_ is given. Every feature of Fronts is covered in the [documentation](https://fronts.readthedocs.io), and the project includes many [example cases](https://github.com/gerlero/fronts/blob/master/LICENSE.txt) (though you may start with the Usage section below).
+
+Fronts is open source and works great with the tools of the [SciPy ecosystem](https://www.scipy.org/about.html).
 
 
-The main solver function ``solve()`` will assume that you want to work with this common problem unless you explicitly provide the optional `radial` and `ob` parameters. 
+## Why Fronts?
 
+Problems compatible with Fronts appear in many areas of physics. For instance, if we take _θ_ as the water content or saturation and _D_ as the moisture diffusivity, the above equation translates into what is known as the moisture diffusivity equation, which is a special case of the [Richards equation](https://en.wikipedia.org/wiki/Richards_equation) that describes capillary flow in porous media. For this application, Fronts even includes implementations of the commonly used models: [``fronts.D.brooks_and_corey()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.D.brooks_and_corey.html) and [``fronts.D.van_genuchten()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.D.van_genuchten.html).
 
-## Uses
+Of particular interest to the creators of Fronts is the fact that it can be used to model the configuration known as "lateral flow" in the field of paper-based microfluidics. The name "Fronts" is a reference to the wetting fronts that appear under these conditions, the study of which motivated the creation of this software.
 
-Problems supported by Fronts appear in many areas of physics. For instance, if we take _S_ as the water content or saturation and _D_ as the moisture diffusivity, the above PDE translates into what is known as the moisture diffusivity equation, which is a special case of the [Richards equation](https://en.wikipedia.org/wiki/Richards_equation) that describes capillary flow in porous media.
-
-Of particular interest to the creators of Fronts is the fact that the common problem supported by Fronts can directly model the configuration known as "lateral flow" in the field of paper-based microfluidics. In fact, the name "Fronts" is a reference to the wetting fronts that appear under these conditions, the study of which motivated the creation of this library.
-
-Other problems of this class appear in the study of diffusion of solutions in polymer matrices as well as diffusion problems in solids (e.g. annealing problems in metallurgy). 
+Other problems of this class appear in the study of the diffusion of solutions in polymer matrices as well as diffusion problems in solids (e.g. annealing problems in metallurgy). 
 
 As mentioned before, if your problem is supported, you can expect Fronts to be easier to use, faster, and more robust than other tools. Try it out!
 
+
 ## Installation
 
-### Prerequisites
+Fronts runs on Python 3.5 and later, as well as the older Python 2.7. If you can choose, Python 3 is recommended.
 
-* **Python**. Fronts runs on Python 3.5 and later, as well as on the older Python 2.7. It has been tested on various releases of Python 2.7, 3.5, 3.6, 3.7 and 3.8.
-
-* **pip**. Installation of Fronts requires the Python package manager [pip](https://pip.pypa.io/en/stable/) to be installed on your system.
-
-### Installation
-
-Install Fronts by running the following command:
+Install Fronts with [pip](https://pip.pypa.io/en/stable/) by running this command in a terminal:
 
 ```
-$ pip install fronts
+$ pip3 install fronts
 ```
 
-This will install the [most recent version of Fronts available on PyPI](https://pypi.org/project/fronts/).
+This will download and install the [most recent version of Fronts available on PyPI](https://pypi.org/project/fronts/). To install on Python 2.7, replace ```pip3``` with ```pip```.
 
 ##### Optional: Matplotlib
 
 Running the bundled examples requires the visualization library [Matplotlib](https://matplotlib.org). This library is not installed automatically with Fronts, so if you don't already have it, you may want to install it manually by running:
 
 ```
-$ pip install matplotlib
+$ pip3 install matplotlib
 ```
 
-Optionally, the ```--user```  option can be added to the previous commands to install the packages for the current user only, which does not require system administrator privileges.
-
-## Documentation and features
-
-The following is a complete list of the functions and classes that Fronts provides, with a short description of each. You will find the full details on each object in the [reference documentation](https://fronts.readthedocs.io).
-
-### Solvers and solutions
-
-* [**```fronts.solve()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.solve.html) — meshless solver
-
-    Main solver. ```solve``` solves any instance of the general problem. Returns a ```Solution``` object.
-    
-* [**```fronts.solve_from_guess()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.solve_from_guess.html) — mesh-based solver
-    
-    Alternative solver. ```solve_from_guess``` works like ``solve`` but it uses a different procedure that starts from a guess of the solution on an initial mesh. It supports the same problems as ```solve```. Although usually faster, ```solve_from_guess``` is significantly less robust than `solve`—whether it converges will usually depend heavily on the problem, the initial mesh and the guess of the solution. It also returns a ```Solution``` on success.
+Optionally, Fronts can be installed in a [virtual environment](https://docs.python.org/3.8/tutorial/venv.html), or the ```--user```  option can be added to the previous commands to install the packages for the current user only (which does not require system administrator privileges).
 
 
-* [**```fronts.Solution```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.Solution.html), [**```fronts.BaseSolution```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.BaseSolution.html) — continuous solutions
+## Usage
 
-    ```BaseSolution``` objects provide the continuous functions ```S```, ```dS_dr```, ```dS_dt``` and ```flux``` that make up the solution to a problem. The solvers in Fronts return a ```Solution```—a subclass of ```BaseSolution```—as part of their results. If you called ```ode``` and solved the ODE yourself, you can create a ```BaseSolution``` or ```Solution``` by passing the solution to the ODE to the appropiate constructor.
-    
-    Note that in problems of the moisture diffusivity equation, the diffusive flux (which can be obtained by calling ```flux``` on a ```BaseSolution``` object) gives the velocity of the wetting fluid. In particular, if `S` is taken to mean volumetric water content, it is the Darcy velocity; if `S` is saturation, it is the fluid's true velocity. These velocity fields can be used directly in more complex problems of solute transport.
+Let's say we want to solve the following initial-boundary value problem:
 
-
-* [**```fronts.inverse()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.inverse.html) — solve the inverse problem
-    
-     Inverse solver. ```inverse``` solves the inverse problem of finding _D_ when _S_ is known. For instance, ```inverse``` can extract _D_ from experimental results. The returned _D_ function can be used in Fronts to solve other problems. Use of this function for inverse problems [comes with some limitations](https://fronts.readthedocs.io/en/latest/stubs/fronts.inverse.html).
-    
-
-### Boltzmann transformation and ODE
-
-* [**```fronts.o()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.o.html), [**```fronts.do_dr()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.do_dr.html), [**```fronts.do_dt()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.do_dt.html), [**```fronts.r()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.r.html), [**```fronts.t()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.t.html), [**```fronts.as_o()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.as_o.html) — Boltzmann transformation
-
-    These are convenience functions for working with the Boltzmann transformation.
-
-* [**```fronts.ode()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.ode.html) — access the ODE
-
-    The ```ode``` function transforms the PDE into its corresponding ODE using the Boltzmann transformation. ```ode``` returns _fun_ and _jac_ callables that are directly compatible with SciPy's solvers (i.e., those in the  [```scipy.integrate```](https://docs.scipy.org/doc/scipy/reference/integrate.html) module). The solvers in Fronts actually use this function internally. You may call this function if you want to solve the ODE yourself instead of using Fronts' solvers, for example if you need to deal with a different boundary condition or want to use your own solving algorithm.
-
-### _D_ functions and ```fronts.D```
-
-Many of the functions in Fronts either take or return _D_ functions to work. _D_ functions have to be defined as follows:
-
-> ``D`` : _callable_
-> 
-> Twice-differentiable function that maps the range of _S_ to positive values. It can be called as ``D(S)`` to evaluate it at `S`. It can also be called as ``D(S, derivatives)`` with `derivatives` equal to 1 or 2, in which case the first `derivatives` derivatives of the function evaluated at the same `S` are included (in order) as additional return values. While mathematically a scalar function, `D` operates in a vectorized fashion with the same semantics when `S` is a `numpy.ndarray`.
- 
-
-With the above definition you can easily write any functions you need to solve your particular problems. 
-
-Fronts also comes with a submodule ```fronts.D``` that lets you access some predefined functions:
-
-* [**```fronts.D.constant()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.constant.html) — create a constant function:
-
-    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%20%3D%20D_0">
-
-* [**```fronts.D.power_law()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.power_law.html) — create a function of the form:
-
-    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3Da%20S%5Ek%20&plus;%20%5Cvarepsilon">
-
-* [**```fronts.D.van_genuchten()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.van_genuchten.html) — create a [Van Genuchten](https://doi.org/10.2136/sssaj1980.03615995004400050002x) moisture diffusivity function:
-
-    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%3D%5Cfrac%7B%281-m%29K_s%7D%7B%5Calpha%20m%20%28S_s-S_r%29%7DS_e%5E%7Bl-%5Cfrac%7B1%7D%7Bm%7D%7D%5Cleft%28%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5E%7B-m%7D%20&plus;%20%281-S_e%5E%5Cfrac%7B1%7D%7Bm%7D%29%5Em%20-%202%20%5Cright%29">
-    
-    where _S_ is either water content or saturation, and _Se_ is defined as:
-    
-    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20S_e%20%3D%20%5Cfrac%7BS-S_r%7D%7BS_s-S_r%7D">
-
-
-* [**```fronts.D.richards()```**](https://fronts.readthedocs.io/en/latest/stubs/fronts.D.richards.html) — make a moisture diffusivity function from a relative permeability/conductivity function _kr_ and a capillary capacity function _C_, using the definition: 
-    
-    <img src="https://latex.codecogs.com/svg.latex?%5Csmall%20D%28S%29%20%3D%20%5Cfrac%7BK_Sk_r%28S%29%7D%7BC%28S%29%7D">
-
-    Can be used to convert problems of the Richards equation (for which those two functions are parameters) in horizontal domains into moisture diffusivity problems that can be solved with Fronts.
-    
-## Examples
-
-### Introductory example
-
-_Plotting the solution in this example requires_ [Matplotlib](https://matplotlib.org)_._
-
-Let us solve the following initial-boundary value problem defined in a semi-infinite domain:
-
-> **Example problem**
+> Find _c_ such that:
 >
-> Find _S_ such that:
->
-> <img alt="Example problem" src="https://latex.codecogs.com/svg.latex?%5Cbegin%7Bcases%7D%20%5Cdfrac%7B%5Cpartial%20S%7D%7B%5Cpartial%20t%7D%20%3D%20%5Cdfrac%7B%5Cpartial%7D%7B%5Cpartial%20r%7D%5Cleft%28S%5E4%5Cdfrac%7B%5Cpartial%20S%7D%7B%5Cpartial%20r%7D%5Cright%29%20%26%20r%3E0%2Ct%3E0%20%5C%5C%20S%28r%2C0%29%20%3D%200.1%20%26%20r%3E0%20%5C%5C%20S%280%2Ct%29%20%3D%201%20%26%20t%3E0%20%5C%5C%20%5Cend%7Bcases%7D">
+> <img alt="Example problem" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/powerlaw_problem.svg">
 
-By comparing the example problem with the common problem introduced above, we see that  the parameters are:
-
-<img alt="Parameters" src="https://latex.codecogs.com/svg.latex?%5Cbegin%7Bcases%7D%20D%28S%29%20%3D%20S%5E4%20%5C%5C%20S_i%20%3D%200.1%20%5C%5C%20S_b%20%3D%201%20%5Cend%7Bcases%7D">
-
-In this case it is not necessary to write the function `D` it ourselves. The function we need can be obtained from the ``fronts.D`` module:
+With Fronts, all it takes is a call to [``fronts.solve()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.solve.html). The function requires the diffusivity function ``D``, which we pass as an expression so that ``solve()`` can get the derivatives it needs by itself (alternatively, in this case we could also have used [``fronts.D.power_law()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.D.power_law.html#fronts.D.power_law.) to obtain `D`). Besides ``D``, we only need to pass the initial and boundary values as ``i`` and ``b``. The Python code is:
 
 ```python
-from fronts.D import power_law
-D = power_law(k=4)
+import fronts
+c = fronts.solve(D="c**4", i=0.1, b=1)
 ```
 
-We are now ready to solve the problem with ``fronts.solve``. We simply pass it the parameters ``D``, ``Si`` and ``Sb``.
+The call to ``solve()`` finishes within a fraction of a second. ``c`` is assigned a [``Solution``](https://fronts.readthedocs.io/en/stable/stubs/fronts.Solution.html) object, which can be called directly but also has some interesting methods such as [``d_dr()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.Solution.html#fronts.Solution.d_dr), [``d_dt()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.Solution.html#fronts.Solution.d_dt) and [``flux()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.Solution.html#fronts.Solution.flux).
+
+We can now plot the solution for arbitrary _r_ and _t_. For example, with _r_ between 0 and 10 and _t_=60:
 
 ```python
-from fronts import solve
-solution = solve(D, Si=0.1, Sb=1)
-```
-
-The call to ```fronts.solve``` completes within a second and we get back a ```Solution``` object, which holds the functions ```S```, ```dS_dr```, ```dS_dt```and ```flux```.
-
-We can now plot _S_ for arbitrary _r_ and _t_. For example, with _r_ between 0 and 10 and _t_=60:
-
-```python
+import numpy as np
 import matplotlib.pyplot as plt
+
 r = np.linspace(0, 10, 200)
-plt.plot(r, solution.S(r, t=60))
+plt.plot(r, c(r, t=60))
 plt.xlabel("r")
-plt.ylabel("S")
+plt.ylabel("c")
 plt.show()
 ```
 
-The plot will look like this:
+The plot looks like this:
 
-<img alt="S plot" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/powerlaw_S.png" height=400>
+<img alt="c plot" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/powerlaw_c.png" height=400>
 
 Finally, let us plot the flux at _t_=60:
 
 ```python
-plt.plot(r, solution.flux(r, t=60))
+plt.plot(r, c.flux(r, t=60))
 plt.xlabel("r")
 plt.ylabel("flux")
 plt.show()
@@ -204,48 +113,25 @@ plt.show()
 
 <img alt="flux plot" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/powerlaw_flux.png" height=400>
 
-### More examples
 
-The included examples can be found in the ``examples`` directory of this project. The directory contains the following files:
+## Project links
 
+* [**Documentation**](https://fronts.readthedocs.io)
+* [**Examples**](https://github.com/gerlero/fronts/tree/master/examples)
+* [**Changelog**](https://github.com/gerlero/fronts/blob/master/CHANGELOG.md)
 
-* subdirectory **``powerlaw/``** — cases based on the introductory example presented above
-    * **``solve.py``**: solve the case with `fronts.solve()`.
-    * **``inverse.py``**: more examples of usage of `fronts.solve()` and of `fronts.inverse()`.
-    * **``D.py``**: plot D for this case.
-* subdirectory **``1INFILTR/``** — the _1INFILTR_ test case from [Hydrus-1D](https://www.pc-progress.com/en/Default.aspx?hydrus-1d), in horizontal
-    * **``solve.py``**: solve the case with `fronts.solve()`.
-    * **``validation.py``**: results for the same case obtained using Hydrus for comparison.
-* subdirectory **``HF135/``**— infiltration into an HF135 nitrocellulose membrane (data from the [PhD work of J.R. Buser](http://hdl.handle.net/1773/38064))
-    * **``solve.py``**: solve the lateral flow case with `fronts.solve()`.
-    * **``refine.py``**: get a rough approximation of the solution to the lateral flow case using `fronts.solve()` with a high tolerance, and then refine it with both `fronts.solve()` and `fronts.solve_from_guess()`.
-    * **``radial.py``**: radial (cylindrical) flow case.
-    * 🐌 **``inverse1.py``**: use `fronts.inverse()` to extract _D_ from a solution. Here, the solution is obtained with 
-`fronts.solve()`. The extracted _D_ is then used with `fronts.solve()` and the
-same conditions to verify that an equivalent solution is obtained.
-    * 🐌 **``inverse2.py``**: use `fronts.inverse()` to obtain _D_ 
-from the validation case and then use it to solve the same problem.
-    * **``validation.py``**: results with the same case solved with [porousMultiphaseFoam](https://github.com/phorgue/porousMultiphaseFoam) for comparison.
-    * **``D.py``**: plot D for this case.
-* subdirectory **``exact/``** — solve a case with a _D_ function proposed by [Philip](https://doi.org/10.1071/PH600001) that has an exact solution
-    * **``solve.py``**: solve the case with `fronts.solve()` and compare with the exact solution.
-    * **``fromguess.py``**: solve the case with `fronts.solve_from_guess()` and compare with the exact solution.
-    * **``D.py``**: plot D for this case.
-
-
-**Note:** the examples marked with 🐌 are significantly more computationally intensive and may take more than a minute to run to completion. All other cases should finish within a few seconds at the most.
 
 ## Authors
 
 * **Gabriel S. Gerlero** [@gerlero](https://github.com/gerlero)
 * **Pablo A. Kler** [@pabloakler](https://github.com/pabloakler)
-* **Claudio L.A. Berli**
+* **Claudio L. A. Berli**
 
 Fronts was conceived and is developed by members of the [Santa Fe Microfluidics Group (GSaM)](http://www.microfluidica.com.ar) at the [Research Center for Computational Methods (CIMEC, UNL-CONICET)](https://www.cimec.org.ar) and the [Institute of Technological Development for the Chemical Industry (INTEC, UNL-CONICET)](https://intec.conicet.gov.ar) in Santa Fe, Argentina.
 
 
 
-<img alt="CIMEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/CIMEC.png" height=70> &nbsp; <img alt="INTEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/INTEC.png" height=65> &nbsp; <img alt="GSaM" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/GSaMLogo.png" height=65> 
+[<img alt="CIMEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/CIMEC.png" height=70>](https://www.cimec.org.ar) &nbsp; [<img alt="INTEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/INTEC.png" height=65>](https://intec.conicet.gov.ar) &nbsp; [<img alt="GSaM" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/GSaMLogo.png" height=65>](http://www.microfluidica.com.ar)
 
  
 

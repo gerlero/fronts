@@ -11,11 +11,13 @@ prune doc/source/stubs
 
 # examples
 recursive-include examples *.csv
+recursive-include examples *.md
 recursive-include examples *.out
 recursive-include examples *.py
 
 # resources
 recursive-include resources *.png
+recursive-include resources *.svg
 
 # symbolic
 recursive-include symbolic *.py
