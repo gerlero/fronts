@@ -208,7 +208,7 @@ class _Shooter(object):
         assert max_shots is None or max_shots >= 0
         assert shot_callback is None or callable(shot_callback)
 
-        self._fun, self._jac = ode(D, radial)
+        self._fun, self._jac = ode(D, radial=radial, catch_errors=True)
         self._i = i
         self._ob = ob
         self._theta_direction = theta_direction
@@ -273,11 +273,11 @@ class _Shooter(object):
                                            events=self._events,
                                            dense_output=True)
 
-                except (ValueError, ArithmeticError, UnboundLocalError):
-                    # Catch D domain errors. Also catch UnboundLocalError
-                    # caused by https://github.com/scipy/scipy/issues/10775
-                    # (fixed in SciPy v1.4.0; but we do not require that
-                    # version because it does not support Python 2.7)
+                except UnboundLocalError:
+                    # Catch UnboundLocalError caused by
+                    # https://github.com/scipy/scipy/issues/10775 (fixed in
+                    # SciPy v1.4.0; but we do not require that version because
+                    # it does not support Python 2.7)
 
                     return self.Result(b=b,
                                        d_dob=d_dob,
