@@ -57,7 +57,7 @@ class Solution(BaseSolution):
 
             o = np.where(under|over, oi, o)
 
-            y = sol(o)
+            y = np.asarray(sol(o))
             y[:,under] = np.nan
             y[1:,over] = 0
 
