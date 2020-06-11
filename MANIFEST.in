@@ -1,5 +1,6 @@
 include LICENSE.txt
 include CHANGELOG.md
+include .readthedocs.yml
 
 # doc
 include doc/Makefile
