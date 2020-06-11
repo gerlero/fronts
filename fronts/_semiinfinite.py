@@ -198,6 +198,17 @@ class _Shooter(object):
         ``abs(i_residual)``.
     """
 
+    @staticmethod
+    def _native_float_inputs(f):
+        """
+        Speeds up arithmetic by converting NumPy inputs to native floats.
+        """
+        def wrapper(o, y):
+            return f(float(o), (float(y[0]), float(y[1])))
+
+        return wrapper 
+
+
     def __init__(self, D, i, radial, ob, theta_direction, itol, method,
                  max_shots, shot_callback):
 
@@ -208,13 +219,17 @@ class _Shooter(object):
         assert max_shots is None or max_shots >= 0
         assert shot_callback is None or callable(shot_callback)
 
-        self._fun, self._jac = ode(D, radial=radial, catch_errors=True)
         self._i = i
         self._ob = ob
         self._theta_direction = theta_direction
         self._method = method
         self._max_shots = max_shots
         self._shot_callback = shot_callback
+
+        fun, jac = ode(D, radial=radial, catch_errors=True)
+        self._fun = self._native_float_inputs(fun)
+        if method == 'implicit':
+            self._jac = self._native_float_inputs(jac)
 
         # Integration events
         def settled(o, y):
