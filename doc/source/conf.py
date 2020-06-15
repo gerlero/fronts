@@ -35,7 +35,8 @@ release = fronts.__version__
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.autosummary',
               'sphinx.ext.napoleon',
-              'sphinx.ext.mathjax']
+              'sphinx.ext.mathjax',
+              'sphinx.ext.intersphinx']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -63,3 +64,10 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# ++ intersphinx mappings ++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+intersphinx_mapping = {
+	'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
+	'sympy': ('https://docs.sympy.org/latest/', None)
+}

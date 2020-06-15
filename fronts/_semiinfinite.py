@@ -447,9 +447,9 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
         argument.
 
         Alternatively, instead of a callable, the argument can be the
-        expression of :math:`D` in the form of a string or `sympy.Expression`
-        with a single variable. In this case, the solver will differentiate and
-        evaluate the expression as necessary.
+        expression of :math:`D` in the form of a string or
+        :class:`sympy.Expression` with a single variable. In this case, the
+        solver will differentiate and evaluate the expression as necessary.
     i : float
         Initial condition, :math:`\theta_i`.
     b : float
@@ -831,9 +831,9 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
         ``D(theta)``.
 
         Alternatively, instead of a callable, the argument can be the
-        expression of :math:`D` in the form of a string or `sympy.Expression`
-        with a single variable. In this case, the solver will differentiate and
-        evaluate the expression as necessary.
+        expression of :math:`D` in the form of a string or
+        :class:`sympy.Expression` with a single variable. In this case, the
+        solver will differentiate and evaluate the expression as necessary.
     i : float
         Initial condition, :math:`\theta_i`.
     Qb : float
@@ -1157,9 +1157,9 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
         where ``theta`` may be a single float or a NumPy array.
 
         Alternatively, instead of a callable, the argument can be the
-        expression of :math:`D` in the form of a string or `sympy.Expression`
-        with a single variable. In this case, the solver will differentiate and
-        evaluate the expression as necessary.
+        expression of :math:`D` in the form of a string or
+        :class:`sympy.Expression` with a single variable. In this case, the
+        solver will differentiate and evaluate the expression as necessary.
     i : float
         Initial condition, :math:`\theta_i`.
     b : float
