@@ -15,7 +15,7 @@ version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", init, re.M).group(1)
 # Parse instead of import because we may not have dependencies available yet.
 
 extras = {
-    'doc': ['sphinx'],
+    'doc': ['sphinx', 'sphinx_rtd_theme'],
     'examples': ['matplotlib'],
     'publish': ['setuptools', 'wheel', 'twine']
 }
