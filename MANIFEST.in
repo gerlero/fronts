@@ -22,3 +22,6 @@ recursive-include resources *.svg
 
 # symbolic
 recursive-include symbolic *.py
+
+# tests
+recursive-include tests *.py

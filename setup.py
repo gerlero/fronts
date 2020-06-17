@@ -15,11 +15,15 @@ version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", init, re.M).group(1)
 # Parse instead of import because we may not have dependencies available yet.
 
 extras = {
-    'doc': ['sphinx', 'sphinx_rtd_theme'],
     'examples': ['matplotlib'],
+    'doc': ['sphinx', 'sphinx_rtd_theme'],
+    'test': ['pytest', 'check-manifest'],
     'publish': ['setuptools', 'wheel', 'twine']
 }
-extras['dev'] = extras['examples'] + extras['doc'] + extras['publish']
+extras['dev'] = extras['examples'] \
+              + extras['doc'] \
+              + extras['test'] \
+              + extras['publish']
 
 setuptools.setup(
     name='fronts',
