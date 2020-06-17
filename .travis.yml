@@ -11,8 +11,11 @@ env:
   - MPLBACKEND="agg"  # for Matplotlib to work on the test environments
 
 install:
-  - pip install .[test]
+  - pip install .[test] codecov
 
 script:
   - check-manifest
-  - pytest
+  - pytest --cov=fronts
+
+after_success:
+  - codecov  # upload coverage results to codecov.io
