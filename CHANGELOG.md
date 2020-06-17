@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix _examples/HF135/inverse2.py_ failure in some environments.
 - Fix problem statement in 'Usage' section of README file.
 
 ## [0.9.8] - 2020-06-11

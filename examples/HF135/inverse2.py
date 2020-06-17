@@ -20,7 +20,7 @@ import validation
 D_inverse = inverse(o=o(validation.r, validation.t)[::5], samples=validation.S[::5])
 # Using only a fifth of the points so that it does not run too slow
 
-S = solve(D=D_inverse, i=validation.S[-1], b=validation.S[0], verbose=2)
+S = solve(D=D_inverse, i=validation.S[-1], b=validation.S[0], itol=5e-3, verbose=2)
 
 
 fig = plt.figure()
