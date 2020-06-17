@@ -11,6 +11,7 @@ from __future__ import division, absolute_import, print_function
 
 import sys
 import os
+import itertools
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -40,9 +41,12 @@ with open(_filename) as file:
 
             t.append(found)
 
-            r_, theta_, velocity_ = np.loadtxt(_filename,
-                                               skiprows=i+5,
-                                               max_rows=1001,
+            skip_lines = 5
+            max_rows = 1001
+
+            data = itertools.islice(file, skip_lines, max_rows+skip_lines)
+
+            r_, theta_, velocity_ = np.loadtxt(data,
                                                usecols=(1, 3, 6),
                                                unpack=True)
 
