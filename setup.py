@@ -24,6 +24,7 @@ extras['dev'] = extras['examples'] \
               + extras['doc'] \
               + extras['test'] \
               + extras['publish']
+extras['test'] += extras['examples']
 
 setuptools.setup(
     name='fronts',
