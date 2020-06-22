@@ -15,6 +15,10 @@ except ImportError:  # No time.process_time() in Python < 3.3
 import numpy as np
 from scipy.integrate import solve_ivp, solve_bvp
 from scipy.interpolate import PchipInterpolator
+try:
+    from scipy.integrate import DOP853
+except ImportError:  # No scipy.integrate.DOP853 in SciPy < 1.4.0
+    DOP853 = None
 
 from ._boltzmann import ode, BaseSolution, r
 from ._rootfinding import bracket_root, bisect, NotABracketError
@@ -186,6 +190,9 @@ class _Shooter(object):
     ob : float
     theta_direction : {-1, 0, 1}
     itol : float
+    method : {'implicit', 'explicit'}
+        'explicit' requires SciPy >= 1.4.0 (a `ValueError` will be raised
+        otherwise)
     max_shots : None or int
     shot_callback : None or callable
 
@@ -230,6 +237,11 @@ class _Shooter(object):
         self._fun = self._native_float_inputs(fun)
         if method == 'implicit':
             self._jac = self._native_float_inputs(jac)
+        elif DOP853 is None:
+            message = "method='explicit' requires SciPy >= 1.4.0"
+            if six.PY2:
+                message += " (Python 3 only)"   
+            raise ValueError(message)
 
         # Integration events
         def settled(o, y):
@@ -275,7 +287,7 @@ class _Shooter(object):
                 ivp_result = solve_ivp(self._fun,
                                        t_span=(self._ob, np.inf),
                                        y0=(b, d_dob),
-                                       method='DOP853',
+                                       method=DOP853,
                                        events=self._events,
                                        dense_output=True)
             else:

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.9] - Unreleased
 
+### Changed
+
+- Improve error message when attempting to use the 'explicit' method of `solve()` and `solve_flowrate()` with SciPy older than 1.4.0.
+
 ### Fixed
 
 - Fix _examples/1INFILTR_ case with NumPy versions lower than 1.16.
