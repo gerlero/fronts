@@ -1,9 +1,10 @@
 import pytest
 
-import six
+from packaging import version
 
 import numpy as np
 from numpy.testing import assert_allclose
+import scipy
 
 import fronts
 import fronts.D
@@ -68,7 +69,8 @@ def test_HF135():
     assert_allclose(S.flux(r,t), Sflux_pmf, atol=1e-6)
 
 
-@pytest.mark.skipif(six.PY2, reason="'explicit' method unavailable on Python 2.7")
+@pytest.mark.skipif(version.parse(scipy.__version__) < version.parse('1.4.0'),
+                    reason="'explicit' method requires SciPy >= 1.4.0")
 def test_exact_explicit():
     theta = fronts.solve(D="0.5*(1 - log(theta))", i=0, b=1, method='explicit')
 
