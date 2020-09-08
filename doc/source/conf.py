@@ -68,6 +68,8 @@ html_static_path = ['_static']
 # ++ intersphinx mappings ++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 intersphinx_mapping = {
+	'python': ('https://docs.python.org/', None),
+	'numpy': ('https://numpy.org/doc/stable/', None),
 	'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
 	'sympy': ('https://docs.sympy.org/latest/', None)
 }
