@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.9] - Unreleased
 
+### Added
+
+- Add an automated test suite for validation of the software. Tests are executed automatically on Travis CI whenever changes are pushed to GitHub. Install with new option ``[test]`` (or ``[dev]``) and use ``pytest`` to run the tests locally.
+
 ### Changed
 
 - Improve error message when attempting to use the 'explicit' method of `solve()` and `solve_flowrate()` with SciPy older than 1.4.0.
+- Improve reference documentation.
 
 ### Fixed
 
