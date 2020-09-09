@@ -589,8 +589,8 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
         d_dob_hint = (i - b)/(2*D(b)**0.5)
 
     elif np.sign(d_dob_hint) != np.sign(i - b):
-        raise ValueError("sign of d_dob_hint does not match direction given by"
-                         "b and i")
+        raise ValueError("sign of d_dob_hint does not match direction given "
+                         "by b and i")
 
     if verbose >= 2:
         print("{:^15}{:^15}{:^15}{:^15}".format(
