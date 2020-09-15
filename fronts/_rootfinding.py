@@ -32,7 +32,7 @@
 
 from __future__ import division, absolute_import, print_function
 
-__version__ = '1.0.2'
+__version__ = '1.0.4'
 
 import itertools
 
@@ -84,7 +84,7 @@ class IterationLimitReached(RuntimeError):
     """
     def __init__(self, message, interval, f_interval, function_calls):
 
-        super(RuntimeError, self).__init__(message)
+        super(IterationLimitReached, self).__init__(message)
 
         self.interval = interval
         self.f_interval = f_interval
@@ -237,7 +237,7 @@ class NotABracketError(ValueError):
     """
     def __init__(self, message, f_interval, function_calls):
 
-        super(ValueError, self).__init__(message)
+        super(NotABracketError, self).__init__(message)
 
         self.f_interval = f_interval
         self.function_calls = function_calls
