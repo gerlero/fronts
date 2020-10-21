@@ -213,7 +213,43 @@ class _Shooter(object):
         def wrapper(o, y):
             return f(float(o), (float(y[0]), float(y[1])))
 
-        return wrapper 
+        return wrapper
+
+    def _checked_D(self, theta):
+        """
+        Call `D` and return its value if valid.
+
+        Raises a `ValueError` if the call fails or does not return a finite,
+        positive value; or if its derivative is not finite.
+
+        Parameters
+        ----------
+        float
+
+        Returns
+        -------
+        float
+        """
+        with np.errstate(divide='ignore', invalid='ignore'):
+            try:
+                D, dD_dtheta = self._D(theta, 1)
+            except (ValueError, ArithmeticError) as e:
+                six.raise_from(ValueError("D({}, 1) failed with {}"
+                                         .format(theta, e.__class__.__name__)),
+                               e)
+
+        try:
+            D = float(D)
+            dD_dtheta = float(dD_dtheta)
+        except TypeError as e:
+            six.raise_from(ValueError("D({}, 1) returned wrong type"
+                                      .format(theta)),
+                           e)
+
+        if not np.isfinite(D) or D <= 0 or not np.isfinite(dD_dtheta):
+            raise ValueError("D({}, 1) returned invalid value".format(theta))
+        
+        return D
 
 
     def __init__(self, D, i, radial, ob, theta_direction, itol, method,
@@ -226,6 +262,7 @@ class _Shooter(object):
         assert max_shots is None or max_shots >= 0
         assert shot_callback is None or callable(shot_callback)
 
+        self._D = D
         self._i = i
         self._ob = ob
         self._theta_direction = theta_direction
@@ -407,6 +444,11 @@ class _DirichletShooter(_Shooter):
                                                 shot_callback=shot_callback)
 
         self._b = b
+
+        self._checked_D(b)
+        if abs(i - b) > itol:
+            self._checked_D(i - theta_direction*itol)
+
 
 
     def integrate(self, d_dob):
@@ -743,39 +785,6 @@ class _FlowrateShooter(_Shooter):
         # Flow rate per unit angle and height
         self._rel_flowrate = rel_flowrate
 
-    class _DError(Exception):
-        pass
-
-    def _D(self, theta):
-        """
-        Call `D` and return its value if valid.
-
-        Raises a `_DError` exception if the call fails or does not return a
-        finite, positive value.
-
-        Parameters
-        ----------
-        float
-
-        Returns
-        -------
-        float
-        """
-        with np.errstate(divide='ignore', invalid='ignore'):
-            try:
-                D = self._D_(theta)
-            except (ValueError, ArithmeticError) as e:
-                six.raise_from(self._DError, e)
-
-        try:
-            D = float(D)
-        except TypeError as e:
-            six.raise_from(self._DError, e)
-
-        if not np.isfinite(D) or D <= 0:
-            raise self._DError
-        
-        return D
 
     def integrate(self, b):
         """
@@ -790,8 +799,8 @@ class _FlowrateShooter(_Shooter):
         Result
         """
         try:
-            Db = self._D(b)
-        except self._DError:
+            Db = self._checked_D(b)
+        except ValueError:
             return self.Result(b=b,
                                d_dob=None,
                                i_residual=-self._theta_direction*np.inf,

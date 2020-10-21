@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Check that `D` is well behaved at the expected extrema of the solution when invoking `solve()`. If `solve()` determines that the problem cannot be solved, the function will now raise a `ValueError` immediately without performing any iterations.
 - Improve error message when attempting to use the 'explicit' method of `solve()` and `solve_flowrate()` with SciPy older than 1.4.0.
 - Improve reference documentation.
 

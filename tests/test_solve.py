@@ -89,3 +89,7 @@ def test_exact_bracket():
 def test_badbracket():
     with pytest.raises(ValueError):
         theta = fronts.solve(D="theta", i=0, b=1, d_dob_bracket=(-2, -3))
+
+def test_badD():
+    with pytest.raises(ValueError):
+        theta = fronts.solve(D="theta", i=-0.1, b=1)
