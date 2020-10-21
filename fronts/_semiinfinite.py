@@ -22,7 +22,7 @@ except ImportError:  # No scipy.integrate.DOP853 in SciPy < 1.4.0
 
 from ._boltzmann import ode, BaseSolution, r
 from ._rootfinding import bracket_root, bisect, NotABracketError
-from .D import from_expr
+from .D import from_expr, _checked
 
 
 class Solution(BaseSolution):
@@ -215,42 +215,6 @@ class _Shooter(object):
 
         return wrapper
 
-    def _checked_D(self, theta):
-        """
-        Call `D` and return its value if valid.
-
-        Raises a `ValueError` if the call fails or does not return a finite,
-        positive value; or if its derivative is not finite.
-
-        Parameters
-        ----------
-        float
-
-        Returns
-        -------
-        float
-        """
-        with np.errstate(divide='ignore', invalid='ignore'):
-            try:
-                D, dD_dtheta = self._D(theta, 1)
-            except (ValueError, ArithmeticError) as e:
-                six.raise_from(ValueError("D({}, 1) failed with {}"
-                                         .format(theta, e.__class__.__name__)),
-                               e)
-
-        try:
-            D = float(D)
-            dD_dtheta = float(dD_dtheta)
-        except TypeError as e:
-            six.raise_from(ValueError("D({}, 1) returned wrong type"
-                                      .format(theta)),
-                           e)
-
-        if not np.isfinite(D) or D <= 0 or not np.isfinite(dD_dtheta):
-            raise ValueError("D({}, 1) returned invalid value".format(theta))
-        
-        return D
-
 
     def __init__(self, D, i, radial, ob, theta_direction, itol, method,
                  max_shots, shot_callback):
@@ -262,7 +226,6 @@ class _Shooter(object):
         assert max_shots is None or max_shots >= 0
         assert shot_callback is None or callable(shot_callback)
 
-        self._D = D
         self._i = i
         self._ob = ob
         self._theta_direction = theta_direction
@@ -279,6 +242,8 @@ class _Shooter(object):
             if six.PY2:
                 message += " (Python 3 only)"   
             raise ValueError(message)
+
+        self._checked_D = _checked(D)
 
         # Integration events
         def settled(o, y):
@@ -628,7 +593,7 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
                               for x in d_dob_bracket)
 
     elif d_dob_hint is None:
-        d_dob_hint = (i - b)/(2*D(b)**0.5)
+        d_dob_hint = (i - b)/(2*_checked(D,b)**0.5)
 
     elif np.sign(d_dob_hint) != np.sign(i - b):
         raise ValueError("sign of d_dob_hint does not match direction given "

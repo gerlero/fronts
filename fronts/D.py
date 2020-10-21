@@ -3,6 +3,9 @@
 """D functions."""
 
 from __future__ import division, absolute_import, print_function
+import six
+
+import functools
 
 import numpy as np
 import sympy
@@ -631,3 +634,49 @@ def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
         raise ValueError("derivatives must be 0, 1, or 2")
 
     return D
+
+
+def _checked(D, theta=None):
+    """
+    Call `D` and return its value if valid.
+
+    Raises a `ValueError` if the call fails or does not return a finite,
+    positive value; or if its derivative is not finite.
+
+    Parameters
+    ----------
+    D : callable
+        Function to call.
+    theta : float or None
+        Evaluation value for `D`. If not given, this function works as a
+        decorator.
+
+    Returns
+    -------
+    D : float
+        ``D(theta)``.
+    """
+    if theta is None:
+        return functools.partial(_checked, D)
+
+    with np.errstate(divide='ignore', invalid='ignore'):
+        try:
+            D_, dD_dtheta = D(theta, 1)
+        except (ValueError, ArithmeticError) as e:
+            six.raise_from(ValueError("D({}, 1) failed with {}"
+                                     .format(theta, e.__class__.__name__)),
+                           e)
+
+    try:
+        D_ = float(D_)
+        dD_dtheta = float(dD_dtheta)
+    except TypeError as e:
+        six.raise_from(ValueError("D({}, 1) returned wrong type"
+                                  .format(theta)),
+                       e)
+
+    if not np.isfinite(D_) or D_ <= 0 or not np.isfinite(dD_dtheta):
+        raise ValueError("D({}, 1) returned invalid value".format(theta))
+    
+    return D_
+

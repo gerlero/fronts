@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.10] - Unreleased
 
+### Fixed
+
+- Fix possible NumPy warning (emitted before the expected `ValueError` is raised) when `solve()` is invoked with a `D` that is not valid.
+
 ## [0.9.9] - 2020-10-21
 
 ### Added
