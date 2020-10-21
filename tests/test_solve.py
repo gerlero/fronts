@@ -90,6 +90,12 @@ def test_badbracket():
     with pytest.raises(ValueError):
         theta = fronts.solve(D="theta", i=0, b=1, d_dob_bracket=(-2, -3))
 
-def test_badD():
+
+def test_badDi():
     with pytest.raises(ValueError):
         theta = fronts.solve(D="theta", i=-0.1, b=1)
+
+
+def test_badDb():
+    with pytest.raises(ValueError):
+        theta = fronts.solve(D="theta", i=1, b=-1)
