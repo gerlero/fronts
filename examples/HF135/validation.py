@@ -24,8 +24,8 @@ name = "porousMultiphaseFoam"
 r_unit = "m"
 t_unit = "s"
 
-r, S, velocity = np.loadtxt(_filename, delimiter=',', skiprows=1,
-                            usecols=(4, 3, 0), unpack=True)
+r, theta, velocity = np.loadtxt(_filename, delimiter=',', skiprows=1,
+                                usecols=(4, 3, 0), unpack=True)
 
 t = 60
 
@@ -33,12 +33,12 @@ t = 60
 if __name__ == '__main__':
 
     fig = plt.figure()
-    fig.canvas.set_window_title("Saturation plot")
+    fig.canvas.set_window_title("Water content plot")
 
     plt.title("Saturation field at t={} {}".format(t, t_unit))
-    plt.plot(r, S, color='sandybrown', label=name)
+    plt.plot(r, theta, color='sandybrown', label=name)
     plt.xlabel("position [{}]".format(r_unit))
-    plt.ylabel("saturation [-]")
+    plt.ylabel("water content [-]")
     plt.grid(which='both')
     plt.legend()
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     plt.title("Velocity field at t={} {}".format(t, t_unit))
     plt.plot(r, velocity, color='sandybrown', label=name)
     plt.xlabel("position [{}]".format(r_unit))
-    plt.ylabel("true velocity [{}/{}]".format(r_unit, t_unit))
+    plt.ylabel("Darcy velocity [{}/{}]".format(r_unit, t_unit))
     plt.grid(which='both')
     plt.legend()
 

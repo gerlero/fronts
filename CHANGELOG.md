@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix possible NumPy warning (emitted before the expected `ValueError` is raised) when `solve()` is invoked with a `D` that is not valid.
+- Revert "saturation" to "water content" in _examples/HF135_ case.
 
 ## [0.9.9] - 2020-10-21
 
@@ -91,7 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Rename `SemiInfiniteSolution` class to just `Solution` (and the old `Solution` class to `BaseSolution`).
 - Update Hydrus-1D validation data for _examples/1INFILTR_.
-- Change "water content" to "saturation" in _examples/HF135_.
+- Change "water content" to "saturation" in _examples/HF135_ [Note: fixed in 0.9.10].
 - Improve example plots.
 - Rename "API documentation" to "reference documentation".
 - Improve README.md file and reference documentation.
@@ -110,7 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix `D.constant`, which was previously broken due to a bug.
-- Fix use of the terms "saturation" and "water content" throughout the project [Note: fixed in _examples/HF135_ in 0.9.6].
+- Fix use of the terms "saturation" and "water content" throughout the project [Note: fixed in _examples/HF135_ in 0.9.10].
 
 ## [0.9.4] - 2019-10-09
 
