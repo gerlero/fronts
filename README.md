@@ -13,7 +13,7 @@ Python 3.8.3 (default, May 15 2020, 14:39:37)
 >>> print("Welcome to the Fronts project page.")
 ```
 
-[![PyPI](https://img.shields.io/pypi/v/fronts?color=%2300b0f0)](https://pypi.org/project/fronts/) [![Travis CI - Build status](https://img.shields.io/travis/com/gerlero/fronts/master)](https://travis-ci.com/gerlero/fronts) [![Code coverage](https://img.shields.io/codecov/c/gh/gerlero/fronts)](https://codecov.io/gh/gerlero/fronts) [![Documentation](https://img.shields.io/readthedocs/fronts)](https://fronts.readthedocs.io/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fronts)](https://pypi.org/project/fronts/) [![PyPI - License](https://img.shields.io/pypi/l/fronts?color=%230085a0)](https://github.com/gerlero/fronts/blob/master/LICENSE.txt) 
+[![PyPI](https://img.shields.io/pypi/v/fronts?color=%2300b0f0)](https://pypi.org/project/fronts/) [![Travis CI - Build status](https://img.shields.io/travis/com/gerlero/fronts/master)](https://travis-ci.com/gerlero/fronts) [![GitHub Actions - CI](https://github.com/gerlero/fronts/workflows/CI/badge.svg)](https://github.com/gerlero/fronts/actions) [![Code coverage](https://img.shields.io/codecov/c/gh/gerlero/fronts)](https://codecov.io/gh/gerlero/fronts) [![Documentation](https://img.shields.io/readthedocs/fronts)](https://fronts.readthedocs.io/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fronts)](https://pypi.org/project/fronts/) [![PyPI - License](https://img.shields.io/pypi/l/fronts?color=%230085a0)](https://github.com/gerlero/fronts/blob/master/LICENSE.txt) 
 
 ## Overview
 
