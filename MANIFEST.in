@@ -2,7 +2,6 @@ include LICENSE.txt
 include README.md
 include CHANGELOG.md
 include .readthedocs.yml
-include .travis.yml
 
 # doc
 include doc/Makefile
