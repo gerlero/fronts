@@ -17,13 +17,11 @@ version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", init, re.M).group(1)
 extras = {
     'examples': ['matplotlib'],
     'doc': ['sphinx', 'sphinx_rtd_theme'],
-    'test': ['pytest-cov', 'check-manifest', 'autograd'],
-    'publish': ['setuptools', 'wheel', 'twine']
+    'test': ['pytest-cov', 'check-manifest', 'autograd']
 }
 extras['dev'] = extras['examples'] \
               + extras['doc'] \
-              + extras['test'] \
-              + extras['publish']
+              + extras['test']
 extras['test'] += extras['examples']
 
 setuptools.setup(
