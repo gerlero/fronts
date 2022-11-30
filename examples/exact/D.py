@@ -20,7 +20,7 @@ epsilon = 1e-6
 theta = np.linspace(epsilon, 1, 200)
 
 fig = plt.figure()
-fig.canvas.set_window_title("D plot")
+fig.canvas.manager.set_window_title("D plot")
 
 plt.title("D(theta)")
 plt.plot(theta, D(theta))

@@ -21,7 +21,7 @@ r = np.linspace(0, 10, 200)
 
 
 fig = plt.figure()
-fig.canvas.set_window_title("c plot")
+fig.canvas.manager.set_window_title("c plot")
 
 plt.title("c field")
 plt.plot(r, c(r,t=30), label="t=30")
@@ -32,7 +32,7 @@ plt.grid(which='both')
 plt.legend()
 
 fig = plt.figure()
-fig.canvas.set_window_title("Flux plot")
+fig.canvas.manager.set_window_title("Flux plot")
 
 plt.title("Flux field")
 plt.plot(r, c.flux(r,t=30), label="t=30")

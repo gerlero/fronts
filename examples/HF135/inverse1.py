@@ -46,7 +46,7 @@ D_inverse = inverse(o=o, samples=theta)
 
 
 fig = plt.figure()
-fig.canvas.set_window_title("Diffusivity plot")
+fig.canvas.manager.set_window_title("Diffusivity plot")
 
 plt.title("Diffusivity function")
 plt.plot(theta, D_analytical(theta), label="Analytical")
@@ -61,7 +61,7 @@ plt.legend()
 inverse = solve(D=D_inverse, i=theta_i, b=theta_b, verbose=2)
 
 fig = plt.figure()
-fig.canvas.set_window_title("Water content plot")
+fig.canvas.manager.set_window_title("Water content plot")
 
 plt.title("Water content in terms of o")
 plt.plot(o, analytical(o=o), label="Using analytical diffusivities")

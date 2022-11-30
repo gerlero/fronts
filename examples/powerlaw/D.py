@@ -18,7 +18,7 @@ D = power_law(k=k)
 c = np.linspace(0, 1, 200)
 
 fig = plt.figure()
-fig.canvas.set_window_title("D plot")
+fig.canvas.manager.set_window_title("D plot")
 
 plt.title("D(c)")
 plt.plot(c, D(c))
