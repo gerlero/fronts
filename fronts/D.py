@@ -2,9 +2,6 @@
 
 """D functions."""
 
-from __future__ import division, absolute_import, print_function
-import six
-
 import functools
 
 import numpy as np
@@ -663,17 +660,13 @@ def _checked(D, theta=None):
         try:
             D_, dD_dtheta = D(theta, 1)
         except (ValueError, ArithmeticError) as e:
-            six.raise_from(ValueError("D({}, 1) failed with {}"
-                                     .format(theta, e.__class__.__name__)),
-                           e)
+            raise ValueError("D({}, 1) failed with {}".format(theta, e.__class__.__name__)) from e
 
     try:
         D_ = float(D_)
         dD_dtheta = float(dD_dtheta)
     except TypeError as e:
-        six.raise_from(ValueError("D({}, 1) returned wrong type"
-                                  .format(theta)),
-                       e)
+        raise ValueError("D({}, 1) returned wrong type".format(theta)) from e
 
     if not np.isfinite(D_) or D_ <= 0 or not np.isfinite(dD_dtheta):
         raise ValueError("D({}, 1) returned invalid value".format(theta))

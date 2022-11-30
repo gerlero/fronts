@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Lateral flow in a HF135 nitrocellulose membrane.
@@ -6,8 +6,6 @@ Lateral flow in a HF135 nitrocellulose membrane.
 This example solves the problem with Fronts and compares the solution with
 the one obtained using porousMultiphaseFoam (OpenFOAM)
 """
-
-from __future__ import division, absolute_import, print_function
 
 import matplotlib.pyplot as plt
 

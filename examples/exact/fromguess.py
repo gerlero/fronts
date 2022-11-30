@@ -1,10 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 This example solves a problem that has an exact solution (using
 `fronts.solve_from_guess`) and compares the solutions.
 """
-from __future__ import division, absolute_import, print_function
 
 import numpy as np
 import matplotlib.pyplot as plt

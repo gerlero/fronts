@@ -1,10 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Radial flow in a HF135 nitrocellulose membrane.
 """
-
-from __future__ import division, absolute_import, print_function
 
 import numpy as np
 import matplotlib.pyplot as plt

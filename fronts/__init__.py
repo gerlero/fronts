@@ -3,8 +3,6 @@ Numerical library for nonlinear diffusion problems based on the Boltzmann
 transformation.
 """
 
-from __future__ import division, absolute_import, print_function
-
 try:
     import importlib.metadata as importlib_metadata
 except ImportError:  # No importlib.metadada in Python < 3.8

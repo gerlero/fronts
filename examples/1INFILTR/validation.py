@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 1INFILTR case from Hydrus-1D in horizontal orientation.
@@ -6,8 +6,6 @@
 Data obtained using Hydrus-1D version 4.17.0140
 1001 nodes, water content tolerance = 1e-6
 """
-
-from __future__ import division, absolute_import, print_function
 
 import sys
 import os
