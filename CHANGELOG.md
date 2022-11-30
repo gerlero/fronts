@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.11] - Unreleased
 
+### Fixed
+
+- Fix plotting errors in example cases with newer versions of Matplotlib.
+
 ### Removed
 
 - Remove optional dependencies needed to publish the package, including the install option ``[publish]``. The project now uses GitHub Actions to automatically build and upload releases to PyPI.
