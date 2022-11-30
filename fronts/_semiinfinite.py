@@ -9,10 +9,6 @@ from time import process_time
 import numpy as np
 from scipy.integrate import solve_ivp, solve_bvp
 from scipy.interpolate import PchipInterpolator
-try:
-    from scipy.integrate import DOP853
-except ImportError:  # No scipy.integrate.DOP853 in SciPy < 1.4.0
-    DOP853 = None
 
 from ._boltzmann import ode, BaseSolution, r
 from ._rootfinding import bracket_root, bisect, NotABracketError
@@ -231,9 +227,6 @@ class _Shooter(object):
         self._fun = self._native_float_inputs(fun)
         if method == 'implicit':
             self._jac = self._native_float_inputs(jac)
-        elif DOP853 is None:
-            message = "method='explicit' requires SciPy >= 1.4.0"
-            raise ValueError(message)
 
         self._checked_D = _checked(D)
 
@@ -281,31 +274,17 @@ class _Shooter(object):
                 ivp_result = solve_ivp(self._fun,
                                        t_span=(self._ob, np.inf),
                                        y0=(b, d_dob),
-                                       method=DOP853,
+                                       method='DOP853',
                                        events=self._events,
                                        dense_output=True)
             else:
-                try:
-                    ivp_result = solve_ivp(self._fun,
-                                           t_span=(self._ob, np.inf),
-                                           y0=(b, d_dob),
-                                           method='Radau',
-                                           jac=self._jac,
-                                           events=self._events,
-                                           dense_output=True)
-
-                except UnboundLocalError:
-                    # Catch UnboundLocalError caused by
-                    # https://github.com/scipy/scipy/issues/10775 (fixed in
-                    # SciPy v1.4.0; but we do not require that version because
-                    # it does not support Python 2.7)
-
-                    return self.Result(b=b,
-                                       d_dob=d_dob,
-                                       i_residual=self._theta_direction*np.inf,
-                                       D_calls=None,
-                                       o=None,
-                                       sol=None)
+                ivp_result = solve_ivp(self._fun,
+                                       t_span=(self._ob, np.inf),
+                                       y0=(b, d_dob),
+                                       method='Radau',
+                                       jac=self._jac,
+                                       events=self._events,
+                                       dense_output=True)
 
         if ivp_result.success and ivp_result.t_events[0].size == 1:
 
