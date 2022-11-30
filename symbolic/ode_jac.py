@@ -1,12 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Script that derives the ODE's Jacobian matrix
 
 Used only in development. Running this script requires SymPy.
 """
-
-from __future__ import division, absolute_import, print_function
 
 import sympy
 

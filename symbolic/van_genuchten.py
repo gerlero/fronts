@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Script that derives the expressions for the bundled Van Genuchten diffusivity
@@ -6,8 +6,6 @@ function
 
 Used only in development. Running this script requires SymPy.
 """
-
-from __future__ import division, absolute_import, print_function
 
 import sympy
 

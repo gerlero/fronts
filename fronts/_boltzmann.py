@@ -5,9 +5,6 @@ transformation of the ODE's solution into a solution to the partial
 differential equation.
 """
 
-from __future__ import division, absolute_import, print_function
-import six
-
 import numpy as np
 
 
@@ -313,9 +310,7 @@ def ode(D, radial=False, catch_errors=False):
     try:
         k = _k[radial]
     except KeyError:
-        six.raise_from(ValueError("radial must be one of {{{}}}".format(
-                       ", ".join(repr(key) for key in _k))),
-                       None)
+        raise ValueError("radial must be one of {{{}}}".format(", ".join(repr(key) for key in _k))) from None
 
 
     def fun(o, y):
