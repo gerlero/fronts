@@ -592,25 +592,14 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
                          "by b and i")
 
     if verbose >= 2:
-        print("{:^15}{:^15}{:^15}{:^15}".format(
-               "Iteration",
-               "Residual",
-               "d/do|b",
-               "Calls to D"))
+        print(f"{'Iteration':^15}{'Residual':^15}{'d/do|b':^15}{'Calls to D':^15}")
 
         def shot_callback(result):
             if np.isfinite(result.i_residual):
-                print("{:^15}{:^15.2e}{:^15.7e}{:^15}".format(
-                       shooter.shots,
-                       result.i_residual,
-                       result.d_dob,
-                       result.D_calls))
+                print(f"{shooter.shots:^15}{result.i_residual:^15.2e}{result.d_dob:^15.7e}{result.D_calls:^15}")
+
             else:
-                print("{:^15}{:^15}{:^15.7e}{:^15}".format(
-                       shooter.shots,
-                       "*",
-                       result.d_dob,
-                       result.D_calls or "*"))
+                print(f"{shooter.shots:^15}{'*':^15}{result.d_dob:^15.7e}{result.D_calls or '*':^15}")
     else:
         shot_callback = None
 
@@ -668,10 +657,9 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
 
     except shooter.ShotLimitReached:
         if verbose:
-          print("The solver did not converge after {} iterations.".format(
-                maxiter))
-          print("Execution time: {:.3f} s".format(process_time() - start_time))
-        raise RuntimeError("The solver did not converge after {} iterations.".format(maxiter)) from None
+          print(f"The solver did not converge after {maxiter} iterations.")
+          print(f"Execution time: {process_time() - start_time:.3f} s")
+        raise RuntimeError(f"The solver did not converge after {maxiter} iterations.") from None
 
     if shooter.best_shot is not None and shooter.best_shot.d_dob == d_dob:
         result = shooter.best_shot
@@ -688,14 +676,13 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
     solution.d_dob_bracket = d_dob_bracket
 
     if verbose:
-        print("Solved in {} iterations.".format(shooter.shots))
-        print("Residual: {:.2e}".format(result.i_residual))
+        print(f"Solved in {shooter.shots} iterations.")
+        print(f"Residual: {result.i_residual:.2e}")
         if d_dob_bracket is not None:
-            print("d/do|b: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
-                  d_dob, min(d_dob_bracket), max(d_dob_bracket)))
+            print(f"d/do|b: {d_dob:.7e} (bracket: [{min(d_dob_bracket):.7e}, {max(d_dob_bracket):.7e}])")
         else:
-            print("d/do|b: {:.7e}".format(d_dob))
-        print("Execution time: {:.3f} s".format(process_time() - start_time))
+            print(f"d/do|b: {d_dob:.7e}")
+        print(f"Execution time: {process_time() - start_time:.3f} s")
 
     return solution
 
@@ -957,36 +944,17 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
         raise ValueError("value of b_hint disagrees with flowrate sign")
 
     if verbose >= 2:
-        print("{:^15}{:^15}{:^15}{:^15}{:^15}".format(
-               "Iteration",
-               "Residual",
-               "Boundary value",
-               "d/do|b",
-               "Calls to D"))
+        print(f"{'Iteration':^15}{'Residual':^15}{'Boundary value':^15}{'d/do|b':^15}{'Calls to D':^15}")
 
         def shot_callback(result):
             if np.isfinite(result.i_residual):
-                print("{:^15}{:^15.2e}{:^15.2e}{:^15.7e}{:^15}".format(
-                       shooter.shots,
-                       result.i_residual,
-                       result.b,
-                       result.d_dob,
-                       result.D_calls))
+                print(f"{shooter.shots:^15}{result.i_residual:^15.2e}{result.b:^15.2e}{result.d_dob:^15.7e}{result.D_calls:^15}")
 
             elif result.d_dob is not None:
-                print("{:^15}{:^15}{:^15.2e}{:^15.7e}{:^15}".format(
-                       shooter.shots,
-                       "*",
-                       result.b,
-                       result.d_dob,
-                       result.D_calls or "*"))
+                print(f"{shooter.shots:^15}{'*':^15}{result.b:^15.2e}{result.d_dob:^15.7e}{result.D_calls or '*':^15}")
             else:
-                print("{:^15}{:^15}{:^15.2e}{:^15}{:^15}".format(
-                       shooter.shots,
-                       "*",
-                       result.b,
-                       "*",
-                       result.D_calls or "*"))
+                print(f"{shooter.shots:^15}{'*':^15}{result.b:^15.2e}{'*':^15}{result.D_calls or '*':^15}")
+
     else:
         shot_callback = None
 
@@ -1042,10 +1010,9 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
 
     except shooter.ShotLimitReached:
         if verbose:
-            print("The solver did not converge after {} iterations.".format(
-                    maxiter))
-            print("Execution time: {:.3f} s".format(process_time() - start_time))
-        raise RuntimeError("The solver did not converge after {} iterations.".format(maxiter)) from None
+            print(f"The solver did not converge after {maxiter} iterations.")
+            print(f"Execution time: {process_time() - start_time:.3f} s")
+        raise RuntimeError(f"The solver did not converge after {maxiter} iterations.") from None
 
     if shooter.best_shot is not None and shooter.best_shot.b == b:
         result = shooter.best_shot
@@ -1062,14 +1029,13 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     solution.b_bracket = b_bracket
 
     if verbose:
-        print("Solved in {} iterations.".format(shooter.shots))
-        print("Residual: {:.2e}".format(result.i_residual))
+        print(f"Solved in {shooter.shots} iterations.")
+        print(f"Residual: {result.i_residual:.2e}")
         if b_bracket is not None:
-            print("Boundary value: {:.7e} (bracket: [{:.7e}, {:.7e}])".format(
-                  b, min(b_bracket), max(b_bracket)))
+            print(f"Boundary value: {b:.7e} (bracket: [{min(b_bracket):.7e}, {max(b_bracket):.7e}])")
         else:
-            print("Boundary value: {:.7e}".format(b))
-        print("Execution time: {:.3f} s".format(process_time() - start_time))
+            print(f"Boundary value: {b:.7e}")
+        print(f"Execution time: {process_time() - start_time:.3f} s")
 
     return solution
 
@@ -1230,15 +1196,14 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
 
     if not bvp_result.success:
         if verbose:
-            print("Execution time: {:.3f} s".format(process_time() - start_time))
-        raise RuntimeError("The solver did not converge: {}".format(
-                            bvp_result.message))
+            print(f"Execution time: {process_time() - start_time:.3f} s")
+        raise RuntimeError(f"The solver did not converge: {bvp_result.message}")
 
     if abs(bvp_result.y[1,-1]) > 1e-6:
         if verbose:
             print("The given mesh is too small for the problem. Try again "
                   "after extending o_guess towards the right")
-            print("Execution time: {:.3f} s".format(process_time() - start_time))
+            print(f"Execution time: {process_time() - start_time:.3f} s")
 
         raise RuntimeError("o_guess cannot contain solution")
 
@@ -1252,7 +1217,7 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
     solution.rms_residuals = bvp_result.rms_residuals
 
     if verbose:
-        print("Execution time: {:.3f} s".format(process_time() - start_time))
+        print(f"Execution time: {process_time() - start_time:.3f} s")
 
     return solution
 

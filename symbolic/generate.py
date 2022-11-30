@@ -4,9 +4,9 @@ import itertools
 
 def _derivative_names(var):
     yield "D"
-    yield "dD_d{}".format(var)
+    yield f"dD_d{var}"
     for n in itertools.count(start=2):
-        yield "d{}D_d{}{}".format(n, var, n)
+        yield f"d{n}D_d{var}{n}"
 
 def functionstr(var, expr):
     """
@@ -62,7 +62,7 @@ def functionstr(var, expr):
         if x[0] not in variable:
             lines.append("{} = {}".format(*x))
 
-    lines.append("def D({}, derivatives=0):".format(var))
+    lines.append(f"def D({var}, derivatives=0):")
 
 
     deriv_names = [name for name,_ in zip(_derivative_names(var), range(3))]
@@ -71,9 +71,8 @@ def functionstr(var, expr):
         for x in xs:
             if x[0] in variable and appearance[x] == n:
                 lines.append("    {} = {}".format(*x))
-        lines.append("    {} = {}".format(name, expr))
-        lines.append("    if derivatives == {}: return {}".format(
-                    n, ", ".join(deriv_names[:n+1])))
+        lines.append(f"    {name} = {expr}")
+        lines.append(f"    if derivatives == {n}: return {', '.join(deriv_names[:n+1])}")
 
     lines.append(
         '    raise ValueError("derivatives must be 0, 1 or 2")')

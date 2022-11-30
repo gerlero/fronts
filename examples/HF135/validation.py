@@ -33,9 +33,9 @@ if __name__ == '__main__':
     fig = plt.figure()
     fig.canvas.set_window_title("Water content plot")
 
-    plt.title("Saturation field at t={} {}".format(t, t_unit))
+    plt.title(f"Saturation field at t={t} {t_unit}")
     plt.plot(r, theta, color='sandybrown', label=name)
-    plt.xlabel("position [{}]".format(r_unit))
+    plt.xlabel(f"position [{r_unit}]")
     plt.ylabel("water content [-]")
     plt.grid(which='both')
     plt.legend()
@@ -43,10 +43,10 @@ if __name__ == '__main__':
     fig = plt.figure()
     fig.canvas.set_window_title("Velocity plot")
 
-    plt.title("Velocity field at t={} {}".format(t, t_unit))
+    plt.title(f"Velocity field at t={t} {t_unit}")
     plt.plot(r, velocity, color='sandybrown', label=name)
-    plt.xlabel("position [{}]".format(r_unit))
-    plt.ylabel("Darcy velocity [{}/{}]".format(r_unit, t_unit))
+    plt.xlabel(f"position [{r_unit}]")
+    plt.ylabel(f"Darcy velocity [{r_unit}/{t_unit}]")
     plt.grid(which='both')
     plt.legend()
 

@@ -29,7 +29,7 @@ t = 60
 fig = plt.figure()
 fig.canvas.set_window_title("c plot")
 
-plt.title("c field at t={}".format(t))
+plt.title(f"c field at t={t}")
 plt.plot(r, c1(r,t), label="Case 1")
 plt.plot(r, c2(r,t), label="Case 2")
 plt.xlabel("r")
@@ -40,7 +40,7 @@ plt.legend()
 fig = plt.figure()
 fig.canvas.set_window_title("Flux plot")
 
-plt.title("Flux field at t={}".format(t))
+plt.title(f"Flux field at t={t}")
 plt.plot(r, c1.flux(r,t), label="Case 1")
 plt.plot(r, c2.flux(r,t), label="Case 2")
 plt.xlabel("r")

@@ -29,7 +29,7 @@ C = C.subs(Se_expr, Se)
 
 D = K/C
 
-print("D={}".format(D.simplify()))
+print(f"D={D.simplify()}")
 
 D = D.subs(Se, Se_expr2).simplify()
 
