@@ -24,7 +24,7 @@ theta = solve(D=D_inverse, i=validation.theta[-1], b=validation.theta[0], itol=5
 
 
 fig = plt.figure()
-fig.canvas.set_window_title("Water content plot")
+fig.canvas.manager.set_window_title("Water content plot")
 
 plt.title("Water content field at t={} {}".format(validation.t, validation.t_unit))
 plt.plot(validation.r, validation.theta,

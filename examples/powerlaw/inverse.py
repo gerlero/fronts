@@ -29,7 +29,7 @@ t = 60
 
 
 fig = plt.figure()
-fig.canvas.set_window_title("c plot")
+fig.canvas.manager.set_window_title("c plot")
 
 plt.title("c field at t={}".format(t))
 plt.plot(r, c1(r,t), label="Case 1")
@@ -40,7 +40,7 @@ plt.grid(which='both')
 plt.legend()
 
 fig = plt.figure()
-fig.canvas.set_window_title("Flux plot")
+fig.canvas.manager.set_window_title("Flux plot")
 
 plt.title("Flux field at t={}".format(t))
 plt.plot(r, c1.flux(r,t), label="Case 1")
@@ -56,7 +56,7 @@ D2 = inverse(o=c2.o, samples=c2(o=c2.o))
 c = np.linspace(0.1, 1.0, 200)
 
 fig = plt.figure()
-fig.canvas.set_window_title("D plot")
+fig.canvas.manager.set_window_title("D plot")
 
 plt.title("D")
 plt.plot(c, D1(c), label="inverse() of case 1")

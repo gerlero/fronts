@@ -24,7 +24,7 @@ theta = solve(D=D, i=0.1003, b=0.3308-epsilon, verbose=2)
 
 
 fig = plt.figure()
-fig.canvas.set_window_title("Water content plot")
+fig.canvas.manager.set_window_title("Water content plot")
 
 plt.title("Water content fields")
 for t, theta_ in zip(validation.t, validation.theta):
@@ -38,7 +38,7 @@ plt.grid(which='both')
 plt.legend()
 
 fig = plt.figure()
-fig.canvas.set_window_title("Velocity plot")
+fig.canvas.manager.set_window_title("Velocity plot")
 
 plt.title("Velocity fields")
 for t, velocity in zip(validation.t, validation.velocity):
