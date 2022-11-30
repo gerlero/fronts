@@ -1,8 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """1INFILTR case from Hydrus-1D, horizontal."""
-
-from __future__ import division, absolute_import, print_function
 
 import matplotlib.pyplot as plt
 

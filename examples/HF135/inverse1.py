@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Lateral flow in a HF135 nitrocellulose membrane.
@@ -10,8 +10,6 @@ same conditions to verify that an equivalent solution is obtained.
 
 Warning: this example takes ~30 seconds to run to completion.
 """
-
-from __future__ import division, absolute_import, print_function
 
 import numpy as np
 import matplotlib.pyplot as plt

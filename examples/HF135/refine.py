@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Lateral flow in a HF135 nitrocellulose membrane.
@@ -6,8 +6,6 @@ Lateral flow in a HF135 nitrocellulose membrane.
 This example shows a possible usage of `fronts.solve_from_guess` (and also
 `fronts.solve`) to refine a solution previously obtained with `fronts.solve`
 """
-
-from __future__ import division, absolute_import, print_function
 
 import matplotlib.pyplot as plt
 

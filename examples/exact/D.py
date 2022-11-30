@@ -1,8 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Plot of D for the 'exact' validation case."""
-
-from __future__ import division, absolute_import, print_function
 
 import numpy as np
 import matplotlib.pyplot as plt
