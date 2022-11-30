@@ -39,7 +39,7 @@ r = np.linspace(0, 5e-2, 200)  # m
 t = (60, 120)  # s
 
 fig = plt.figure()
-fig.canvas.set_window_title("Water content plot")
+fig.canvas.manager.set_window_title("Water content plot")
 
 plt.title("Water content fields")
 plt.plot(r, theta(r,t[0]), label=f"t={t[0]} {t_unit}")
@@ -50,7 +50,7 @@ plt.grid(which='both')
 plt.legend()
 
 fig = plt.figure()
-fig.canvas.set_window_title("Velocity plot")
+fig.canvas.manager.set_window_title("Velocity plot")
 
 plt.title("Velocity fields")
 plt.plot(r, theta.flux(r,t[0]), label=f"t={t[0]} {t_unit}")
@@ -61,7 +61,7 @@ plt.grid(which='both')
 plt.legend()
 
 fig = plt.figure()
-fig.canvas.set_window_title("Flow rate plot")
+fig.canvas.manager.set_window_title("Flow rate plot")
 
 plt.title("Flow rate fields")
 plt.plot(r, theta.flux(r,t[0]) * (2*pi*r) * h,

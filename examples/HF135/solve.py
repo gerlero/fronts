@@ -34,7 +34,7 @@ theta = solve(D=D, i=theta_i, b=theta_b, verbose=2)
 
 
 fig = plt.figure()
-fig.canvas.set_window_title("Water content plot")
+fig.canvas.manager.set_window_title("Water content plot")
 
 plt.title(f"Water content field at t={validation.t} {validation.t_unit}")
 plt.plot(validation.r, theta(validation.r,validation.t),
@@ -47,7 +47,7 @@ plt.legend()
 
 
 fig = plt.figure()
-fig.canvas.set_window_title("Velocity plot")
+fig.canvas.manager.set_window_title("Velocity plot")
 
 plt.title(f"Velocity field at t={validation.t} {validation.t_unit}")
 plt.plot(validation.r, theta.flux(validation.r,validation.t),

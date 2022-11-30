@@ -72,7 +72,7 @@ name = "Hydrus-1D"
 if __name__ == '__main__':
 
     fig = plt.figure()
-    fig.canvas.set_window_title("Water content plot")
+    fig.canvas.manager.set_window_title("Water content plot")
 
     plt.title("Water content fields")
     for t_, theta_ in zip(t, theta):
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     plt.legend()
 
     fig = plt.figure()
-    fig.canvas.set_window_title("Velocity plot")
+    fig.canvas.manager.set_window_title("Velocity plot")
 
     plt.title("Velocity fields")
     for t_, velocity_ in zip(t, velocity):

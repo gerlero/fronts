@@ -17,7 +17,7 @@ theta = solve_from_guess(D="0.5*(1 - log(theta))", i=0, b=1,
 
 
 fig = plt.figure()
-fig.canvas.set_window_title("theta plot")
+fig.canvas.manager.set_window_title("theta plot")
 
 plt.title("theta(o)")
 plt.plot(o, theta(o=o), color='steelblue', label="Fronts")

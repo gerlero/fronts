@@ -30,7 +30,7 @@ theta = np.linspace(theta_range[0]+epsilon, theta_range[1]-epsilon, 200)
 
 
 fig = plt.figure()
-fig.canvas.set_window_title("Diffusivity plot")
+fig.canvas.manager.set_window_title("Diffusivity plot")
 
 plt.title("Diffusivity function")
 plt.plot(theta, D(theta))
