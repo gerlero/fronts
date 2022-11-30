@@ -1,9 +1,9 @@
-<img alt="Fronts" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/logo.png" height="100">
+<img alt="Fronts" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/logo.png" height="100">
 
 Fronts is a Python numerical library for nonlinear diffusion problems based on the Boltzmann transformation.
 
 ```python
-Python 3.8.3 (default, May 15 2020, 14:39:37)
+Python 3.9.6 (default, Sep 26 2022, 11:37:49)
 >>> import fronts
 >>> θ = fronts.solve(D="exp(7*θ)/2", i=0, b=1)  # i: initial value, b: boundary value
 >>> θ(r=10, t=3) 
@@ -13,13 +13,16 @@ Python 3.8.3 (default, May 15 2020, 14:39:37)
 >>> print("Welcome to the Fronts project page.")
 ```
 
-[![PyPI](https://img.shields.io/pypi/v/fronts?color=%2300b0f0)](https://pypi.org/project/fronts/) [![GitHub Actions - CI](https://github.com/gerlero/fronts/workflows/CI/badge.svg)](https://github.com/gerlero/fronts/actions) [![Code coverage](https://img.shields.io/codecov/c/gh/gerlero/fronts)](https://codecov.io/gh/gerlero/fronts) [![Documentation](https://img.shields.io/readthedocs/fronts)](https://fronts.readthedocs.io/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fronts)](https://pypi.org/project/fronts/) [![PyPI - License](https://img.shields.io/pypi/l/fronts?color=%230085a0)](https://github.com/gerlero/fronts/blob/master/LICENSE.txt) 
+[![PyPI](https://img.shields.io/pypi/v/fronts?color=%2300b0f0)](https://pypi.org/project/fronts/) [![GitHub Actions - CI](https://github.com/gerlero/fronts/workflows/CI/badge.svg)](https://github.com/gerlero/fronts/actions) [![Code coverage](https://img.shields.io/codecov/c/gh/gerlero/fronts)](https://codecov.io/gh/gerlero/fronts) [![Documentation](https://img.shields.io/readthedocs/fronts)](https://fronts.readthedocs.io/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fronts)](https://pypi.org/project/fronts/) [![PyPI - License](https://img.shields.io/pypi/l/fronts?color=%230085a0)](https://github.com/gerlero/fronts/blob/main/LICENSE.txt)
+
+| ⚡️ Fronts is also available [as a Julia package](https://github.com/gerlero/Fronts.jl). We recommend using the Julia version, particularly where performance is important |
+| ---- |
 
 ## Overview
 
 With Fronts, you can effortlessly find solutions to many problems of nonlinear diffusion along a semi-infinite axis **r**, i.e.:
 
-<img alt="Nonlinear diffusion equation" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/pde.svg">
+$$\frac{\partial\theta}{\partial t} = \nabla\cdot\left[D(\theta)\frac{\partial\theta}{\partial r}\mathbf{\hat{r}}\right]$$
 
 where _D_ is a known positive function and _θ_ is an unkown function of _r_ and _t_.
 
@@ -29,7 +32,7 @@ It works by transforming the above nonlinear partial differential equation (PDE)
 
 For this class of problems, you will find that Fronts can be easier to use, faster, and more robust than the classical numerical PDE solvers you would otherwise have to use. Moreover, the solutions found by Fronts are such that their partial derivatives and flux fields are also available in continuous form. Finally, a considerable effort has been made to have Fronts "just work" in practice, with no adjustment of numerical parameters required (in fact, the functions mentioned so far do not even require a starting mesh).
 
-Fronts can also help you solve the inverse problem of finding _D_ when _θ_ is given. Every feature of Fronts is covered in the [documentation](https://fronts.readthedocs.io), and the project includes many [example cases](https://github.com/gerlero/fronts/blob/master/LICENSE.txt) (though you may start with the Usage section below).
+Fronts can also help you solve the inverse problem of finding _D_ when _θ_ is given. Every feature of Fronts is covered in the [documentation](https://fronts.readthedocs.io), and the project includes many [example cases](https://github.com/gerlero/fronts/tree/main/examples) (though you may start with the Usage section below).
 
 Fronts is open source and works great with the tools of the [SciPy ecosystem](https://www.scipy.org/about.html).
 
@@ -47,22 +50,22 @@ As mentioned before, if your problem is supported, you can expect Fronts to be e
 
 ## Installation
 
-Fronts runs on Python 3.5 and later, as well as the older Python 2.7. If you can choose, Python 3 is recommended.
+Fronts currently runs on Python 3.7 and later.
 
 Install Fronts with [pip](https://pip.pypa.io/en/stable/) by running this command in a terminal:
 
-```
-$ pip3 install fronts
+```sh
+python3 -m pip install fronts
 ```
 
-This will download and install the [most recent version of Fronts available on PyPI](https://pypi.org/project/fronts/). To install on Python 2.7, replace ```pip3``` with ```pip```.
+This will download and install the [most recent version of Fronts available on PyPI](https://pypi.org/project/fronts/).
 
 ##### Optional: Matplotlib
 
 Running the bundled examples requires the visualization library [Matplotlib](https://matplotlib.org). This library is not installed automatically with Fronts, so if you don't already have it, you may want to install it manually by running:
 
-```
-$ pip3 install matplotlib
+```sh
+python3 -m pip install matplotlib
 ```
 
 Optionally, Fronts can be installed in a [virtual environment](https://docs.python.org/3.8/tutorial/venv.html), or the ```--user```  option can be added to the previous commands to install the packages for the current user only (which does not require system administrator privileges).
@@ -74,7 +77,13 @@ Let's say we want to solve the following initial-boundary value problem:
 
 > Find _c_ such that:
 >
-> <img alt="Example problem" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/powerlaw_problem.svg">
+> $$
+  \begin{cases}
+  \dfrac{\partial c}{\partial t} = \dfrac{\partial}{\partial r}\left(c^4\dfrac{\partial c}{\partial r}\right) & r>0,t>0\\
+  c(r,0)=0.1 & r>0\\
+  c(0,t)=1 & t>0\\
+  \end{cases}
+  $$
 
 With Fronts, all it takes is a call to [``fronts.solve()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.solve.html). The function requires the diffusivity function ``D``, which we pass as an expression so that ``solve()`` can get the derivatives it needs by itself (alternatively, in this case we could also have used [``fronts.D.power_law()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.D.power_law.html#fronts.D.power_law.) to obtain `D`). Besides ``D``, we only need to pass the initial and boundary values as ``i`` and ``b``. The Python code is:
 
@@ -100,7 +109,7 @@ plt.show()
 
 The plot looks like this:
 
-<img alt="c plot" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/powerlaw_c.png" height=400>
+<img alt="c plot" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/powerlaw_c.png" height=400>
 
 Finally, let us plot the flux at _t_=60:
 
@@ -111,14 +120,14 @@ plt.ylabel("flux")
 plt.show()
 ```
 
-<img alt="flux plot" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/powerlaw_flux.png" height=400>
+<img alt="flux plot" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/powerlaw_flux.png" height=400>
 
 
 ## Project links
 
 * [**Documentation**](https://fronts.readthedocs.io)
-* [**Examples**](https://github.com/gerlero/fronts/tree/master/examples)
-* [**Changelog**](https://github.com/gerlero/fronts/blob/master/CHANGELOG.md)
+* [**Examples**](https://github.com/gerlero/fronts/tree/main/examples)
+* [**Changelog**](https://github.com/gerlero/fronts/blob/main/CHANGELOG.md)
 
 
 ## Authors
@@ -127,13 +136,9 @@ plt.show()
 * **Pablo A. Kler** [@pabloakler](https://github.com/pabloakler)
 * **Claudio L. A. Berli**
 
-Fronts was conceived and is developed by members of the [Santa Fe Microfluidics Group (GSaM)](http://www.microfluidica.com.ar) at the [Research Center for Computational Methods (CIMEC, UNL-CONICET)](https://www.cimec.org.ar) and the [Institute of Technological Development for the Chemical Industry (INTEC, UNL-CONICET)](https://intec.conicet.gov.ar) in Santa Fe, Argentina.
+Fronts was conceived and is developed by members of the [Santa Fe Microfluidics Group (GSaM)](https://microfluidica.ar) at the [Research Center for Computational Methods (CIMEC, UNL-CONICET)](https://cimec.conicet.gov.ar) and the [Institute of Technological Development for the Chemical Industry (INTEC, UNL-CONICET)](https://intec.conicet.gov.ar) in Santa Fe, Argentina.
 
-
-
-[<img alt="CIMEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/CIMEC.png" height=70>](https://www.cimec.org.ar) &nbsp; [<img alt="INTEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/INTEC.png" height=65>](https://intec.conicet.gov.ar) &nbsp; [<img alt="GSaM" src="https://raw.githubusercontent.com/gerlero/fronts/master/resources/GSaMLogo.png" height=65>](http://www.microfluidica.com.ar)
-
- 
+[<img alt="CIMEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/CIMEC.png" height=70>](https://cimec.conicet.gov.ar) &nbsp; [<img alt="INTEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/INTEC.png" height=65>](https://intec.conicet.gov.ar) &nbsp; [<img alt="GSaM" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/GSaMLogo.png" height=65>](https://microfluidica.ar)
 
 
 ## License
