@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Drop support for Python versions older than 3.7 (including Python 2.7).
+- Drop support for SciPy versions older than 1.4.0.
 - Remove optional dependencies needed to publish the package, including the install option ``[publish]``. The project now uses GitHub Actions to automatically build and upload releases to PyPI.
 
 ## [0.9.10] - 2020-10-30
