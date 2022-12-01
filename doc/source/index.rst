@@ -5,7 +5,11 @@ Welcome to the reference documentation for `Fronts <http://github.com/gerlero/fr
 
 For an introduction to the software, please refer to the README file, which is displayed on the project's `GitHub <http://github.com/gerlero/fronts>`_ and `PyPI <https://pypi.org/project/fronts>`_ pages.
 
-Users may also want to look at the example cases, available on the GitHub page under the `examples <https://github.com/gerlero/fronts/tree/master/examples>`_ directory.
+Users may also want to look at the example cases, available on the GitHub page under the `examples <https://github.com/gerlero/fronts/tree/main/examples>`_ directory.
+
+.. note::
+   Documentation for the `Julia version of Fronts <https://github.com/gerlero/Fronts.jl>`_ is `available separately <https://gerlero.github.io/Fronts.jl/stable/>`_.  
+
 
 .. currentmodule:: fronts
 
