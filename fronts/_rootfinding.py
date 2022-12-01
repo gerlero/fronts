@@ -175,8 +175,7 @@ def bracket_root(f, interval, growth_factor=2, maxiter=100,
                           function_calls=function_calls)
 
         if maxiter is not None and iteration >= maxiter:
-            raise IterationLimitReached("failed to converge after {} "
-                                        "iterations".format(maxiter),
+            raise IterationLimitReached(f"failed to converge after {maxiter} iterations",
                                         interval=(a,b),
                                         f_interval=(f_a, f_b),
                                         function_calls=function_calls)
@@ -301,8 +300,7 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
     for iteration in itertools.count(start=1):
 
         if maxiter is not None and iteration > maxiter:
-            raise IterationLimitReached("failed to converge after {} "
-                                        "iterations".format(maxiter),
+            raise IterationLimitReached(f"failed to converge after {maxiter} iterations",
                                         interval=(a,b),
                                         f_interval=(f_a, f_b),
                                         function_calls=function_calls)

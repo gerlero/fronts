@@ -310,7 +310,7 @@ def ode(D, radial=False, catch_errors=False):
     try:
         k = _k[radial]
     except KeyError:
-        raise ValueError("radial must be one of {{{}}}".format(", ".join(repr(key) for key in _k))) from None
+        raise ValueError(f"radial must be one of {{{', '.join(repr(key) for key in _k)}}}") from None
 
 
     def fun(o, y):
