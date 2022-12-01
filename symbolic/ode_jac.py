@@ -44,4 +44,4 @@ for x in xs:
 
 for i in range(2):
     for j in range(2):
-        print("J[{},{}] = {}".format(i, j, J[i,j]))
+        print(f"J[{i},{j}] = {J[i, j]}")

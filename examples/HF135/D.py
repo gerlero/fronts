@@ -35,7 +35,7 @@ fig.canvas.manager.set_window_title("Diffusivity plot")
 plt.title("Diffusivity function")
 plt.plot(theta, D(theta))
 plt.xlabel("water content [-]")
-plt.ylabel("diffusivity [{}**2/{}]".format(r_unit, t_unit))
+plt.ylabel(f"diffusivity [{r_unit}**2/{t_unit}]")
 plt.yscale('log')
 plt.grid(which='both')
 

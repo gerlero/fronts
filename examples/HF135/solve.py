@@ -36,11 +36,11 @@ theta = solve(D=D, i=theta_i, b=theta_b, verbose=2)
 fig = plt.figure()
 fig.canvas.manager.set_window_title("Water content plot")
 
-plt.title("Water content field at t={} {}".format(validation.t, validation.t_unit))
+plt.title(f"Water content field at t={validation.t} {validation.t_unit}")
 plt.plot(validation.r, theta(validation.r,validation.t),
          color='steelblue', label="Fronts")
 plt.plot(validation.r, validation.theta, color='sandybrown', label=validation.name)
-plt.xlabel("position [{}]".format(validation.r_unit))
+plt.xlabel(f"position [{validation.r_unit}]")
 plt.ylabel("water content [-]")
 plt.grid(which='both')
 plt.legend()
@@ -49,13 +49,13 @@ plt.legend()
 fig = plt.figure()
 fig.canvas.manager.set_window_title("Velocity plot")
 
-plt.title("Velocity field at t={} {}".format(validation.t, validation.t_unit))
+plt.title(f"Velocity field at t={validation.t} {validation.t_unit}")
 plt.plot(validation.r, theta.flux(validation.r,validation.t),
          color='steelblue', label="Fronts")
 plt.plot(validation.r, validation.velocity,
          color='sandybrown', label=validation.name)
-plt.xlabel("position [{}]".format(validation.r_unit))
-plt.ylabel("Darcy velocity [{}/{}]".format(validation.r_unit, validation.t_unit))
+plt.xlabel(f"position [{validation.r_unit}]")
+plt.ylabel(f"Darcy velocity [{validation.r_unit}/{validation.t_unit}]")
 plt.grid(which='both')
 plt.legend()
 

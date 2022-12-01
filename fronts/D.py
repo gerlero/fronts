@@ -161,8 +161,7 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
             if derivatives == 2 and max_derivatives == 2:
                 return funcs[0](theta), funcs[1](theta), funcs[2](theta)
 
-            raise ValueError("derivatives must be one of {{{}}}".format(
-                        ", ".join(str(n) for n in range(max_derivatives+1))))
+            raise ValueError(f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}")
 
     else:
 
@@ -189,8 +188,7 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
             if derivatives == 2 and max_derivatives == 2:
                 return f01(theta) + [f2(theta)]
 
-            raise ValueError("derivatives must be one of {{{}}}".format(
-                        ", ".join(str(n) for n in range(max_derivatives+1))))
+            raise ValueError(f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}")
 
     return D
 
@@ -660,16 +658,16 @@ def _checked(D, theta=None):
         try:
             D_, dD_dtheta = D(theta, 1)
         except (ValueError, ArithmeticError) as e:
-            raise ValueError("D({}, 1) failed with {}".format(theta, e.__class__.__name__)) from e
+            raise ValueError(f"D({theta}, 1) failed with {e.__class__.__name__}") from e
 
     try:
         D_ = float(D_)
         dD_dtheta = float(dD_dtheta)
     except TypeError as e:
-        raise ValueError("D({}, 1) returned wrong type".format(theta)) from e
+        raise ValueError(f"D({theta}, 1) returned wrong type") from e
 
     if not np.isfinite(D_) or D_ <= 0 or not np.isfinite(dD_dtheta):
-        raise ValueError("D({}, 1) returned invalid value".format(theta))
+        raise ValueError(f"D({theta}, 1) returned invalid value")
     
     return D_
 

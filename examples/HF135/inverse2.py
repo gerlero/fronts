@@ -24,12 +24,12 @@ theta = solve(D=D_inverse, i=validation.theta[-1], b=validation.theta[0], itol=5
 fig = plt.figure()
 fig.canvas.manager.set_window_title("Water content plot")
 
-plt.title("Water content field at t={} {}".format(validation.t, validation.t_unit))
+plt.title(f"Water content field at t={validation.t} {validation.t_unit}")
 plt.plot(validation.r, validation.theta,
-         label="Original ({})".format(validation.name))
+         label=f"Original ({validation.name})")
 plt.plot(validation.r, theta(validation.r, validation.t),
          label="Reconstructed with inverse() and solve()")
-plt.xlabel("r [{}]".format(validation.r_unit))
+plt.xlabel(f"r [{validation.r_unit}]")
 plt.ylabel("water content [-]")
 plt.grid(which='both')
 plt.legend()

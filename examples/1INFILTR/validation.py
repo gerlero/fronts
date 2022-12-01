@@ -76,8 +76,8 @@ if __name__ == '__main__':
 
     plt.title("Water content fields")
     for t_, theta_ in zip(t, theta):
-        plt.plot(r, theta_, label="{}, t={} {}".format(name, t_, t_unit))
-    plt.xlabel("r [{}]".format(r_unit))
+        plt.plot(r, theta_, label=f"{name}, t={t_} {t_unit}")
+    plt.xlabel(f"r [{r_unit}]")
     plt.ylabel("water content [-]")
     plt.grid(which='both')
     plt.legend()
@@ -87,9 +87,9 @@ if __name__ == '__main__':
 
     plt.title("Velocity fields")
     for t_, velocity_ in zip(t, velocity):
-        plt.plot(r, velocity_, label="{}, t={} {}".format(name, t_, t_unit))
-    plt.xlabel("r [{}]".format(r_unit))
-    plt.ylabel("Darcy velocity [{}/{}]".format(r_unit, t_unit))
+        plt.plot(r, velocity_, label=f"{name}, t={t_} {t_unit}")
+    plt.xlabel(f"r [{r_unit}]")
+    plt.ylabel(f"Darcy velocity [{r_unit}/{t_unit}]")
     plt.grid(which='both')
     plt.legend()
 
