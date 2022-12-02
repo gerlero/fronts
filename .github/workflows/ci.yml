@@ -27,7 +27,7 @@ jobs:
     - name: Install package and dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install .[test] codecov
+        python -m pip install .[test]
     - name: Check MANIFEST.in file with check-manifest
       run: |
         check-manifest
@@ -36,6 +36,7 @@ jobs:
         pytest --cov=fronts
       env: # for Matplotlib
         MPLBACKEND: agg
-    - name: Upload code coverage results to codecov
-      run: |
-        codecov
+    - name: Upload code coverage results to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
