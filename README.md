@@ -138,7 +138,7 @@ plt.show()
 
 Fronts was conceived and is developed by members of the [Santa Fe Microfluidics Group (GSaM)](https://microfluidica.ar) at the [Research Center for Computational Methods (CIMEC, UNL-CONICET)](https://cimec.conicet.gov.ar) and the [Institute of Technological Development for the Chemical Industry (INTEC, UNL-CONICET)](https://intec.conicet.gov.ar) in Santa Fe, Argentina.
 
-[<img alt="CIMEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/CIMEC.png" height=70>](https://cimec.conicet.gov.ar) &nbsp; [<img alt="INTEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/INTEC.png" height=65>](https://intec.conicet.gov.ar) &nbsp; [<img alt="GSaM" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/GSaMLogo.png" height=65>](https://microfluidica.ar)
+[<img alt="CIMEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/CIMEC.png" height=70>](https://cimec.conicet.gov.ar) &nbsp; [<img alt="INTEC (UNL-CONICET)" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/INTEC.png" height=70>](https://intec.conicet.gov.ar) &nbsp; [<img alt="GSaM" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/GSaMLogo.png" height=60>](https://microfluidica.ar)
 
 
 ## License
