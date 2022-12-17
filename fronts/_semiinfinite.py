@@ -181,8 +181,6 @@ class _Shooter(object):
     theta_direction : {-1, 0, 1}
     itol : float
     method : {'implicit', 'explicit'}
-        'explicit' requires SciPy >= 1.4.0 (a `ValueError` will be raised
-        otherwise)
     max_shots : None or int
     shot_callback : None or callable
 
@@ -509,8 +507,7 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
                 uses the DOP853 explicit method of order 8. As an explicit
                 method, it trades off general solver robustness and accuracy
                 for faster results in "well-behaved" cases. With this method,
-                the second derivative of :math:`D` is not needed. Requires
-                SciPy 1.4.0 or later (Python 3 only)
+                the second derivative of :math:`D` is not needed
     maxiter : int, optional
         Maximum number of iterations. A `RuntimeError` will be raised if the
         specified tolerance is not achieved within this number of iterations.
@@ -847,8 +844,7 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
                 uses the DOP853 explicit method of order 8. As an explicit
                 method, it trades off general solver robustness and accuracy
                 for faster results in "well-behaved" cases. With this method,
-                the second derivative of :math:`D` is not needed. Requires
-                SciPy 1.4.0 or later (Python 3 only)
+                the second derivative of :math:`D` is not needed
     maxiter : int, optional
         Maximum number of iterations. A `RuntimeError` will be raised if the
         specified tolerance is not achieved within this number of iterations.
