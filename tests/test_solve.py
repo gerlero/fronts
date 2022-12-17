@@ -67,9 +67,6 @@ def test_HF135():
 
 
 def test_exact_explicit():
-    pytest.importorskip('scipy', minversion='1.4.0',
-                        reason="'explicit' method requires SciPy >= 1.4.0")
-
     theta = fronts.solve(D="0.5*(1 - log(theta))", i=0, b=1, method='explicit')
 
     o = np.linspace(0, 20, 100)
