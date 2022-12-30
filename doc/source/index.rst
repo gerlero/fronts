@@ -64,6 +64,7 @@ Module ``fronts.D``: Diffusivity functions
     D.power_law
     D.brooks_and_corey
     D.van_genuchten
+    D.letxs
     D.from_expr
     D.richards
 

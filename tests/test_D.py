@@ -38,3 +38,10 @@ def test_van_genuchten(theta):
     assert D(theta) == pytest.approx(D_ref(theta))
     assert D(theta, 1)[1] == pytest.approx(deriv(D_ref)(theta))
     assert D(theta, 2)[2] == pytest.approx(deriv(deriv(D_ref))(theta), rel=1e-5)
+
+
+def test_letxs():
+    D = fronts.D.letxs(Lw=1.1, Ew=1.2, Tw=1.3, Ls=1.4, Es=1.5, Ts=1.6, alpha=1.7, Ks=1.8, theta_range=(0.1, 0.9))
+
+    assert D(0.5, 2) == pytest.approx([0.9538846435439435, 1.8163132590925006, -18.814046264749273])
+    assert D(0.15, 2) == pytest.approx([0.027610928712352757, 1.0079989974677264, 17.57492212545586])
