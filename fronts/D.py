@@ -720,7 +720,7 @@ def letxs(Lw, Ew, Tw, Ls, Es, Ts, Ks=None, k=None, nu=1e-6, g=9.81, alpha=1.0,
     return D
 
 
-def letd(L, E, T, Dwt=1.0, theta_range=(-1.0, 1.0)):
+def letd(L, E, T, Dwt=1.0, theta_range=(0.0,1.0)):
     r"""
     Return a LETd diffusivity function.
 
