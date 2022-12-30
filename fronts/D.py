@@ -743,6 +743,11 @@ def letd(L, E, T, Dwt=1.0, theta_range=(0.0,1.0)):
         :math:`T` parameter for the LETd correlation.
     Dwt : float, optional
         Constant diffusivity factor. The default is 1.
+    theta_range : sequence of two floats, optional
+        (:math:`\theta_r`, :math:`\theta_s`), where :math:`\theta_r` is the
+        minimum (also known as residual) water content and :math:`\theta_s` is
+        the maximum water content. The default is (0, 1). :math:`\theta_s` must
+        be greater than :math:`\theta_r`.
 
     Returns
     -------
