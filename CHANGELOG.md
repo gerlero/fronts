@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.12] - Unreleased
 
+### Added
+
+- Add ``letxs()`` diffusivity model based on the LET correlations to the `fronts.D` module.
+
 ## [0.9.11] - 2022-12-01
 
 ### Fixed

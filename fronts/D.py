@@ -539,6 +539,187 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
     return D
 
 
+def letxs(Lw, Ew, Tw, Ls, Es, Ts, Ks=None, k=None, nu=1e-6, g=9.81, alpha=1.0,
+          theta_range=(0.0,1.0)):
+    r"""
+    Return a diffusivity function that combines the LETx relative permeability
+    correlation and the LETs capillary pressure correlation for spontaneous
+    imbibition. Both correlations are part of the LET family of hydraulic
+    functions.
+
+    Given the saturated hydraulic conductivity :math:`K_S`, irreducible water
+    saturation :math:`S_{wir}`, capillary pressure :math:`P_{cir}` at 
+    irreducible saturation, and shape parameters :math:`L_w`, :math:`E_w`,
+    :math:`T_w` and :math:`L_s`, :math:`E_s`, :math:`T_s`; the LET-based
+    diffusivity function :math:`D` is defined as:
+
+    .. math:: D(\theta) = -K_S K_{rw}(\theta) d P_c/d \theta
+
+    where the variable :math:`\theta` is moisture content.
+
+    The functions :math:`K_{rw}` and :math:`P_c` are, respectively, relative
+    permeability and capillary pressure, defined as:
+
+    .. math:: K_{rw} =
+                     \frac{S_{wp}^{L_w}}{S_{wp}^{L_w} + E_w (1 - S_{wp})^{T_w}}
+
+    .. math:: P_c = 
+       P_{cir} \frac{(1 - S_{ws})^{L_s}}{(1 - S_{ws})^{L_s} + E_s S_{ws}^{T_s}}
+    
+    with:
+
+    .. math:: S_{wp} = S_{ws} = \frac{\theta - \theta_r}{\theta_s - theta_r}
+
+    and:
+
+    .. math:: P_{cir} = \frac{\rho g}/{\alpha}
+
+    Parameters
+    ----------
+    Lw : float
+        :math:`L_w` parameter for the LETx correlation.
+    Ew : float
+        :math:`E_w` parameter for the LETx correlation.
+    Tw : float
+        :math:`T_w` parameter for the LETx correlation.
+    Ls : float
+        :math:`L_s` parameter for the LETs correlation.
+    Es : float
+        :math:`E_s` parameter for the LETs correlation.
+    Ts : float
+        :math:`T_s` parameter for the LETs correlation.
+    Ks : None or float, optional
+        :math:`K_S`, the saturated hydraulic conductivity. Must be positive. If
+        neither `Ks` nor `k` are given, the saturated hydraulic conductivity is
+        assumed to be 1.
+    k : None or float, optional
+        Intrinsic permeability of the porous medium. Can be given in place of
+        `Ks`, which results in the saturated hydraulic conductivity being
+        computed using :math:`K_S = kg/\nu`. Must be positive.
+    nu : float, optional
+        :math:`\nu`, the kinematic viscosity of the wetting fluid. Only used if
+        `k` is passed instead of `Ks`. Must be positive. Defaults to 1e-6,
+        approximately the kinematic viscosity of water at 20°C in SI units.
+    g : float, optional
+        Magnitude of the gravitational acceleration. Only used if `k` is passed
+        instead of `Ks`. Must be positive. Defaults to 9.81, the gravity of
+        Earth in SI units.
+    alpha : float, optional
+        :math:`\alpha` parameter. The default is 1. Must be positive.
+    theta_range : sequence of two floats, optional
+        (:math:`\theta_r`, :math:`\theta_s`), where :math:`\theta_r` is the
+        minimum (also known as residual) water content and :math:`\theta_s` is
+        the maximum water content. The default is (0, 1). :math:`\theta_s` must
+        be greater than :math:`\theta_r`.
+
+    Returns
+    -------
+    D : callable
+        Function to evaluate :math:`D` and its derivatives:
+
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its first
+                derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+
+        In all cases, the argument ``theta`` may be a single float or a NumPy
+        array.
+
+    References
+    ----------
+    [1] LOMELAND, F. Overview of the LET family of versatile correlations for
+    flow functions. In: Proceedings of the International Symposium of the
+    Society of Core Analysts, 2018, p. SCA2018-056.
+
+    [2] GERLERO, G. S.; VALDEZ, A.; URTEAGA, R; KLER, P. A. Validity of
+    capillary imbibition models in paper-based microfluidic applications.
+    Transport in Porous Media, 2022, vol. 141, no. 7, pp. 1-20.
+    """
+
+    Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
+    
+    # - Code generated with functionstr() from ../symbolic/generate.py - #
+    x0 = theta_range[0] - theta_range[1]
+    x2 = 1/x0
+    x12 = 1/theta_range[1]
+    x15 = -x0
+    x16 = 1/x15
+    x41 = Ls - Ts
+    x44 = -x41
+    x45 = 2*x44
+    x47 = x2*x45
+    x52 = Lw**2
+    x53 = Ts**2
+    x58 = Ls**2
+    def D(theta, derivatives=0):
+        x1 = theta - theta_range[0]
+        x3 = x1*x2
+        x4 = x3 + 1
+        x5 = x4**Ls
+        x6 = -x3
+        x7 = x6**Lw
+        x8 = Es*x6**Ts
+        x9 = 1/x4
+        x10 = -Ls*x3 + Ts*x3 + Ts
+        x11 = x10*x9
+        x13 = 1/x1
+        x14 = Ks*x12*x13*x7*x8/(alpha*(theta_range[0]*x12 - 1))
+        D = x0*x11*x14*x5/((x5 + x8)**2*(Ew*x4**Tw + x7))
+        if derivatives == 0: return D
+        x17 = x1*x16
+        x18 = x17 - 1
+        x19 = 1/x18
+        x20 = Ls*x10
+        x21 = x19*x20
+        x22 = x0*x10
+        x23 = x13*x22
+        x24 = -x18
+        x25 = Ew*x24**Tw
+        x26 = x25 + x7
+        x27 = 1/x26
+        x28 = Lw*x13
+        x29 = Tw*x25
+        x30 = x19*x2
+        x31 = -x28*x7 + x29*x30
+        x32 = x24**Ls
+        x33 = x32 + x8
+        x34 = 1/x33
+        x35 = Es*x17**Ts
+        x36 = Ts*x13
+        x37 = Ls*x32
+        x38 = -x16*x37/x24 + x35*x36
+        x39 = x34*x38
+        x40 = 2*x22
+        x42 = x33**(-2)
+        x43 = x14*x27*x32*x42*x9
+        dD_dtheta = x43*(Lw*x0*x10*x13 + Ts*x0*x10*x13 + x0*x10*x27*x31 - x11 - x21 - x23 - x39*x40 - x41)
+        if derivatives == 1: return D, dD_dtheta
+        x46 = x13*x45
+        x48 = x1**(-2)
+        x49 = x22*x48
+        x50 = 2*x49
+        x51 = 3*x49
+        x54 = 2*x11
+        x55 = x10*x2
+        x56 = 2*x21
+        x57 = x18**(-2)
+        x59 = 4*x39
+        x60 = x27*x31
+        x61 = 2*x60
+        x62 = Lw*x23
+        x63 = Ts*x23
+        x64 = x35*x48
+        x65 = 1/(x15**2*x24**2)
+        x66 = x17**Lw*x48
+        d2D_dtheta2 = x43*(-Ls*x19*x47 + Ls*x30*x54 + Lw*Ts*x50 - Lw*x51 + Ts*x46 - Ts*x51 + x11*x59 + x13*x54 + x13*x56 - x2*x20*x57 + x21*x59 - x22*x27*(-Lw*x66 + Tw**2*x25*x65 - x29*x65 + x52*x66) + 6*x22*x38**2*x42 - x22*x59*x60 + x23*x59 - x23*x61 + x28*x45 - x28*x54 - x28*x56 - x34*x40*(-Ts*x64 + x32*x58*x65 - x37*x65 + x53*x64) - x36*x54 - x36*x56 - x44*x59 + x45*x60 - x46 - x47*x9 + x49*x52 + x49*x53 + x50 - x54*x60 + x55*x57*x58 - x56*x60 - x59*x62 - x59*x63 + x61*x62 + x61*x63 + 2*x55/x4**2 + x31**2*x40/x26**2)
+        if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
+        raise ValueError("derivatives must be 0, 1 or 2")
+    # ----------------------- End generated code ----------------------- #
+
+    return D
+
+
 def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
     r"""
     Return a moisture diffusivity function for a Richards equation problem.
