@@ -568,11 +568,11 @@ def letxs(Lw, Ew, Tw, Ls, Es, Ts, Ks=None, k=None, nu=1e-6, g=9.81, alpha=1.0,
     
     with:
 
-    .. math:: S_{wp} = S_{ws} = \frac{\theta - \theta_r}{\theta_s - theta_r}
+    .. math:: S_{wp} = S_{ws} = \frac{\theta - \theta_r}{\theta_s - \theta_r}
 
     and:
 
-    .. math:: P_{cir} = \frac{\rho g}/{\alpha}
+    .. math:: P_{cir} = \frac{\rho g}{\alpha}
 
     Parameters
     ----------
@@ -731,7 +731,7 @@ def letd(L, E, T, Dwt=1.0, theta_range=(-1.0, 1.0)):
 
     with:
 
-    .. math:: S_{wp} = S_{ws} = \frac{\theta - \theta_r}{\theta_s - theta_r}
+    .. math:: S_{wp} = \frac{\theta - \theta_r}{\theta_s - \theta_r}
 
     Parameters
     ----------
