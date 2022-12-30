@@ -720,6 +720,84 @@ def letxs(Lw, Ew, Tw, Ls, Es, Ts, Ks=None, k=None, nu=1e-6, g=9.81, alpha=1.0,
     return D
 
 
+def letd(L, E, T, Dwt=1.0, theta_range=(-1.0, 1.0)):
+    r"""
+    Return a LETd diffusivity function.
+
+    The LETd diffusivity function :math:`D` is defined as:
+
+    .. math:: D(\theta) =
+                    D_{wt} \frac{S_{wp}^L}{S_{wp}^L + E (1 - S_{wp})^T}
+
+    with:
+
+    .. math:: S_{wp} = S_{ws} = \frac{\theta - \theta_r}{\theta_s - theta_r}
+
+    Parameters
+    ----------
+    L : float
+        :math:`L` parameter for the LETd correlation.
+    E : float
+        :math:`E` parameter for the LETd correlation.
+    T : float
+        :math:`T` parameter for the LETd correlation.
+    Dwt : float, optional
+        Constant diffusivity factor. The default is 1.
+
+    Returns
+    -------
+    D : callable
+        Function to evaluate :math:`D` and its derivatives:
+
+            *   ``D(theta)`` evaluates and returns :math:`D` at ``theta``
+            *   ``D(theta, 1)`` returns both the value of :math:`D` and its first
+                derivative at ``theta``
+            *   ``D(theta, 2)`` returns the value of :math:`D`, its first
+                derivative, and its second derivative at ``theta``
+
+        In all cases, the argument ``theta`` may be a single float or a NumPy
+        array.
+
+    References
+    ----------
+    [1] GERLERO, G. S.; VALDEZ, A.; URTEAGA, R; KLER, P. A. Validity of
+    capillary imbibition models in paper-based microfluidic applications.
+    Transport in Porous Media, 2022, vol. 141, no. 7, pp. 1-20.
+    """
+    # - Code generated with functionstr() from ../symbolic/generate.py - #
+    x1 = -theta_range[1]
+    x2 = 1/(theta_range[0] + x1)
+    x17 = L**2
+    def D(theta, derivatives=0):
+        x0 = theta - theta_range[0]
+        x3 = (-x0*x2)**L
+        x4 = theta + x1
+        x5 = E*(x2*x4)**T
+        x6 = x3 + x5
+        x7 = 1/x6
+        x8 = Dwt*x3*x7
+        D = x8
+        if derivatives == 0: return D
+        x9 = L/x0
+        x10 = -x0
+        x11 = (x10*x2)**L
+        x12 = L*x11
+        x13 = T*x5
+        x14 = x13/x4 - x12/x10
+        x15 = x14*x7
+        dD_dtheta = x8*(-x15 + x9)
+        if derivatives == 1: return D, dD_dtheta
+        x16 = x0**(-2)
+        x18 = x10**(-2)
+        x19 = x4**(-2)
+        d2D_dtheta2 = x8*(-L*x16 + 2*x14**2/x6**2 - 2*x15*x9 + x16*x17 - x7*(T**2*x19*x5 + x11*x17*x18 - x12*x18 - x13*x19))
+        if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
+        raise ValueError("derivatives must be 0, 1 or 2")
+    # ----------------------- End generated code ----------------------- #
+
+    return D
+
+
 def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
     r"""
     Return a moisture diffusivity function for a Richards equation problem.
