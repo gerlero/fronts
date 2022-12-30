@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add ``letxs()`` diffusivity model based on the LET correlations to the `fronts.D` module.
+- Add ``letxs()`` and ```letd()``` diffusivity models based on the LET correlations to the `fronts.D` module.
 
 ## [0.9.11] - 2022-12-01
 
