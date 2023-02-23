@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.9.13] - Unreleased
+## [1.0.0] - 2023-02-23
 
 ### Added
 
@@ -164,7 +164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 First public pre-release version.
 
-[0.9.13]: https://github.com/gerlero/fronts/compare/v0.9.12...HEAD
+[1.0.0]: https://github.com/gerlero/fronts/compare/v0.9.12...HEAD
 [0.9.12]: https://github.com/gerlero/fronts/compare/v0.9.11...v0.9.12
 [0.9.11]: https://github.com/gerlero/fronts/compare/v0.9.10...v0.9.11
 [0.9.10]: https://github.com/gerlero/fronts/compare/v0.9.9...v0.9.10
