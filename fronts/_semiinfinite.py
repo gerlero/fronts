@@ -538,6 +538,12 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
     account an optional hint if passed by the user), or by bisecting an
     optional search interval. This scheme assumes that :math:`d\theta/do|_b`
     varies continuously with :math:`\theta_i`.
+
+    References
+    ----------
+    [1] GERLERO, G. S.; BERLI, C. L. A.; KLER, P. A. Open-source
+    high-performance software packages for direct and inverse solving of
+    horizontal capillary flow. Capillarity, 2023, vol. 6, no. 2, pp. 31-40.
     """
     if verbose:
         start_time = process_time()
@@ -874,6 +880,12 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     into account an optional hint if passed by the user), or by bisecting an
     optional search interval. This scheme assumes that :math:`\theta` at the
     boundary varies continuously with :math:`\theta_i`.
+
+    References
+    ----------
+    [1] GERLERO, G. S.; BERLI, C. L. A.; KLER, P. A. Open-source
+    high-performance software packages for direct and inverse solving of
+    horizontal capillary flow. Capillarity, 2023, vol. 6, no. 2, pp. 31-40.
     """
     if verbose:
         start_time = process_time()
@@ -1255,6 +1267,14 @@ def inverse(o, samples):
     data with a PCHIP monotonic cubic spline. The returned `D` uses the spline
     to evaluate the expressions that result from solving the
     Boltzmann-transformed equation for :math:`D`.
+
+    References
+    ----------
+    [1] GERLERO, G. S.; BERLI, C. L. A.; KLER, P. A. Open-source
+    high-performance software packages for direct and inverse solving of
+    horizontal capillary flow. Capillarity, 2023, vol. 6, no. 2, pp. 31-40.
+    [2] BRUCE, R. R.; KLUTE, A. The measurement of soil moisture diffusivity.
+    Soil Science Society of America Journal, 1956, vol. 20, no. 4, pp. 458-462.
     """
 
     o = np.asarray(o)
