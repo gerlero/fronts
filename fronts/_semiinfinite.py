@@ -1273,6 +1273,7 @@ def inverse(o, samples):
     [1] GERLERO, G. S.; BERLI, C. L. A.; KLER, P. A. Open-source
     high-performance software packages for direct and inverse solving of
     horizontal capillary flow. Capillarity, 2023, vol. 6, no. 2, pp. 31-40.
+    
     [2] BRUCE, R. R.; KLUTE, A. The measurement of soil moisture diffusivity.
     Soil Science Society of America Journal, 1956, vol. 20, no. 4, pp. 458-462.
     """
