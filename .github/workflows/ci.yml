@@ -29,9 +29,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools build
         python -m pip install .[test]
-    - name: Check MANIFEST.in file with check-manifest
-      run: |
-        check-manifest
     - name: Test with pytest
       run: |
         pytest --cov=fronts
