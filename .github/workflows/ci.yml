@@ -1,6 +1,3 @@
-# Based on starter-workflows/ci/python-package.yml
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
 name: CI
 
 on:
@@ -11,7 +8,7 @@ on:
 
 jobs:
   build:
-
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -26,7 +23,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install package and dependencies
       run: |
-        python -m pip install --upgrade pip
+        python -m pip install --upgrade pip setuptools build
         python -m pip install .[test]
     - name: Check MANIFEST.in file with check-manifest
       run: |
@@ -40,3 +37,6 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+    - name: Check package build
+      run: |
+        python -m build
