@@ -410,7 +410,7 @@ def ode(D, radial=False, catch_errors=False):
     return fun, jac
 
 
-class BaseSolution(object):
+class BaseSolution():
     r"""
     Base class for solutions using the Boltzmann transformation.
 
