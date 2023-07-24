@@ -63,7 +63,7 @@ class Solution(BaseSolution):
 
             return y
 
-        super(Solution, self).__init__(sol=wrapped_sol, D=D)
+        super().__init__(sol=wrapped_sol, D=D)
         self._ob = ob
         self._oi = oi
 
@@ -168,7 +168,7 @@ class Solution(BaseSolution):
     
 
 
-class _Shooter(object):
+class _Shooter():
     """
     Base shooter class.
 
@@ -367,15 +367,15 @@ class _DirichletShooter(_Shooter):
 
         theta_direction = np.sign(i - b)
 
-        super(_DirichletShooter, self).__init__(D=D,
-                                                i=i,
-                                                radial=radial,
-                                                ob=ob,
-                                                theta_direction=theta_direction,
-                                                itol=itol,
-                                                method=method,
-                                                max_shots=max_shots,
-                                                shot_callback=shot_callback)
+        super().__init__(D=D,
+                         i=i,
+                         radial=radial,
+                         ob=ob,
+                         theta_direction=theta_direction,
+                         itol=itol,
+                         method=method,
+                         max_shots=max_shots,
+                         shot_callback=shot_callback)
 
         self._b = b
 
@@ -397,8 +397,7 @@ class _DirichletShooter(_Shooter):
         -------
         Result
         """
-        return super(_DirichletShooter, self).integrate(b=self._b,
-                                                        d_dob=d_dob)
+        return super().integrate(b=self._b, d_dob=d_dob)
 
 
 def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
@@ -692,15 +691,15 @@ class _FlowrateShooter(_Shooter):
 
         theta_direction = np.sign(-rel_flowrate)
 
-        super(_FlowrateShooter, self).__init__(D=D,
-                                               i=i,
-                                               ob=ob,
-                                               radial='cylindrical',
-                                               theta_direction=theta_direction,
-                                               itol=itol,
-                                               method=method,
-                                               max_shots=max_shots,
-                                               shot_callback=shot_callback)
+        super().__init__(D=D,
+                         i=i,
+                         ob=ob,
+                         radial='cylindrical',
+                         theta_direction=theta_direction,
+                         itol=itol,
+                         method=method,
+                         max_shots=max_shots,
+                         shot_callback=shot_callback)
 
         self._D_ = D
         # Flow rate per unit angle and height
@@ -731,7 +730,7 @@ class _FlowrateShooter(_Shooter):
 
         d_dob = -self._rel_flowrate/(Db*self._ob)
 
-        result = super(_FlowrateShooter, self).integrate(b=b, d_dob=d_dob)
+        result = super().integrate(b=b, d_dob=d_dob)
 
         D_calls = result.D_calls+1 if result.D_calls is not None else None
 

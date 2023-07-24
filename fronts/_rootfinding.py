@@ -1,7 +1,7 @@
 import itertools
 
 
-class Result(object):
+class Result():
     """
     Result from a succesful call to a function in this module.
 
@@ -48,7 +48,7 @@ class IterationLimitReached(RuntimeError):
     """
     def __init__(self, message, interval, f_interval, function_calls):
 
-        super(IterationLimitReached, self).__init__(message)
+        super().__init__(message)
 
         self.interval = interval
         self.f_interval = f_interval
@@ -200,7 +200,7 @@ class NotABracketError(ValueError):
     """
     def __init__(self, message, f_interval, function_calls):
 
-        super(NotABracketError, self).__init__(message)
+        super().__init__(message)
 
         self.f_interval = f_interval
         self.function_calls = function_calls
