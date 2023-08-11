@@ -1,4 +1,4 @@
-<img alt="Fronts" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/logo.png" height="100">
+[<img alt="Fronts" src="https://raw.githubusercontent.com/gerlero/fronts/main/resources/logo.png" height="100">](https://github.com/gerlero/fronts)
 
 Fronts is a Python numerical library for nonlinear diffusion problems based on the Boltzmann transformation.
 
@@ -13,7 +13,13 @@ Python 3.9.6 (default, Sep 26 2022, 11:37:49)
 >>> print("Welcome to the Fronts project page.")
 ```
 
-[![PyPI](https://img.shields.io/pypi/v/fronts?color=%2300b0f0)](https://pypi.org/project/fronts/) [![GitHub Actions - CI](https://github.com/gerlero/fronts/workflows/CI/badge.svg)](https://github.com/gerlero/fronts/actions) [![Code coverage](https://img.shields.io/codecov/c/gh/gerlero/fronts)](https://codecov.io/gh/gerlero/fronts) [![Documentation](https://img.shields.io/readthedocs/fronts)](https://fronts.readthedocs.io/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fronts)](https://pypi.org/project/fronts/) [![PyPI - License](https://img.shields.io/pypi/l/fronts?color=%230085a0)](https://github.com/gerlero/fronts/blob/main/LICENSE.txt)
+[![Documentation](https://img.shields.io/readthedocs/fronts)](https://fronts.readthedocs.io/)
+[![GitHub Actions - CI](https://github.com/gerlero/fronts/workflows/CI/badge.svg)](https://github.com/gerlero/fronts/actions)
+[![Code coverage](https://img.shields.io/codecov/c/gh/gerlero/fronts)](https://codecov.io/gh/gerlero/fronts)
+[![PyPI](https://img.shields.io/pypi/v/fronts?color=%2300b0f0)](https://pypi.org/project/fronts/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fronts)](https://pypi.org/project/fronts/)
+[![Docker image](https://img.shields.io/badge/docker%20image-microfluidica%2Ffronts-0085a0)](https://hub.docker.com/r/microfluidica/fronts)
+
 
 | ⚡️ Fronts is also available [as a Julia package](https://github.com/gerlero/Fronts.jl). We recommend using the Julia version, particularly where performance is important |
 | ---- |
