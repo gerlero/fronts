@@ -3,6 +3,8 @@ include README.md
 include CHANGELOG.md
 include CITATION.cff
 include .readthedocs.yml
+include Dockerfile
+include .dockerignore
 include .devcontainer.json
 
 # doc
