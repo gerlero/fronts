@@ -3,6 +3,7 @@ include README.md
 include CHANGELOG.md
 include CITATION.cff
 include .readthedocs.yml
+include .devcontainer.json
 
 # doc
 include doc/Makefile
