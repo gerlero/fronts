@@ -49,7 +49,7 @@ test = [
     "fronts[examples]",
 ]
 doc = [
-    "sphinx>=5",
+    "sphinx>=5,<7",
     "sphinx_rtd_theme",
 ]
 dev = [
