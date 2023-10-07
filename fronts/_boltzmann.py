@@ -545,3 +545,27 @@ class BaseSolution():
         float or numpy.ndarray, shape (n,)
         """
         return self._sol(as_o(r,t,o))[1]
+
+    def sorptivity(self, *, o):
+        r"""
+        Sorptivity.
+
+        Returns the sorptivity :math:`S` of :math:`\theta`, equal to
+        :math:`-2D(\theta)\partial\theta/\partial o`.
+
+        Parameters
+        ----------
+        o : float or numpy.ndarray, shape (n,)
+            Value(s) of the Boltzmann variable.
+
+        Returns
+        -------
+        float or numpy.ndarray, shape (n,)
+
+        References
+        ----------
+        [1] PHILIP, J. R. The theory of infiltration: 4. Sorptivity and
+        algebraic infiltration equations. Soil Science, 1957, vol. 84, no. 3,
+        pp. 257-264.
+        """
+        return -2 * self._D(self(o=o)) * self.d_do(o=o)
