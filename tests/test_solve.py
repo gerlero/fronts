@@ -23,6 +23,9 @@ def test_exact():
 
     assert_allclose(theta(o=o), np.exp(-o), atol=1e-3)
 
+    # Test flux and sorptivity
+    assert_allclose(theta.fluxb(3.14), theta.sorptivity()/(2*np.sqrt(3.14)), atol=1e-6)
+
 
 def test_HF135():
 
