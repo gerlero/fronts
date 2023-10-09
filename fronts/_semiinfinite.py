@@ -77,6 +77,12 @@ class Solution(BaseSolution):
         """float: Parameter :math:`o_b`."""
         return self._ob
     
+    @property
+    def oi(self):
+        """float: Value of the Boltzmann variable at which the solution can be
+        considered to be equal to the initial condition."""
+        return self._oi
+    
     def rb(self, t):
         """
         Boundary location.
