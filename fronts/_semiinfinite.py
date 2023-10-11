@@ -300,21 +300,33 @@ class _Shooter():
 
         with np.errstate(divide='ignore', invalid='ignore'):
 
-            if self._method == 'explicit':
-                ivp_result = solve_ivp(self._fun,
-                                       t_span=(self._ob, np.inf),
-                                       y0=(b, d_dob),
-                                       method='DOP853',
-                                       events=self._events,
-                                       dense_output=True)
-            else:
-                ivp_result = solve_ivp(self._fun,
-                                       t_span=(self._ob, np.inf),
-                                       y0=(b, d_dob),
-                                       method='Radau',
-                                       jac=self._jac,
-                                       events=self._events,
-                                       dense_output=True)
+            try:
+                if self._method == 'explicit':
+                    ivp_result = solve_ivp(self._fun,
+                                            t_span=(self._ob, np.inf),
+                                            y0=(b, d_dob),
+                                            method='DOP853',
+                                            events=self._events,
+                                            dense_output=True)
+                else:
+                    ivp_result = solve_ivp(self._fun,
+                                            t_span=(self._ob, np.inf),
+                                            y0=(b, d_dob),
+                                            method='Radau',
+                                            jac=self._jac,
+                                            events=self._events,
+                                            dense_output=True)
+            except ValueError as e:
+                # Workaround for https://github.com/scipy/scipy/issues/17066
+                if str(e) == "`ts` must be strictly increasing or decreasing.":
+                    return self.Result(b=b,
+                                       d_dob=d_dob,
+                                       i_residual=self._theta_direction*np.inf,
+                                       D_calls=None,
+                                       o=None,
+                                       sol=None)
+                else:
+                    raise
 
         if ivp_result.success and ivp_result.t_events[0].size == 1:
 
