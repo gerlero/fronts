@@ -104,3 +104,10 @@ def test_badDi():
 def test_badDb():
     with pytest.raises(ValueError):
         theta = fronts.solve(D="theta", i=1, b=-1)
+
+
+def test_scipy_17066():
+    # Test workaround for https://github.com/scipy/scipy/issues/17066
+    D = fronts.D.letd(Dwt=0.7434647830290397, L=6.799039255017458, E=9405.665703239203, T=0.01188100116655999, theta_range=(0.012564800420959716, 0.7))
+    theta1 = fronts.solve(D=D, i=0.025, b=0.7 - 1e-7)
+    theta2 = fronts.solve(D=D, i=0.025, b=0.7 - 1e-7, method='explicit')
