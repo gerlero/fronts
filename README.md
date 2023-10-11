@@ -82,14 +82,14 @@ Optionally, Fronts can be installed in a [virtual environment](https://docs.pyth
 Let's say we want to solve the following initial-boundary value problem:
 
 > Find _c_ such that:
->
-> $$
-  \begin{cases}
-  \dfrac{\partial c}{\partial t} = \dfrac{\partial}{\partial r}\left(c^4\dfrac{\partial c}{\partial r}\right) & r>0,t>0\\
-  c(r,0)=0.1 & r>0\\
-  c(0,t)=1 & t>0\\
-  \end{cases}
-  $$
+
+$$
+\begin{cases}
+\dfrac{\partial c}{\partial t} = \dfrac{\partial}{\partial r}\left(c^4\dfrac{\partial c}{\partial r}\right) & r>0,t>0\\
+c(r,0)=0.1 & r>0\\
+c(0,t)=1 & t>0\\
+\end{cases}
+$$
 
 With Fronts, all it takes is a call to [``fronts.solve()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.solve.html). The function requires the diffusivity function ``D``, which we pass as an expression so that ``solve()`` can get the derivatives it needs by itself (alternatively, in this case we could also have used [``fronts.D.power_law()``](https://fronts.readthedocs.io/en/stable/stubs/fronts.D.power_law.html#fronts.D.power_law.) to obtain `D`). Besides ``D``, we only need to pass the initial and boundary values as ``i`` and ``b``. The Python code is:
 
@@ -134,6 +134,7 @@ plt.show()
 * [**Documentation**](https://fronts.readthedocs.io)
 * [**Examples**](https://github.com/gerlero/fronts/tree/main/examples)
 * [**Changelog**](https://github.com/gerlero/fronts/blob/main/CHANGELOG.md)
+* [**_Capillarity_ paper**](https://dx.doi.org/10.46690/capi.2023.02.02)
 
 
 ## Authors
