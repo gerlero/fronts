@@ -6,9 +6,9 @@ transformation.
 __version__ = '1.1.2'
 
 from ._boltzmann import ode, BaseSolution, o, do_dr, do_dt, r, t, as_o
-from ._semiinfinite import (solve, solve_flowrate, solve_from_guess, Solution, 
-                            inverse)
+from ._semiinfinite import solve, solve_flowrate, solve_from_guess, Solution
+from ._inverse import inverse, sorptivity
 
 __all__ = ['solve', 'solve_flowrate', 'solve_from_guess', 'Solution',
-           'inverse', 'ode', 'BaseSolution', 'o', 'do_dr', 'do_dt', 'r', 't',
-           'as_o']
+           'inverse', 'sorptivity' 'ode', 'BaseSolution', 'o', 'do_dr',
+           'do_dt', 'r', 't', 'as_o']

@@ -25,8 +25,7 @@ Solvers
        
     solve
     solve_flowrate
-    solve_from_guess  
-    inverse
+    solve_from_guess
 
 Solutions
 ~~~~~~~~~
@@ -37,7 +36,6 @@ Solutions
        
     Solution
     BaseSolution
-
 
 Boltzmann transformation
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,6 +50,15 @@ Boltzmann transformation
     r
     t
     as_o
+
+Inverse problems
+~~~~~~~~~~~~~~~~
+
+.. autosummary::
+    :toctree: stubs/
+    
+    inverse
+    sorptivity
 
 
 Module ``fronts.D``: Diffusivity functions

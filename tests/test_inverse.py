@@ -25,3 +25,9 @@ def test_exact_solve():
     theta = fronts.solve(D=D, b=1, i=0)
 
     assert_allclose(theta(o=o), np.exp(-o), atol=2e-3)
+
+
+def test_sorptivity():
+    o = np.linspace(0, 20, 100)
+    
+    assert fronts.sorptivity(o=o, samples=np.exp(-o), i=0, b=1) == pytest.approx(1, abs=5e-3)
