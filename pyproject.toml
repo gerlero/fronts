@@ -45,7 +45,7 @@ Changelog = "https://github.com/gerlero/fronts/blob/main/CHANGELOG.md"
 [project.optional-dependencies]
 examples = ["matplotlib==3.*"]
 test = [
-    "pytest==7.*",
+    "pytest>=7,<9",
     "pytest-cov",
     "autograd>=1.3,<2",
     "fronts[examples]",
