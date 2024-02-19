@@ -56,7 +56,7 @@ plt.grid(which='both')
 plt.legend()
 
 
-inverse = solve(D=D_inverse, i=theta_i, b=theta_b, verbose=2)
+inverse = solve(D=D_inverse, i=theta_i, b=theta_b, itol=1e-2, verbose=2)
 
 fig = plt.figure()
 fig.canvas.manager.set_window_title("Water content plot")
