@@ -6,7 +6,8 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "github.vscode-github-actions"
+                "github.vscode-github-actions",
+                "charliermarsh.ruff"
             ]
         }
     }
