@@ -30,6 +30,4 @@ def test_noflow():
 
 def test_badbracket():
     with pytest.raises(ValueError):
-        theta = fronts.solve_flowrate(
-            D="theta", i=0, Qb=1, radial="polar", b_bracket=(1, 2)
-        )
+        fronts.solve_flowrate(D="theta", i=0, Qb=1, radial="polar", b_bracket=(1, 2))

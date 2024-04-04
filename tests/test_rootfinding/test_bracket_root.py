@@ -1,6 +1,5 @@
 import pytest
 
-import sys
 
 import fronts._rootfinding as rootfinding
 
@@ -114,7 +113,7 @@ def test_iterationlimit():
     f.calls = 0
 
     with pytest.raises(rootfinding.IterationLimitReached) as exc_info:
-        result = rootfinding.bracket_root(f, (-1, -2))
+        rootfinding.bracket_root(f, (-1, -2))
 
     exc = exc_info.value
     check_iterationlimitreached(exc, f, f_calls=f.calls)

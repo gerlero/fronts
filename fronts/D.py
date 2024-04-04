@@ -299,7 +299,14 @@ def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
 
 
 def brooks_and_corey(
-    n, l=1.0, alpha=1.0, Ks=None, k=None, nu=1e-6, g=9.81, theta_range=(0.0, 1.0)
+    n,
+    l=1.0,  # noqa: E741
+    alpha=1.0,
+    Ks=None,
+    k=None,
+    nu=1e-6,
+    g=9.81,
+    theta_range=(0.0, 1.0),
 ):
     r"""
     Return a Brooks and Corey moisture diffusivity function.
@@ -405,7 +412,7 @@ def brooks_and_corey(
 def van_genuchten(
     n=None,
     m=None,
-    l=0.5,
+    l=0.5,  # noqa: E741
     alpha=1.0,
     Ks=None,
     k=None,
