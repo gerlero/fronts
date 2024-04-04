@@ -4,27 +4,26 @@ import sys
 
 import fronts._rootfinding as rootfinding
 
-from checkobj import (check_result,
-                      check_notabracketerror,
-                      check_iterationlimitreached)
+from checkobj import check_result, check_notabracketerror, check_iterationlimitreached
+
 
 def f(x):
     f.calls += 1
     return x**2 - 1
 
+
 def test_success():
-    ftol = 4 * sys.float_info.epsilon 
+    ftol = 4 * sys.float_info.epsilon
     f.calls = 0
 
     result = rootfinding.bisect(f, (0.1, -1.5), ftol=ftol)
 
-    check_result(result, f, ftol=ftol, f_calls=f.calls,
-                 has_bracket=True, has_root=True)
+    check_result(result, f, ftol=ftol, f_calls=f.calls, has_bracket=True, has_root=True)
     assert result.root == pytest.approx(-1)
 
 
 def test_instant():
-    bracket =  (-1.00001, 1)
+    bracket = (-1.00001, 1)
     f_bracket = (f(bracket[0]), None)
     f.calls = 0
 
@@ -36,7 +35,7 @@ def test_instant():
 
 
 def test_instant2():
-    bracket =  (1, -1.00001)
+    bracket = (1, -1.00001)
     f_bracket = (f(bracket[0]), None)
     f.calls = 0
 
@@ -68,7 +67,7 @@ def test_iterationlimit():
     exc = exc_info.value
     assert f.calls == 3
     check_iterationlimitreached(exc, f, f_calls=f.calls)
-    assert any(a == b for a,b in zip(bracket, exc.interval))
+    assert any(a == b for a, b in zip(bracket, exc.interval))
 
 
 def test_invalidftol():

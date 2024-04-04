@@ -31,8 +31,9 @@ flowrate = 1e-9  # m**3/s
 D = van_genuchten(n=n, alpha=alpha, k=k, theta_range=theta_range)
 
 
-theta = solve_flowrate(D=D, i=theta_i, Qb=flowrate, radial='cylindrical', height=h,
-	               verbose=2)
+theta = solve_flowrate(
+    D=D, i=theta_i, Qb=flowrate, radial="cylindrical", height=h, verbose=2
+)
 
 
 r = np.linspace(0, 5e-2, 200)  # m
@@ -42,35 +43,33 @@ fig = plt.figure()
 fig.canvas.manager.set_window_title("Water content plot")
 
 plt.title("Water content fields")
-plt.plot(r, theta(r,t[0]), label=f"t={t[0]} {t_unit}")
-plt.plot(r, theta(r,t[1]), label=f"t={t[1]} {t_unit}")
+plt.plot(r, theta(r, t[0]), label=f"t={t[0]} {t_unit}")
+plt.plot(r, theta(r, t[1]), label=f"t={t[1]} {t_unit}")
 plt.xlabel(f"position [{r_unit}]")
 plt.ylabel("water content [-]")
-plt.grid(which='both')
+plt.grid(which="both")
 plt.legend()
 
 fig = plt.figure()
 fig.canvas.manager.set_window_title("Velocity plot")
 
 plt.title("Velocity fields")
-plt.plot(r, theta.flux(r,t[0]), label=f"t={t[0]} {t_unit}")
-plt.plot(r, theta.flux(r,t[1]), label=f"t={t[1]} {t_unit}")
+plt.plot(r, theta.flux(r, t[0]), label=f"t={t[0]} {t_unit}")
+plt.plot(r, theta.flux(r, t[1]), label=f"t={t[1]} {t_unit}")
 plt.xlabel(f"position [{r_unit}]")
 plt.ylabel(f"Darcy velocity [{r_unit}/{t_unit}]")
-plt.grid(which='both')
+plt.grid(which="both")
 plt.legend()
 
 fig = plt.figure()
 fig.canvas.manager.set_window_title("Flow rate plot")
 
 plt.title("Flow rate fields")
-plt.plot(r, theta.flux(r,t[0]) * (2*pi*r) * h,
-         label=f"t={t[0]} {t_unit}")
-plt.plot(r, theta.flux(r,t[1]) * (2*pi*r) * h,
-         label=f"t={t[1]} {t_unit}")
+plt.plot(r, theta.flux(r, t[0]) * (2 * pi * r) * h, label=f"t={t[0]} {t_unit}")
+plt.plot(r, theta.flux(r, t[1]) * (2 * pi * r) * h, label=f"t={t[1]} {t_unit}")
 plt.xlabel(f"position [{r_unit}]")
 plt.ylabel(f"flow rate [{r_unit}**3/{t_unit}]")
-plt.grid(which='both')
+plt.grid(which="both")
 plt.legend()
 
 plt.show()

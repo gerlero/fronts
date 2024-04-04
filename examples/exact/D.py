@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 
 
 def D(theta):
-
-    return 0.5*(1 - np.log(theta)) # Exact solution: theta(o) = np.exp(-o)
+    return 0.5 * (1 - np.log(theta))  # Exact solution: theta(o) = np.exp(-o)
     # Reference: Philip (1960) Table 1, No. 13
     # https://doi.org/10.1071/PH600001
 
@@ -24,6 +23,6 @@ plt.title("D(theta)")
 plt.plot(theta, D(theta))
 plt.xlabel("theta")
 plt.ylabel("D")
-plt.grid(which='both')
+plt.grid(which="both")
 
 plt.show()

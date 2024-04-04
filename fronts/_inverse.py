@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.interpolate import PchipInterpolator
 
+
 def inverse(o, samples):
     r"""
     Extract `D` from samples of a solution.
@@ -78,7 +79,7 @@ def inverse(o, samples):
     samples = np.asarray(samples)
 
     dsamples = np.diff(samples)
-    if not(np.all(dsamples >= -1e-12) or np.all(dsamples <= 1e-12)):
+    if not (np.all(dsamples >= -1e-12) or np.all(dsamples <= 1e-12)):
         raise ValueError("samples must be monotonic")
 
     i = samples[-1]
@@ -94,27 +95,29 @@ def inverse(o, samples):
     o_funcs = [o_func.derivative(n) for n in range(4)]
 
     def D(theta, derivatives=0):
-
         Iodtheta = o_antiderivative_func(theta) - o_antiderivative_i
 
         do_dtheta = o_funcs[1](theta)
 
-        D = -(do_dtheta*Iodtheta)/2
+        D = -(do_dtheta * Iodtheta) / 2
 
-        if derivatives == 0: return D
+        if derivatives == 0:
+            return D
 
         o = o_funcs[0](theta)
         d2o_dtheta2 = o_funcs[2](theta)
 
-        dD_dtheta = -(d2o_dtheta2*Iodtheta + do_dtheta*o)/2
+        dD_dtheta = -(d2o_dtheta2 * Iodtheta + do_dtheta * o) / 2
 
-        if derivatives == 1: return D, dD_dtheta
+        if derivatives == 1:
+            return D, dD_dtheta
 
         d3o_dtheta3 = o_funcs[3](theta)
 
-        d2D_dtheta2 = -(d3o_dtheta3*Iodtheta + 2*d2o_dtheta2*o + do_dtheta**2)/2
+        d2D_dtheta2 = -(d3o_dtheta3 * Iodtheta + 2 * d2o_dtheta2 * o + do_dtheta**2) / 2
 
-        if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
+        if derivatives == 2:
+            return D, dD_dtheta, d2D_dtheta2
 
         raise ValueError("derivatives must be 0, 1, or 2")
 

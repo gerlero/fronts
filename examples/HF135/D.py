@@ -26,7 +26,7 @@ theta_i = 0.102755  # Computed from P0
 
 D = van_genuchten(n=n, alpha=alpha, k=k, theta_range=theta_range)
 
-theta = np.linspace(theta_range[0]+epsilon, theta_range[1]-epsilon, 200)
+theta = np.linspace(theta_range[0] + epsilon, theta_range[1] - epsilon, 200)
 
 
 fig = plt.figure()
@@ -36,7 +36,7 @@ plt.title("Diffusivity function")
 plt.plot(theta, D(theta))
 plt.xlabel("water content [-]")
 plt.ylabel(f"diffusivity [{r_unit}**2/{t_unit}]")
-plt.yscale('log')
-plt.grid(which='both')
+plt.yscale("log")
+plt.grid(which="both")
 
 plt.show()

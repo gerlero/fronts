@@ -2,11 +2,13 @@ import sympy
 
 import itertools
 
+
 def _derivative_names(var):
     yield "D"
     yield f"dD_d{var}"
     for n in itertools.count(start=2):
         yield f"d{n}D_d{var}{n}"
+
 
 def functionstr(var, expr):
     """
@@ -36,10 +38,10 @@ def functionstr(var, expr):
 
     exprs = [expr]
 
-    for n in range(1,3):
+    for n in range(1, 3):
         exprs.append(exprs[-1].diff(var))
 
-    xs, exprs = sympy.cse(exprs, optimizations='basic')
+    xs, exprs = sympy.cse(exprs, optimizations="basic")
 
     appearance = {(None, expr): n for (n, expr) in enumerate(exprs)}
 
@@ -52,11 +54,10 @@ def functionstr(var, expr):
     variable = {var}
 
     for x in xs:
-        if (x[1].free_symbols & variable):
+        if x[1].free_symbols & variable:
             variable.add(x[0])
 
-    lines = \
-     ["# - Code generated with functionstr() from ../symbolic/generate.py - #"]
+    lines = ["# - Code generated with functionstr() from ../symbolic/generate.py - #"]
 
     for x in xs:
         if x[0] not in variable:
@@ -64,20 +65,21 @@ def functionstr(var, expr):
 
     lines.append(f"def D({var}, derivatives=0):")
 
-
-    deriv_names = [name for name,_ in zip(_derivative_names(var), range(3))]
+    deriv_names = [name for name, _ in zip(_derivative_names(var), range(3))]
 
     for n, (name, expr) in enumerate(zip(deriv_names, exprs)):
         for x in xs:
             if x[0] in variable and appearance[x] == n:
                 lines.append("    {} = {}".format(*x))
         lines.append(f"    {name} = {expr}")
-        lines.append(f"    if derivatives == {n}: return {', '.join(deriv_names[:n+1])}")
+        lines.append(
+            f"    if derivatives == {n}: return {', '.join(deriv_names[:n+1])}"
+        )
+
+    lines.append('    raise ValueError("derivatives must be 0, 1 or 2")')
 
     lines.append(
-        '    raise ValueError("derivatives must be 0, 1 or 2")')
-
-    lines.append(
-      "# ----------------------- End generated code ----------------------- #")
+        "# ----------------------- End generated code ----------------------- #"
+    )
 
     return "\n".join(lines)

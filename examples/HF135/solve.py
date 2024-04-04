@@ -37,12 +37,13 @@ fig = plt.figure()
 fig.canvas.manager.set_window_title("Water content plot")
 
 plt.title(f"Water content field at t={validation.t} {validation.t_unit}")
-plt.plot(validation.r, theta(validation.r,validation.t),
-         color='steelblue', label="Fronts")
-plt.plot(validation.r, validation.theta, color='sandybrown', label=validation.name)
+plt.plot(
+    validation.r, theta(validation.r, validation.t), color="steelblue", label="Fronts"
+)
+plt.plot(validation.r, validation.theta, color="sandybrown", label=validation.name)
 plt.xlabel(f"position [{validation.r_unit}]")
 plt.ylabel("water content [-]")
-plt.grid(which='both')
+plt.grid(which="both")
 plt.legend()
 
 
@@ -50,13 +51,16 @@ fig = plt.figure()
 fig.canvas.manager.set_window_title("Velocity plot")
 
 plt.title(f"Velocity field at t={validation.t} {validation.t_unit}")
-plt.plot(validation.r, theta.flux(validation.r,validation.t),
-         color='steelblue', label="Fronts")
-plt.plot(validation.r, validation.velocity,
-         color='sandybrown', label=validation.name)
+plt.plot(
+    validation.r,
+    theta.flux(validation.r, validation.t),
+    color="steelblue",
+    label="Fronts",
+)
+plt.plot(validation.r, validation.velocity, color="sandybrown", label=validation.name)
 plt.xlabel(f"position [{validation.r_unit}]")
 plt.ylabel(f"Darcy velocity [{validation.r_unit}/{validation.t_unit}]")
-plt.grid(which='both')
+plt.grid(which="both")
 plt.legend()
 
 plt.show()

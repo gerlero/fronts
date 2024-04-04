@@ -6,9 +6,11 @@ import fronts._rootfinding as rootfinding
 
 from checkobj import check_result, check_iterationlimitreached
 
+
 def f(x):
     f.calls += 1
     return x**2 - 1
+
 
 def test_success():
     f.calls = 0
@@ -29,7 +31,9 @@ def test_growth_factor2():
 
     check_result(result, f, f_calls=f.calls, has_bracket=True, has_root=False)
 
-    assert result.bracket[1] - result.bracket[0] == pytest.approx((interval[1] - interval[0])*growth_factor**result.iterations)
+    assert result.bracket[1] - result.bracket[0] == pytest.approx(
+        (interval[1] - interval[0]) * growth_factor**result.iterations
+    )
 
 
 def test_instantbracket():
@@ -50,10 +54,14 @@ def test_instantroot():
     ftol = 0
     f.calls = 0
 
-    result = rootfinding.bracket_root(f, interval, f_interval=f_interval, ftol=ftol, maxiter=0)
+    result = rootfinding.bracket_root(
+        f, interval, f_interval=f_interval, ftol=ftol, maxiter=0
+    )
 
     assert f.calls == 1
-    check_result(result, f, ftol=ftol, f_calls=f.calls, has_bracket=False, has_root=True)
+    check_result(
+        result, f, ftol=ftol, f_calls=f.calls, has_bracket=False, has_root=True
+    )
 
 
 def test_instantroot2():
@@ -62,10 +70,14 @@ def test_instantroot2():
     ftol = 0
     f.calls = 0
 
-    result = rootfinding.bracket_root(f, interval, f_interval=f_interval, ftol=ftol, maxiter=0)
+    result = rootfinding.bracket_root(
+        f, interval, f_interval=f_interval, ftol=ftol, maxiter=0
+    )
 
     assert f.calls == 1
-    check_result(result, f, ftol=ftol, f_calls=f.calls, has_bracket=False, has_root=True)
+    check_result(
+        result, f, ftol=ftol, f_calls=f.calls, has_bracket=False, has_root=True
+    )
 
 
 def test_instantrootwithbracket():
@@ -74,7 +86,9 @@ def test_instantrootwithbracket():
     ftol = 1e-3
     f.calls = 0
 
-    result = rootfinding.bracket_root(f, interval, f_interval=f_interval, ftol=ftol, maxiter=0)
+    result = rootfinding.bracket_root(
+        f, interval, f_interval=f_interval, ftol=ftol, maxiter=0
+    )
 
     assert f.calls == 1
     check_result(result, f, ftol=ftol, f_calls=f.calls, has_bracket=True, has_root=True)
@@ -87,7 +101,9 @@ def test_instantrootwithbracket2():
     ftol = 1e-3
     f.calls = 0
 
-    result = rootfinding.bracket_root(f, interval, f_interval=f_interval, ftol=ftol, maxiter=0)
+    result = rootfinding.bracket_root(
+        f, interval, f_interval=f_interval, ftol=ftol, maxiter=0
+    )
 
     assert f.calls == 1
     check_result(result, f, ftol=ftol, f_calls=f.calls, has_bracket=True, has_root=True)
