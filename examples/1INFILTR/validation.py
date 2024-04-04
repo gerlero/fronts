@@ -28,7 +28,8 @@ velocity = []
 
 with open(_filename) as file:
     for i, line in enumerate(file):
-        if i <= 10: continue  # Skip time 0
+        if i <= 10:
+            continue  # Skip time 0
         if "Time:" in line:
             for s in line.split():
                 try:
@@ -42,11 +43,9 @@ with open(_filename) as file:
             skip_lines = 5
             max_rows = 1001
 
-            data = itertools.islice(file, skip_lines, max_rows+skip_lines)
+            data = itertools.islice(file, skip_lines, max_rows + skip_lines)
 
-            r_, theta_, velocity_ = np.loadtxt(data,
-                                               usecols=(1, 3, 6),
-                                               unpack=True)
+            r_, theta_, velocity_ = np.loadtxt(data, usecols=(1, 3, 6), unpack=True)
 
             if r is None:
                 r = -r_
@@ -61,16 +60,15 @@ r = np.asarray(r)
 theta = np.asarray(theta)
 velocity = np.asarray(velocity)
 
-assert(np.ndim(t) == 1)
-assert(np.ndim(r) == 1)
-assert(np.ndim(theta) == 2)
-assert(np.ndim(velocity) == 2)
+assert np.ndim(t) == 1
+assert np.ndim(r) == 1
+assert np.ndim(theta) == 2
+assert np.ndim(velocity) == 2
 
 
 name = "Hydrus-1D"
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     fig = plt.figure()
     fig.canvas.manager.set_window_title("Water content plot")
 
@@ -79,7 +77,7 @@ if __name__ == '__main__':
         plt.plot(r, theta_, label=f"{name}, t={t_} {t_unit}")
     plt.xlabel(f"r [{r_unit}]")
     plt.ylabel("water content [-]")
-    plt.grid(which='both')
+    plt.grid(which="both")
     plt.legend()
 
     fig = plt.figure()
@@ -90,7 +88,7 @@ if __name__ == '__main__':
         plt.plot(r, velocity_, label=f"{name}, t={t_} {t_unit}")
     plt.xlabel(f"r [{r_unit}]")
     plt.ylabel(f"Darcy velocity [{r_unit}/{t_unit}]")
-    plt.grid(which='both')
+    plt.grid(which="both")
     plt.legend()
 
     plt.show()

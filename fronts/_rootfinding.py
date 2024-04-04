@@ -1,7 +1,7 @@
 import itertools
 
 
-class Result():
+class Result:
     """
     Result from a succesful call to a function in this module.
 
@@ -22,8 +22,15 @@ class Result():
         Number of calls to `f`.
     """
 
-    def __init__(self, root=None, f_root=None, bracket=None, f_bracket=None,
-                 iterations=0, function_calls=0):
+    def __init__(
+        self,
+        root=None,
+        f_root=None,
+        bracket=None,
+        f_bracket=None,
+        iterations=0,
+        function_calls=0,
+    ):
         self.root = root
         self.f_root = f_root
         self.bracket = bracket
@@ -46,8 +53,8 @@ class IterationLimitReached(RuntimeError):
     function_calls : int
         Number of calls to `f`.
     """
-    def __init__(self, message, interval, f_interval, function_calls):
 
+    def __init__(self, message, interval, f_interval, function_calls):
         super().__init__(message)
 
         self.interval = interval
@@ -55,8 +62,9 @@ class IterationLimitReached(RuntimeError):
         self.function_calls = function_calls
 
 
-def bracket_root(f, interval, growth_factor=2, maxiter=100,
-                 f_interval=(None, None), ftol=None):
+def bracket_root(
+    f, interval, growth_factor=2, maxiter=100, f_interval=(None, None), ftol=None
+):
     """
     Find an interval that brackets a root of a function by searching in one
     direction.
@@ -138,49 +146,52 @@ def bracket_root(f, interval, growth_factor=2, maxiter=100,
     # Test for a root at the first endpoint (the second endpoint will be
     # checked inside the main loop)
     if ftol is not None and abs(f_a) <= ftol and abs(f_a) <= abs(f_b):
-        if f_a*f_b < 0:
-            return Result(root=a,
-                          f_root=f_a,
-                          bracket=(a,b),
-                          f_bracket=(f_a, f_b),
-                          iterations=0,
-                          function_calls=function_calls)
+        if f_a * f_b < 0:
+            return Result(
+                root=a,
+                f_root=f_a,
+                bracket=(a, b),
+                f_bracket=(f_a, f_b),
+                iterations=0,
+                function_calls=function_calls,
+            )
 
-        return Result(root=a,
-                      f_root=f_a,
-                      iterations=0,
-                      function_calls=function_calls)
+        return Result(root=a, f_root=f_a, iterations=0, function_calls=function_calls)
 
     # Test and move the interval until it brackets a root
     for iteration in itertools.count(start=0):
-
-        if f_a*f_b < 0:
+        if f_a * f_b < 0:
             if ftol is not None and abs(f_b) <= ftol:
-                return Result(root=b,
-                              f_root=f_b,
-                              bracket=(a,b),
-                              f_bracket=(f_a, f_b),
-                              iterations=iteration,
-                              function_calls=function_calls)
+                return Result(
+                    root=b,
+                    f_root=f_b,
+                    bracket=(a, b),
+                    f_bracket=(f_a, f_b),
+                    iterations=iteration,
+                    function_calls=function_calls,
+                )
 
-            return Result(bracket=(a,b),
-                          f_bracket=(f_a, f_b),
-                          iterations=iteration,
-                          function_calls=function_calls)
+            return Result(
+                bracket=(a, b),
+                f_bracket=(f_a, f_b),
+                iterations=iteration,
+                function_calls=function_calls,
+            )
 
         if ftol is not None and abs(f_b) <= ftol:
-            return Result(root=b,
-                          f_root=f_b,
-                          iterations=0,
-                          function_calls=function_calls)
+            return Result(
+                root=b, f_root=f_b, iterations=0, function_calls=function_calls
+            )
 
         if maxiter is not None and iteration >= maxiter:
-            raise IterationLimitReached(f"failed to converge after {maxiter} iterations",
-                                        interval=(a,b),
-                                        f_interval=(f_a, f_b),
-                                        function_calls=function_calls)
+            raise IterationLimitReached(
+                f"failed to converge after {maxiter} iterations",
+                interval=(a, b),
+                f_interval=(f_a, f_b),
+                function_calls=function_calls,
+            )
 
-        a, b = b, b + growth_factor*(b-a)
+        a, b = b, b + growth_factor * (b - a)
         f_a, f_b = f_b, f(b)
         function_calls += 1
 
@@ -198,8 +209,8 @@ class NotABracketError(ValueError):
     function_calls : int
         Number of calls to `f`.
     """
-    def __init__(self, message, f_interval, function_calls):
 
+    def __init__(self, message, f_interval, function_calls):
         super().__init__(message)
 
         self.f_interval = f_interval
@@ -276,11 +287,12 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
         function_calls += 1
 
     # Check that the bracket is valid
-    if f_a*f_b > 0:
-        raise NotABracketError("f must have different signs at the bracket "
-                               "endpoints",
-                               f_interval=(f_a, f_b),
-                               function_calls=function_calls)
+    if f_a * f_b > 0:
+        raise NotABracketError(
+            "f must have different signs at the bracket " "endpoints",
+            f_interval=(f_a, f_b),
+            function_calls=function_calls,
+        )
 
     # Test the endpoints themselves for a root
     if abs(f_a) <= ftol or abs(f_b) <= ftol:
@@ -289,35 +301,40 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
         else:
             root, f_root = b, f_b
 
-        return Result(root=root,
-                      f_root=f_root,
-                      bracket=(a,b),
-                      f_bracket=(f_a, f_b),
-                      iterations=0,
-                      function_calls=function_calls)
+        return Result(
+            root=root,
+            f_root=f_root,
+            bracket=(a, b),
+            f_bracket=(f_a, f_b),
+            iterations=0,
+            function_calls=function_calls,
+        )
 
     # Perform the actual bisection
     for iteration in itertools.count(start=1):
-
         if maxiter is not None and iteration > maxiter:
-            raise IterationLimitReached(f"failed to converge after {maxiter} iterations",
-                                        interval=(a,b),
-                                        f_interval=(f_a, f_b),
-                                        function_calls=function_calls)
+            raise IterationLimitReached(
+                f"failed to converge after {maxiter} iterations",
+                interval=(a, b),
+                f_interval=(f_a, f_b),
+                function_calls=function_calls,
+            )
 
-        m = (a + b)/2
+        m = (a + b) / 2
         f_m = f(m)
         function_calls += 1
 
-        if f_m*f_a > 0:
+        if f_m * f_a > 0:
             a, f_a = m, f_m
         else:
             b, f_b = m, f_m
 
         if abs(f_m) <= ftol:
-            return Result(root=m,
-                          f_root=f_m,
-                          bracket=(a,b),
-                          f_bracket=(f_a, f_b),
-                          iterations=iteration,
-                          function_calls=function_calls)
+            return Result(
+                root=m,
+                f_root=f_m,
+                bracket=(a, b),
+                f_bracket=(f_a, f_b),
+                iterations=iteration,
+                function_calls=function_calls,
+            )

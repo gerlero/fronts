@@ -40,7 +40,7 @@ def o(r, t):
     t
     as_o
     """
-    return r/t**0.5
+    return r / t**0.5
 
 
 def do_dr(r, t):
@@ -69,7 +69,7 @@ def do_dr(r, t):
     o
     do_dt
     """
-    return 1/t**0.5
+    return 1 / t**0.5
 
 
 def do_dt(r, t):
@@ -98,7 +98,7 @@ def do_dt(r, t):
     o
     do_dr
     """
-    return -o(r,t)/(2*t)
+    return -o(r, t) / (2 * t)
 
 
 def r(o, t):
@@ -125,7 +125,7 @@ def r(o, t):
     o
     t
     """
-    return o*t**0.5
+    return o * t**0.5
 
 
 def t(o, r):
@@ -152,10 +152,12 @@ def t(o, r):
     o
     r
     """
-    return (r/o)**2
+    return (r / o) ** 2
 
 
 _o = o
+
+
 def as_o(r=None, t=None, o=None):
     """
     Transform to the Boltzmann variable if called with `r` and `t`. Passes the
@@ -197,10 +199,8 @@ def as_o(r=None, t=None, o=None):
     return _o(r, t)
 
 
-_k = {False: 0,
-      'cylindrical': 1,
-      'polar': 1,
-      'spherical': 2}
+_k = {False: 0, "cylindrical": 1, "polar": 1, "spherical": 2}
+
 
 def ode(D, radial=False, catch_errors=False):
     r"""
@@ -310,53 +310,51 @@ def ode(D, radial=False, catch_errors=False):
     try:
         k = _k[radial]
     except KeyError:
-        raise ValueError(f"radial must be one of {{{', '.join(repr(key) for key in _k)}}}") from None
-
+        raise ValueError(
+            f"radial must be one of {{{', '.join(repr(key) for key in _k)}}}"
+        ) from None
 
     def fun(o, y):
-
         theta, dtheta_do = y
 
         try:
             D1 = D(theta, 1)
         except (ValueError, ArithmeticError):
             if catch_errors:
-                return np.array((dtheta_do, np.nan*o), float)
+                return np.array((dtheta_do, np.nan * o), float)
             else:
                 raise
 
         D_, dD_dtheta = D1
 
-        k_o = k/o if k else 0
+        k_o = k / o if k else 0
 
-        N = (o/2 + dD_dtheta*dtheta_do)
+        N = o / 2 + dD_dtheta * dtheta_do
 
         try:
-            R = N/D_
+            R = N / D_
         except ZeroDivisionError:
             if catch_errors:
-                R = N*np.inf
+                R = N * np.inf
             else:
                 raise
 
-        d2theta_do2 = -(R + k_o)*dtheta_do
+        d2theta_do2 = -(R + k_o) * dtheta_do
 
         try:
             return np.array((dtheta_do, d2theta_do2), float)
         except TypeError:
             if catch_errors:
-                return np.array((dtheta_do, np.nan*o), float)
+                return np.array((dtheta_do, np.nan * o), float)
             else:
                 raise
 
-
     def jac(o, y):
-
         theta, dtheta_do = y
 
-        J = np.empty((2,2)+np.shape(o))
-        J[0,0] = 0
-        J[0,1] = 1
+        J = np.empty((2, 2) + np.shape(o))
+        J[0, 0] = 0
+        J[0, 1] = 1
 
         try:
             D2 = D(theta, 2)
@@ -367,7 +365,7 @@ def ode(D, radial=False, catch_errors=False):
                     # However, this is a very unlikely edge case.
                     D1 = D(theta, 1)
                 except (ValueError, ArithmeticError):
-                    J[1,:] = np.nan
+                    J[1, :] = np.nan
                     return J
                 else:
                     D_, dD_dtheta = D1
@@ -377,31 +375,31 @@ def ode(D, radial=False, catch_errors=False):
         else:
             D_, dD_dtheta, d2D_dtheta2 = D2
 
-        k_o = k/o if k else 0
+        k_o = k / o if k else 0
 
         # Jacobian expressions were obtained symbolically
         # Source: ../symbolic/ode_jac.py
         try:
-            x0 = 1/D_
+            x0 = 1 / D_
         except ZeroDivisionError:
             if catch_errors:
                 x0 = np.inf
             else:
                 raise
-        x1 = dD_dtheta*dtheta_do
-        x2 = x0*(o + 2*x1)/2
+        x1 = dD_dtheta * dtheta_do
+        x2 = x0 * (o + 2 * x1) / 2
         try:
-            J[1,0] = -dtheta_do*x0*(d2D_dtheta2*dtheta_do - dD_dtheta*x2)
+            J[1, 0] = -dtheta_do * x0 * (d2D_dtheta2 * dtheta_do - dD_dtheta * x2)
         except TypeError:
             if catch_errors:
-                J[1,0] = np.nan
+                J[1, 0] = np.nan
             else:
                 raise
         try:
-            J[1,1] = -k_o - x0*x1 - x2
+            J[1, 1] = -k_o - x0 * x1 - x2
         except TypeError:
             if catch_errors:
-                J[1,1] = np.nan
+                J[1, 1] = np.nan
             else:
                 raise
 
@@ -410,7 +408,7 @@ def ode(D, radial=False, catch_errors=False):
     return fun, jac
 
 
-class BaseSolution():
+class BaseSolution:
     r"""
     Base class for solutions using the Boltzmann transformation.
 
@@ -436,6 +434,7 @@ class BaseSolution():
     --------
     ode
     """
+
     def __init__(self, sol, D):
         self._sol = sol
         self._D = D
@@ -461,7 +460,7 @@ class BaseSolution():
         -------
         float or numpy.ndarray, shape (n,)
         """
-        return self._sol(as_o(r,t,o))[0]
+        return self._sol(as_o(r, t, o))[0]
 
     def d_dr(self, r, t):
         r"""
@@ -480,7 +479,7 @@ class BaseSolution():
         -------
         float or numpy.ndarray, shape (n,)
         """
-        return self.d_do(r,t) * do_dr(r,t)
+        return self.d_do(r, t) * do_dr(r, t)
 
     def d_dt(self, r, t):
         r"""
@@ -499,7 +498,7 @@ class BaseSolution():
         -------
         float or numpy.ndarray, shape (n,)
         """
-        return self.d_do(r,t) * do_dt(r,t)
+        return self.d_do(r, t) * do_dt(r, t)
 
     def flux(self, r, t):
         r"""
@@ -520,7 +519,7 @@ class BaseSolution():
         -------
         float or numpy.ndarray, shape (n,)
         """
-        return -self._D(self(r,t)) * self.d_dr(r,t)
+        return -self._D(self(r, t)) * self.d_dr(r, t)
 
     def d_do(self, r=None, t=None, o=None):
         r"""
@@ -544,7 +543,7 @@ class BaseSolution():
         -------
         float or numpy.ndarray, shape (n,)
         """
-        return self._sol(as_o(r,t,o))[1]
+        return self._sol(as_o(r, t, o))[1]
 
     def sorptivity(self, *, o):
         r"""

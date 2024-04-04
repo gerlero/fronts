@@ -5,6 +5,7 @@ from numpy.testing import assert_allclose
 
 import fronts
 
+
 def test_exact():
     # Reference: Philip (1960) Table 1, No. 13
     # https://doi.org/10.1071/PH600001
@@ -14,7 +15,7 @@ def test_exact():
 
     theta = np.linspace(1e-6, 1, 100)
 
-    assert_allclose(D(theta), 0.5*(1 - np.log(theta)), rtol=5e-2)
+    assert_allclose(D(theta), 0.5 * (1 - np.log(theta)), rtol=5e-2)
 
 
 def test_exact_solve():
@@ -29,5 +30,7 @@ def test_exact_solve():
 
 def test_sorptivity():
     o = np.linspace(0, 20, 100)
-    
-    assert fronts.sorptivity(o=o, samples=np.exp(-o), i=0, b=1) == pytest.approx(1, abs=5e-3)
+
+    assert fronts.sorptivity(o=o, samples=np.exp(-o), i=0, b=1) == pytest.approx(
+        1, abs=5e-3
+    )

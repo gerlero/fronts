@@ -47,10 +47,10 @@ def constant(D0):
         raise ValueError("D0 must be positive")
 
     def D(_, derivatives=0):
+        if derivatives == 0:
+            return D0
 
-        if derivatives == 0: return D0
-
-        return (D0,) + (0,)*derivatives
+        return (D0,) + (0,) * derivatives
 
     return D
 
@@ -92,7 +92,7 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
             *   If `max_derivatives` is 2, ``D(theta, 2)`` returns the value of
                 :math:`D`, its first derivative, and its second derivative at
                 ``theta``
-        
+
         If `vectorized` is True, the argument ``theta`` may be a single float
         or a NumPy array in all cases. If `vectorized` is False, ``theta`` may
         be either a float or an array when `D` is called as ``D(theta)``, but
@@ -118,7 +118,6 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
         raise ValueError("max_derivatives must be 0, 1 or 2")
 
     if max_derivatives == 0:
-
         func = sympy.lambdify(theta, expr, modules=np)
 
         def D(theta):
@@ -133,18 +132,14 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
 
         return D
 
-
     exprs = [expr]
     for _ in range(max_derivatives):
         exprs.append(exprs[-1].diff(theta))
 
-
     if vectorized:
-        
         funcs = tuple(sympy.lambdify(theta, expr, modules=np) for expr in exprs)
 
         def D(theta, derivatives=0):
-
             try:
                 # Convert scalars to NumPy scalars; avoids
                 # https://github.com/sympy/sympy/issues/11306
@@ -161,17 +156,17 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
             if derivatives == 2 and max_derivatives == 2:
                 return funcs[0](theta), funcs[1](theta), funcs[2](theta)
 
-            raise ValueError(f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}")
+            raise ValueError(
+                f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}"
+            )
 
     else:
-
         f0v = sympy.lambdify(theta, exprs[0], modules=np)
-        f01 = sympy.lambdify(theta, exprs[:2], modules='math')
+        f01 = sympy.lambdify(theta, exprs[:2], modules="math")
         if max_derivatives == 2:
-            f2 = sympy.lambdify(theta, exprs[2], modules='math')
+            f2 = sympy.lambdify(theta, exprs[2], modules="math")
 
         def D(theta, derivatives=0):
-
             if derivatives == 0:
                 try:
                     # Convert scalars to NumPy scalars; avoids
@@ -188,7 +183,9 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
             if derivatives == 2 and max_derivatives == 2:
                 return f01(theta) + [f2(theta)]
 
-            raise ValueError(f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}")
+            raise ValueError(
+                f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}"
+            )
 
     return D
 
@@ -232,18 +229,20 @@ def power_law(k, a=1.0, epsilon=0.0):
     """
 
     def D(theta, derivatives=0):
+        D = a * theta**k + epsilon
 
-        D = a*theta**k + epsilon
+        if derivatives == 0:
+            return D
 
-        if derivatives == 0: return D
+        dD_dtheta = k * D / theta
 
-        dD_dtheta = k*D/theta
+        if derivatives == 1:
+            return D, dD_dtheta
 
-        if derivatives == 1: return D, dD_dtheta
+        d2D_dtheta2 = (k - 1) * dD_dtheta / theta
 
-        d2D_dtheta2 = (k-1)*dD_dtheta/theta
-
-        if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
+        if derivatives == 2:
+            return D, dD_dtheta, d2D_dtheta2
 
         raise ValueError("derivatives must be 0, 1, or 2")
 
@@ -293,14 +292,15 @@ def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
             raise ValueError("nu must be positive")
         if g <= 0:
             raise ValueError("g must be positive")
-        return g*k/nu
+        return g * k / nu
 
     else:
         return 1
 
 
-def brooks_and_corey(n, l=1.0, alpha=1.0, Ks=None, k=None, nu=1e-6, g=9.81,
-                     theta_range=(0.0,1.0)):
+def brooks_and_corey(
+    n, l=1.0, alpha=1.0, Ks=None, k=None, nu=1e-6, g=9.81, theta_range=(0.0, 1.0)
+):
     r"""
     Return a Brooks and Corey moisture diffusivity function.
 
@@ -310,7 +310,7 @@ def brooks_and_corey(n, l=1.0, alpha=1.0, Ks=None, k=None, nu=1e-6, g=9.81,
 
     .. math:: D(\theta) = \frac{K_S S_e^{1/n + l + 1}}
                                {\alpha n (\theta_s-\theta_r)}
-        
+
 
     where:
 
@@ -379,26 +379,40 @@ def brooks_and_corey(n, l=1.0, alpha=1.0, Ks=None, k=None, nu=1e-6, g=9.81,
 
     # - Code generated with functionstr() from ../symbolic/generate.py - #
     # Source: ../symbolic/brooks_and_corey.py
-    x1 = 1/n
-    x2 = n*(l + 2) + 1
-    x3 = x1*x2
+    x1 = 1 / n
+    x2 = n * (l + 2) + 1
+    x3 = x1 * x2
+
     def D(theta, derivatives=0):
         x0 = theta - theta_range[0]
-        x4 = Ks*x1*(-x0/(theta_range[0] - theta_range[1]))**x3/alpha
-        D = x4/x0
-        if derivatives == 0: return D
-        dD_dtheta = x4*(x3 - 1)/x0**2
-        if derivatives == 1: return D, dD_dtheta
-        d2D_dtheta2 = x4*(-3*x3 + 2 + x2**2/n**2)/x0**3
-        if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
+        x4 = Ks * x1 * (-x0 / (theta_range[0] - theta_range[1])) ** x3 / alpha
+        D = x4 / x0
+        if derivatives == 0:
+            return D
+        dD_dtheta = x4 * (x3 - 1) / x0**2
+        if derivatives == 1:
+            return D, dD_dtheta
+        d2D_dtheta2 = x4 * (-3 * x3 + 2 + x2**2 / n**2) / x0**3
+        if derivatives == 2:
+            return D, dD_dtheta, d2D_dtheta2
         raise ValueError("derivatives must be 0, 1 or 2")
+
     # ----------------------- End generated code ----------------------- #
 
     return D
 
 
-def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
-                  g=9.81, theta_range=(0.0,1.0)):
+def van_genuchten(
+    n=None,
+    m=None,
+    l=0.5,
+    alpha=1.0,
+    Ks=None,
+    k=None,
+    nu=1e-6,
+    g=9.81,
+    theta_range=(0.0, 1.0),
+):
     r"""
     Return a Van Genuchten moisture diffusivity function.
 
@@ -485,12 +499,12 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
             raise TypeError("cannot pass both n and m")
         if n <= 1:
             raise ValueError("n must be greater than 1.0")
-        m = 1-1/n
+        m = 1 - 1 / n
 
     elif m is None:
         raise TypeError("either n or m must be given")
 
-    if not (0<m<1):
+    if not (0 < m < 1):
         raise ValueError("m must be strictly between 0.0 and 1.0")
 
     if alpha <= 0:
@@ -498,49 +512,91 @@ def van_genuchten(n=None, m=None, l=0.5, alpha=1.0, Ks=None, k=None, nu=1e-6,
 
     Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
 
-    if theta_range[1]-theta_range[0] <= 0:
+    if theta_range[1] - theta_range[0] <= 0:
         raise ValueError("theta_range[1] must be greater than theta_range[0]")
 
     # - Code generated with functionstr() from ../symbolic/generate.py - #
     # Source: ../symbolic/van_genuchten.py
-    x1 = 1/(theta_range[0] - theta_range[1])
-    x3 = 1/m
+    x1 = 1 / (theta_range[0] - theta_range[1])
+    x3 = 1 / m
     x8 = l - x3
+
     def D(theta, derivatives=0):
         x0 = theta - theta_range[0]
-        x2 = -x0*x1
+        x2 = -x0 * x1
         x4 = x2**x3
-        x5 = (1 - x4)**m
+        x5 = (1 - x4) ** m
         x6 = x5 - 2
-        x7 = (x5*x6 + 1)/x5
-        x9 = Ks*x1*x2**x8*x3*(m - 1)/alpha
-        D = x7*x9
-        if derivatives == 0: return D
-        x10 = (x1*(-theta + theta_range[0]))**x3
-        x11 = (1 - x10)**m
-        x12 = x4/(x10 - 1)
-        x13 = (x11*(x11 - 2) + 1)/x11
-        dD_dtheta = x9*(-x12*x13 + 2*x12*(x11 - 1) + x13*x8)/x0
-        if derivatives == 1: return D, dD_dtheta
+        x7 = (x5 * x6 + 1) / x5
+        x9 = Ks * x1 * x2**x8 * x3 * (m - 1) / alpha
+        D = x7 * x9
+        if derivatives == 0:
+            return D
+        x10 = (x1 * (-theta + theta_range[0])) ** x3
+        x11 = (1 - x10) ** m
+        x12 = x4 / (x10 - 1)
+        x13 = (x11 * (x11 - 2) + 1) / x11
+        dD_dtheta = x9 * (-x12 * x13 + 2 * x12 * (x11 - 1) + x13 * x8) / x0
+        if derivatives == 1:
+            return D, dD_dtheta
         x14 = x4 - 1
-        x15 = x2**(2*x3)/x14**2
-        x16 = 4*x5 - 4
-        x17 = x4/x14
-        x18 = x7*x8
-        x19 = x17*x7
-        x20 = x15*x7
-        x21 = x3*x5
-        x22 = x3*x6
-        d2D_dtheta2 = x9*(-x15*x16 + x16*x17*x8 - 2*x17*x18 + x17*(-x17*x21 - x17*x22 + 3*x17*x5 + x17*x6 + x21 + x22 - 2*x5 + 2) - x18 - x19*x3 + x19 + x20*x3 + x20 + x7*x8**2)/x0**2
-        if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
+        x15 = x2 ** (2 * x3) / x14**2
+        x16 = 4 * x5 - 4
+        x17 = x4 / x14
+        x18 = x7 * x8
+        x19 = x17 * x7
+        x20 = x15 * x7
+        x21 = x3 * x5
+        x22 = x3 * x6
+        d2D_dtheta2 = (
+            x9
+            * (
+                -x15 * x16
+                + x16 * x17 * x8
+                - 2 * x17 * x18
+                + x17
+                * (
+                    -x17 * x21
+                    - x17 * x22
+                    + 3 * x17 * x5
+                    + x17 * x6
+                    + x21
+                    + x22
+                    - 2 * x5
+                    + 2
+                )
+                - x18
+                - x19 * x3
+                + x19
+                + x20 * x3
+                + x20
+                + x7 * x8**2
+            )
+            / x0**2
+        )
+        if derivatives == 2:
+            return D, dD_dtheta, d2D_dtheta2
         raise ValueError("derivatives must be 0, 1 or 2")
+
     # ----------------------- End generated code ----------------------- #
 
     return D
 
 
-def letxs(Lw, Ew, Tw, Ls, Es, Ts, Ks=None, k=None, nu=1e-6, g=9.81, alpha=1.0,
-          theta_range=(0.0,1.0)):
+def letxs(
+    Lw,
+    Ew,
+    Tw,
+    Ls,
+    Es,
+    Ts,
+    Ks=None,
+    k=None,
+    nu=1e-6,
+    g=9.81,
+    alpha=1.0,
+    theta_range=(0.0, 1.0),
+):
     r"""
     Return a diffusivity function that combines the LETx relative permeability
     correlation and the LETs capillary pressure correlation for spontaneous
@@ -548,7 +604,7 @@ def letxs(Lw, Ew, Tw, Ls, Es, Ts, Ks=None, k=None, nu=1e-6, g=9.81, alpha=1.0,
     functions.
 
     Given the saturated hydraulic conductivity :math:`K_S`, irreducible water
-    saturation :math:`S_{wir}`, capillary pressure :math:`P_{cir}` at 
+    saturation :math:`S_{wir}`, capillary pressure :math:`P_{cir}` at
     irreducible saturation, and shape parameters :math:`L_w`, :math:`E_w`,
     :math:`T_w` and :math:`L_s`, :math:`E_s`, :math:`T_s`; the LET-based
     diffusivity function :math:`D` is defined as:
@@ -563,9 +619,9 @@ def letxs(Lw, Ew, Tw, Ls, Es, Ts, Ks=None, k=None, nu=1e-6, g=9.81, alpha=1.0,
     .. math:: K_{rw} =
                      \frac{S_{wp}^{L_w}}{S_{wp}^{L_w} + E_w (1 - S_{wp})^{T_w}}
 
-    .. math:: P_c = 
+    .. math:: P_c =
        P_{cir} \frac{(1 - S_{ws})^{L_s}}{(1 - S_{ws})^{L_s} + E_s S_{ws}^{T_s}}
-    
+
     with:
 
     .. math:: S_{wp} = S_{ws} = \frac{\theta - \theta_r}{\theta_s - \theta_r}
@@ -638,89 +694,142 @@ def letxs(Lw, Ew, Tw, Ls, Es, Ts, Ks=None, k=None, nu=1e-6, g=9.81, alpha=1.0,
     """
 
     Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
-    
+
     # - Code generated with functionstr() from ../symbolic/generate.py - #
     x0 = theta_range[0] - theta_range[1]
-    x2 = 1/x0
-    x12 = 1/theta_range[1]
+    x2 = 1 / x0
+    x12 = 1 / theta_range[1]
     x15 = -x0
-    x16 = 1/x15
+    x16 = 1 / x15
     x41 = Ls - Ts
     x44 = -x41
-    x45 = 2*x44
-    x47 = x2*x45
+    x45 = 2 * x44
+    x47 = x2 * x45
     x52 = Lw**2
     x53 = Ts**2
     x58 = Ls**2
+
     def D(theta, derivatives=0):
         x1 = theta - theta_range[0]
-        x3 = x1*x2
+        x3 = x1 * x2
         x4 = x3 + 1
         x5 = x4**Ls
         x6 = -x3
         x7 = x6**Lw
-        x8 = Es*x6**Ts
-        x9 = 1/x4
-        x10 = -Ls*x3 + Ts*x3 + Ts
-        x11 = x10*x9
-        x13 = 1/x1
-        x14 = Ks*x12*x13*x7*x8/(alpha*(theta_range[0]*x12 - 1))
-        D = x0*x11*x14*x5/((x5 + x8)**2*(Ew*x4**Tw + x7))
-        if derivatives == 0: return D
-        x17 = x1*x16
+        x8 = Es * x6**Ts
+        x9 = 1 / x4
+        x10 = -Ls * x3 + Ts * x3 + Ts
+        x11 = x10 * x9
+        x13 = 1 / x1
+        x14 = Ks * x12 * x13 * x7 * x8 / (alpha * (theta_range[0] * x12 - 1))
+        D = x0 * x11 * x14 * x5 / ((x5 + x8) ** 2 * (Ew * x4**Tw + x7))
+        if derivatives == 0:
+            return D
+        x17 = x1 * x16
         x18 = x17 - 1
-        x19 = 1/x18
-        x20 = Ls*x10
-        x21 = x19*x20
-        x22 = x0*x10
-        x23 = x13*x22
+        x19 = 1 / x18
+        x20 = Ls * x10
+        x21 = x19 * x20
+        x22 = x0 * x10
+        x23 = x13 * x22
         x24 = -x18
-        x25 = Ew*x24**Tw
+        x25 = Ew * x24**Tw
         x26 = x25 + x7
-        x27 = 1/x26
-        x28 = Lw*x13
-        x29 = Tw*x25
-        x30 = x19*x2
-        x31 = -x28*x7 + x29*x30
+        x27 = 1 / x26
+        x28 = Lw * x13
+        x29 = Tw * x25
+        x30 = x19 * x2
+        x31 = -x28 * x7 + x29 * x30
         x32 = x24**Ls
         x33 = x32 + x8
-        x34 = 1/x33
-        x35 = Es*x17**Ts
-        x36 = Ts*x13
-        x37 = Ls*x32
-        x38 = -x16*x37/x24 + x35*x36
-        x39 = x34*x38
-        x40 = 2*x22
-        x42 = x33**(-2)
-        x43 = x14*x27*x32*x42*x9
-        dD_dtheta = x43*(Lw*x0*x10*x13 + Ts*x0*x10*x13 + x0*x10*x27*x31 - x11 - x21 - x23 - x39*x40 - x41)
-        if derivatives == 1: return D, dD_dtheta
-        x46 = x13*x45
-        x48 = x1**(-2)
-        x49 = x22*x48
-        x50 = 2*x49
-        x51 = 3*x49
-        x54 = 2*x11
-        x55 = x10*x2
-        x56 = 2*x21
-        x57 = x18**(-2)
-        x59 = 4*x39
-        x60 = x27*x31
-        x61 = 2*x60
-        x62 = Lw*x23
-        x63 = Ts*x23
-        x64 = x35*x48
-        x65 = 1/(x15**2*x24**2)
-        x66 = x17**Lw*x48
-        d2D_dtheta2 = x43*(-Ls*x19*x47 + Ls*x30*x54 + Lw*Ts*x50 - Lw*x51 + Ts*x46 - Ts*x51 + x11*x59 + x13*x54 + x13*x56 - x2*x20*x57 + x21*x59 - x22*x27*(-Lw*x66 + Tw**2*x25*x65 - x29*x65 + x52*x66) + 6*x22*x38**2*x42 - x22*x59*x60 + x23*x59 - x23*x61 + x28*x45 - x28*x54 - x28*x56 - x34*x40*(-Ts*x64 + x32*x58*x65 - x37*x65 + x53*x64) - x36*x54 - x36*x56 - x44*x59 + x45*x60 - x46 - x47*x9 + x49*x52 + x49*x53 + x50 - x54*x60 + x55*x57*x58 - x56*x60 - x59*x62 - x59*x63 + x61*x62 + x61*x63 + 2*x55/x4**2 + x31**2*x40/x26**2)
-        if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
+        x34 = 1 / x33
+        x35 = Es * x17**Ts
+        x36 = Ts * x13
+        x37 = Ls * x32
+        x38 = -x16 * x37 / x24 + x35 * x36
+        x39 = x34 * x38
+        x40 = 2 * x22
+        x42 = x33 ** (-2)
+        x43 = x14 * x27 * x32 * x42 * x9
+        dD_dtheta = x43 * (
+            Lw * x0 * x10 * x13
+            + Ts * x0 * x10 * x13
+            + x0 * x10 * x27 * x31
+            - x11
+            - x21
+            - x23
+            - x39 * x40
+            - x41
+        )
+        if derivatives == 1:
+            return D, dD_dtheta
+        x46 = x13 * x45
+        x48 = x1 ** (-2)
+        x49 = x22 * x48
+        x50 = 2 * x49
+        x51 = 3 * x49
+        x54 = 2 * x11
+        x55 = x10 * x2
+        x56 = 2 * x21
+        x57 = x18 ** (-2)
+        x59 = 4 * x39
+        x60 = x27 * x31
+        x61 = 2 * x60
+        x62 = Lw * x23
+        x63 = Ts * x23
+        x64 = x35 * x48
+        x65 = 1 / (x15**2 * x24**2)
+        x66 = x17**Lw * x48
+        d2D_dtheta2 = x43 * (
+            -Ls * x19 * x47
+            + Ls * x30 * x54
+            + Lw * Ts * x50
+            - Lw * x51
+            + Ts * x46
+            - Ts * x51
+            + x11 * x59
+            + x13 * x54
+            + x13 * x56
+            - x2 * x20 * x57
+            + x21 * x59
+            - x22 * x27 * (-Lw * x66 + Tw**2 * x25 * x65 - x29 * x65 + x52 * x66)
+            + 6 * x22 * x38**2 * x42
+            - x22 * x59 * x60
+            + x23 * x59
+            - x23 * x61
+            + x28 * x45
+            - x28 * x54
+            - x28 * x56
+            - x34 * x40 * (-Ts * x64 + x32 * x58 * x65 - x37 * x65 + x53 * x64)
+            - x36 * x54
+            - x36 * x56
+            - x44 * x59
+            + x45 * x60
+            - x46
+            - x47 * x9
+            + x49 * x52
+            + x49 * x53
+            + x50
+            - x54 * x60
+            + x55 * x57 * x58
+            - x56 * x60
+            - x59 * x62
+            - x59 * x63
+            + x61 * x62
+            + x61 * x63
+            + 2 * x55 / x4**2
+            + x31**2 * x40 / x26**2
+        )
+        if derivatives == 2:
+            return D, dD_dtheta, d2D_dtheta2
         raise ValueError("derivatives must be 0, 1 or 2")
+
     # ----------------------- End generated code ----------------------- #
 
     return D
 
 
-def letd(L, E, T, Dwt=1.0, theta_range=(0.0,1.0)):
+def letd(L, E, T, Dwt=1.0, theta_range=(0.0, 1.0)):
     r"""
     Return a LETd diffusivity function.
 
@@ -771,33 +880,44 @@ def letd(L, E, T, Dwt=1.0, theta_range=(0.0,1.0)):
     """
     # - Code generated with functionstr() from ../symbolic/generate.py - #
     x1 = -theta_range[1]
-    x2 = 1/(theta_range[0] + x1)
+    x2 = 1 / (theta_range[0] + x1)
     x17 = L**2
+
     def D(theta, derivatives=0):
         x0 = theta - theta_range[0]
-        x3 = (-x0*x2)**L
+        x3 = (-x0 * x2) ** L
         x4 = theta + x1
-        x5 = E*(x2*x4)**T
+        x5 = E * (x2 * x4) ** T
         x6 = x3 + x5
-        x7 = 1/x6
-        x8 = Dwt*x3*x7
+        x7 = 1 / x6
+        x8 = Dwt * x3 * x7
         D = x8
-        if derivatives == 0: return D
-        x9 = L/x0
+        if derivatives == 0:
+            return D
+        x9 = L / x0
         x10 = -x0
-        x11 = (x10*x2)**L
-        x12 = L*x11
-        x13 = T*x5
-        x14 = x13/x4 - x12/x10
-        x15 = x14*x7
-        dD_dtheta = x8*(-x15 + x9)
-        if derivatives == 1: return D, dD_dtheta
-        x16 = x0**(-2)
-        x18 = x10**(-2)
-        x19 = x4**(-2)
-        d2D_dtheta2 = x8*(-L*x16 + 2*x14**2/x6**2 - 2*x15*x9 + x16*x17 - x7*(T**2*x19*x5 + x11*x17*x18 - x12*x18 - x13*x19))
-        if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
+        x11 = (x10 * x2) ** L
+        x12 = L * x11
+        x13 = T * x5
+        x14 = x13 / x4 - x12 / x10
+        x15 = x14 * x7
+        dD_dtheta = x8 * (-x15 + x9)
+        if derivatives == 1:
+            return D, dD_dtheta
+        x16 = x0 ** (-2)
+        x18 = x10 ** (-2)
+        x19 = x4 ** (-2)
+        d2D_dtheta2 = x8 * (
+            -L * x16
+            + 2 * x14**2 / x6**2
+            - 2 * x15 * x9
+            + x16 * x17
+            - x7 * (T**2 * x19 * x5 + x11 * x17 * x18 - x12 * x18 - x13 * x19)
+        )
+        if derivatives == 2:
+            return D, dD_dtheta, d2D_dtheta2
         raise ValueError("derivatives must be 0, 1 or 2")
+
     # ----------------------- End generated code ----------------------- #
 
     return D
@@ -874,21 +994,23 @@ def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
     Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
 
     def D(theta, derivatives=0):
+        if derivatives == 0:
+            return Ks * kr(theta) / C(theta)
 
-        if derivatives == 0: return Ks*kr(theta)/C(theta)
-
-        K_ = [Ks*kr for kr in kr(theta, derivatives)]
+        K_ = [Ks * kr for kr in kr(theta, derivatives)]
         C_ = C(theta, derivatives)
 
-        D = K_[0]/C_[0]
+        D = K_[0] / C_[0]
 
-        dD_dtheta = (K_[1]*C_[0] - K_[0]*C_[1])/C_[0]**2
+        dD_dtheta = (K_[1] * C_[0] - K_[0] * C_[1]) / C_[0] ** 2
 
-        if derivatives == 1: return D, dD_dtheta
+        if derivatives == 1:
+            return D, dD_dtheta
 
-        d2D_dtheta2 = (K_[2] - 2*dD_dtheta*C_[1] - D*C_[2])/C_[0]
+        d2D_dtheta2 = (K_[2] - 2 * dD_dtheta * C_[1] - D * C_[2]) / C_[0]
 
-        if derivatives == 2: return D, dD_dtheta, d2D_dtheta2
+        if derivatives == 2:
+            return D, dD_dtheta, d2D_dtheta2
 
         raise ValueError("derivatives must be 0, 1, or 2")
 
@@ -918,7 +1040,7 @@ def _checked(D, theta=None):
     if theta is None:
         return functools.partial(_checked, D)
 
-    with np.errstate(divide='ignore', invalid='ignore'):
+    with np.errstate(divide="ignore", invalid="ignore"):
         try:
             D_, dD_dtheta = D(theta, 1)
         except (ValueError, ArithmeticError) as e:
@@ -932,6 +1054,5 @@ def _checked(D, theta=None):
 
     if not np.isfinite(D_) or D_ <= 0 or not np.isfinite(dD_dtheta):
         raise ValueError(f"D({theta}, 1) returned invalid value")
-    
-    return D_
 
+    return D_

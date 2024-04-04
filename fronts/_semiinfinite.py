@@ -46,6 +46,7 @@ class Solution(BaseSolution):
         Function to evaluate :math:`D` at arbitrary values of the solution.
         Must be callable with a float or NumPy array as its argument.
     """
+
     def __init__(self, sol, ob, oi, D):
         if ob > oi:
             raise ValueError("ob cannot be greater than oi")
@@ -54,11 +55,11 @@ class Solution(BaseSolution):
             under = np.less(o, ob)
             over = np.greater(o, oi)
 
-            o = np.where(under|over, oi, o)
+            o = np.where(under | over, oi, o)
 
             y = np.asarray(sol(o))
-            y[:,under] = np.nan
-            y[1:,over] = 0
+            y[:, under] = np.nan
+            y[1:, over] = 0
 
             return y
 
@@ -75,13 +76,13 @@ class Solution(BaseSolution):
     def ob(self):
         """float: Parameter :math:`o_b`."""
         return self._ob
-    
+
     @property
     def oi(self):
         """float: Value of the Boltzmann variable at which the solution can be
         considered to be equal to the initial condition."""
         return self._oi
-    
+
     def rb(self, t):
         """
         Boundary location.
@@ -170,7 +171,7 @@ class Solution(BaseSolution):
         variable at the boundary.
         """
         return self.d_do(o=self.ob)
-    
+
     def sorptivity(self, *, o=None):
         r"""
         Sorptivity.
@@ -199,7 +200,7 @@ class Solution(BaseSolution):
         return super().sorptivity(o=o)
 
 
-class _Shooter():
+class _Shooter:
     """
     Base shooter class.
 
@@ -229,19 +230,19 @@ class _Shooter():
         """
         Speeds up arithmetic by converting NumPy inputs to native floats.
         """
+
         def wrapper(o, y):
             return f(float(o), (float(y[0]), float(y[1])))
 
         return wrapper
 
-
-    def __init__(self, D, i, radial, ob, theta_direction, itol, method,
-                 max_shots, shot_callback):
-
+    def __init__(
+        self, D, i, radial, ob, theta_direction, itol, method, max_shots, shot_callback
+    ):
         assert callable(D)
         assert not radial or ob > 0
         assert theta_direction in {-1, 0, 1}
-        assert method in {'implicit', 'explicit'}
+        assert method in {"implicit", "explicit"}
         assert max_shots is None or max_shots >= 0
         assert shot_callback is None or callable(shot_callback)
 
@@ -254,7 +255,7 @@ class _Shooter():
 
         fun, jac = ode(D, radial=radial, catch_errors=True)
         self._fun = self._native_float_inputs(fun)
-        if method == 'implicit':
+        if method == "implicit":
             self._jac = self._native_float_inputs(jac)
 
         self._checked_D = _checked(D)
@@ -262,10 +263,12 @@ class _Shooter():
         # Integration events
         def settled(o, y):
             return y[1]
+
         settled.terminal = True
 
         def blew_past_i(o, y):
-            return y[0] - (i + theta_direction*itol)
+            return y[0] - (i + theta_direction * itol)
+
         blew_past_i.terminal = True
 
         self._events = (settled, blew_past_i)
@@ -273,13 +276,7 @@ class _Shooter():
         self.shots = 0
         self.best_shot = None
 
-
-    Result = namedtuple("Result", ['b', 
-                                   'd_dob',
-                                   'i_residual',
-                                   'D_calls',
-                                   'o',
-                                   'sol'])
+    Result = namedtuple("Result", ["b", "d_dob", "i_residual", "D_calls", "o", "sol"])
 
     def integrate(self, b, d_dob):
         """
@@ -294,57 +291,63 @@ class _Shooter():
         -------
         Result
         """
-        assert (self._i - b)*self._theta_direction >= 0
-        assert d_dob*self._theta_direction >= 0
+        assert (self._i - b) * self._theta_direction >= 0
+        assert d_dob * self._theta_direction >= 0
 
-        with np.errstate(divide='ignore', invalid='ignore'):
-
+        with np.errstate(divide="ignore", invalid="ignore"):
             try:
-                if self._method == 'explicit':
-                    ivp_result = solve_ivp(self._fun,
-                                            t_span=(self._ob, np.inf),
-                                            y0=(b, d_dob),
-                                            method='DOP853',
-                                            events=self._events,
-                                            dense_output=True)
+                if self._method == "explicit":
+                    ivp_result = solve_ivp(
+                        self._fun,
+                        t_span=(self._ob, np.inf),
+                        y0=(b, d_dob),
+                        method="DOP853",
+                        events=self._events,
+                        dense_output=True,
+                    )
                 else:
-                    ivp_result = solve_ivp(self._fun,
-                                            t_span=(self._ob, np.inf),
-                                            y0=(b, d_dob),
-                                            method='Radau',
-                                            jac=self._jac,
-                                            events=self._events,
-                                            dense_output=True)
+                    ivp_result = solve_ivp(
+                        self._fun,
+                        t_span=(self._ob, np.inf),
+                        y0=(b, d_dob),
+                        method="Radau",
+                        jac=self._jac,
+                        events=self._events,
+                        dense_output=True,
+                    )
             except ValueError as e:
                 # Workaround for https://github.com/scipy/scipy/issues/17066
                 if str(e) == "`ts` must be strictly increasing or decreasing.":
-                    return self.Result(b=b,
-                                       d_dob=d_dob,
-                                       i_residual=self._theta_direction*np.inf,
-                                       D_calls=None,
-                                       o=None,
-                                       sol=None)
+                    return self.Result(
+                        b=b,
+                        d_dob=d_dob,
+                        i_residual=self._theta_direction * np.inf,
+                        D_calls=None,
+                        o=None,
+                        sol=None,
+                    )
                 else:
                     raise
 
         if ivp_result.success and ivp_result.t_events[0].size == 1:
-
-            return self.Result(b=b,
-                               d_dob=d_dob,
-                               i_residual=ivp_result.y[0,-1] - self._i,
-                               D_calls=ivp_result.nfev + ivp_result.njev,
-                               o=ivp_result.t,
-                               sol=ivp_result.sol)
+            return self.Result(
+                b=b,
+                d_dob=d_dob,
+                i_residual=ivp_result.y[0, -1] - self._i,
+                D_calls=ivp_result.nfev + ivp_result.njev,
+                o=ivp_result.t,
+                sol=ivp_result.sol,
+            )
 
         else:
-
-            return self.Result(b=b,
-                               d_dob=d_dob,
-                               i_residual=self._theta_direction*np.inf,
-                               D_calls=ivp_result.nfev + ivp_result.njev,
-                               o=None,
-                               sol=None)
-
+            return self.Result(
+                b=b,
+                d_dob=d_dob,
+                i_residual=self._theta_direction * np.inf,
+                D_calls=ivp_result.nfev + ivp_result.njev,
+                o=None,
+                sol=None,
+            )
 
     class ShotLimitReached(RuntimeError):
         """
@@ -382,8 +385,9 @@ class _Shooter():
         if self._shot_callback is not None:
             self._shot_callback(result)
 
-        if (self.best_shot is None 
-                or abs(result.i_residual) < abs(self.best_shot.i_residual)):
+        if self.best_shot is None or abs(result.i_residual) < abs(
+            self.best_shot.i_residual
+        ):
             self.best_shot = result
 
         return result.i_residual
@@ -405,28 +409,26 @@ class _DirichletShooter(_Shooter):
     shot_callback : None or callable
     """
 
-    def __init__(self, D, i, b, radial, ob, itol, method, max_shots,
-                 shot_callback):
-
+    def __init__(self, D, i, b, radial, ob, itol, method, max_shots, shot_callback):
         theta_direction = np.sign(i - b)
 
-        super().__init__(D=D,
-                         i=i,
-                         radial=radial,
-                         ob=ob,
-                         theta_direction=theta_direction,
-                         itol=itol,
-                         method=method,
-                         max_shots=max_shots,
-                         shot_callback=shot_callback)
+        super().__init__(
+            D=D,
+            i=i,
+            radial=radial,
+            ob=ob,
+            theta_direction=theta_direction,
+            itol=itol,
+            method=method,
+            max_shots=max_shots,
+            shot_callback=shot_callback,
+        )
 
         self._b = b
 
         self._checked_D(b)
         if abs(i - b) > itol:
-            self._checked_D(i - theta_direction*itol)
-
-
+            self._checked_D(i - theta_direction * itol)
 
     def integrate(self, d_dob):
         """
@@ -443,8 +445,19 @@ class _DirichletShooter(_Shooter):
         return super().integrate(b=self._b, d_dob=d_dob)
 
 
-def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
-          d_dob_bracket=None, method='implicit', maxiter=100, verbose=0):
+def solve(
+    D,
+    i,
+    b,
+    radial=False,
+    ob=0.0,
+    itol=1e-3,
+    d_dob_hint=None,
+    d_dob_bracket=None,
+    method="implicit",
+    maxiter=100,
+    verbose=0,
+):
     r"""
     Solve a problem with a Dirichlet boundary condition.
 
@@ -597,45 +610,53 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
         raise ValueError("maxiter must not be negative")
 
     if not callable(D):
-        D = from_expr(D,
-                      vectorized=False,
-                      max_derivatives=(1 if method=='explicit' else 2))
+        D = from_expr(
+            D, vectorized=False, max_derivatives=(1 if method == "explicit" else 2)
+        )
 
     if d_dob_bracket is not None:
         if d_dob_hint is not None:
             raise TypeError("cannot pass both d_dob_hint and d_dob_bracket")
 
-        d_dob_bracket = tuple(x if np.sign(x) == np.sign(i - b) else 0
-                              for x in d_dob_bracket)
+        d_dob_bracket = tuple(
+            x if np.sign(x) == np.sign(i - b) else 0 for x in d_dob_bracket
+        )
 
     elif d_dob_hint is None:
-        d_dob_hint = (i - b)/(2*_checked(D,b)**0.5)
+        d_dob_hint = (i - b) / (2 * _checked(D, b) ** 0.5)
 
     elif np.sign(d_dob_hint) != np.sign(i - b):
-        raise ValueError("sign of d_dob_hint does not match direction given "
-                         "by b and i")
+        raise ValueError(
+            "sign of d_dob_hint does not match direction given " "by b and i"
+        )
 
     if verbose >= 2:
         print(f"{'Iteration':^15}{'Residual':^15}{'d/do|b':^15}{'Calls to D':^15}")
 
         def shot_callback(result):
             if np.isfinite(result.i_residual):
-                print(f"{shooter.shots:^15}{result.i_residual:^15.2e}{result.d_dob:^15.7e}{result.D_calls:^15}")
+                print(
+                    f"{shooter.shots:^15}{result.i_residual:^15.2e}{result.d_dob:^15.7e}{result.D_calls:^15}"
+                )
 
             else:
-                print(f"{shooter.shots:^15}{'*':^15}{result.d_dob:^15.7e}{result.D_calls or '*':^15}")
+                print(
+                    f"{shooter.shots:^15}{'*':^15}{result.d_dob:^15.7e}{result.D_calls or '*':^15}"
+                )
     else:
         shot_callback = None
 
-    shooter = _DirichletShooter(D=D,
-                                i=i,
-                                b=b,
-                                radial=radial,
-                                ob=ob,
-                                itol=itol,
-                                method=method,
-                                max_shots=maxiter,
-                                shot_callback=shot_callback)
+    shooter = _DirichletShooter(
+        D=D,
+        i=i,
+        b=b,
+        radial=radial,
+        ob=ob,
+        itol=itol,
+        method=method,
+        max_shots=maxiter,
+        shot_callback=shot_callback,
+    )
 
     try:
         if d_dob_bracket is None:
@@ -644,11 +665,13 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
                 d_dob_bracket = (0, 0)
 
             else:
-                d_dob_result = bracket_root(shooter.shoot,
-                                            interval=(0, d_dob_hint),
-                                            f_interval=(b-i, None),
-                                            ftol=itol,
-                                            maxiter=None)
+                d_dob_result = bracket_root(
+                    shooter.shoot,
+                    interval=(0, d_dob_hint),
+                    f_interval=(b - i, None),
+                    ftol=itol,
+                    maxiter=None,
+                )
 
                 d_dob = d_dob_result.root
                 d_dob_bracket = d_dob_result.bracket
@@ -657,16 +680,17 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
         else:
             assert d_dob_hint is None
             d_dob = None
-            f_bracket = tuple(b-i if x==0 else None for x in d_dob_bracket)
-
+            f_bracket = tuple(b - i if x == 0 else None for x in d_dob_bracket)
 
         if d_dob is None:
             try:
-                d_dob_result = bisect(shooter.shoot,
-                                      bracket=d_dob_bracket,
-                                      f_bracket=f_bracket,
-                                      ftol=itol,
-                                      maxiter=None)
+                d_dob_result = bisect(
+                    shooter.shoot,
+                    bracket=d_dob_bracket,
+                    f_bracket=f_bracket,
+                    ftol=itol,
+                    maxiter=None,
+                )
 
                 d_dob = d_dob_result.root
                 d_dob_bracket = d_dob_result.bracket
@@ -675,25 +699,28 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
             except NotABracketError:
                 assert d_dob_hint is None
                 if verbose:
-                    print("d_dob_bracket does not contain target d/do|b. Try "
-                          "again with a correct interval.")
-                raise ValueError("d_dob_bracket does not contain target d/do|b") from None
+                    print(
+                        "d_dob_bracket does not contain target d/do|b. Try "
+                        "again with a correct interval."
+                    )
+                raise ValueError(
+                    "d_dob_bracket does not contain target d/do|b"
+                ) from None
 
     except shooter.ShotLimitReached:
         if verbose:
-          print(f"The solver did not converge after {maxiter} iterations.")
-          print(f"Execution time: {process_time() - start_time:.3f} s")
-        raise RuntimeError(f"The solver did not converge after {maxiter} iterations.") from None
+            print(f"The solver did not converge after {maxiter} iterations.")
+            print(f"Execution time: {process_time() - start_time:.3f} s")
+        raise RuntimeError(
+            f"The solver did not converge after {maxiter} iterations."
+        ) from None
 
     if shooter.best_shot is not None and shooter.best_shot.d_dob == d_dob:
         result = shooter.best_shot
     else:
         result = shooter.integrate(d_dob=d_dob)
 
-    solution = Solution(sol=result.sol,
-                        ob=result.o[0],
-                        oi=result.o[-1],
-                        D=D)
+    solution = Solution(sol=result.sol, ob=result.o[0], oi=result.o[-1], D=D)
 
     solution.o = result.o
     solution.niter = shooter.shots
@@ -703,7 +730,9 @@ def solve(D, i, b, radial=False, ob=0.0, itol=1e-3, d_dob_hint=None,
         print(f"Solved in {shooter.shots} iterations.")
         print(f"Residual: {result.i_residual:.2e}")
         if d_dob_bracket is not None:
-            print(f"d/do|b: {d_dob:.7e} (bracket: [{min(d_dob_bracket):.7e}, {max(d_dob_bracket):.7e}])")
+            print(
+                f"d/do|b: {d_dob:.7e} (bracket: [{min(d_dob_bracket):.7e}, {max(d_dob_bracket):.7e}])"
+            )
         else:
             print(f"d/do|b: {d_dob:.7e}")
         print(f"Execution time: {process_time() - start_time:.3f} s")
@@ -727,27 +756,26 @@ class _FlowrateShooter(_Shooter):
     shot_callback : None or callable
     """
 
-    def __init__(self, D, i, rel_flowrate, ob, itol, method, max_shots,
-                 shot_callback):
-
+    def __init__(self, D, i, rel_flowrate, ob, itol, method, max_shots, shot_callback):
         assert ob > 0
 
         theta_direction = np.sign(-rel_flowrate)
 
-        super().__init__(D=D,
-                         i=i,
-                         ob=ob,
-                         radial='cylindrical',
-                         theta_direction=theta_direction,
-                         itol=itol,
-                         method=method,
-                         max_shots=max_shots,
-                         shot_callback=shot_callback)
+        super().__init__(
+            D=D,
+            i=i,
+            ob=ob,
+            radial="cylindrical",
+            theta_direction=theta_direction,
+            itol=itol,
+            method=method,
+            max_shots=max_shots,
+            shot_callback=shot_callback,
+        )
 
         self._D_ = D
         # Flow rate per unit angle and height
         self._rel_flowrate = rel_flowrate
-
 
     def integrate(self, b):
         """
@@ -764,25 +792,39 @@ class _FlowrateShooter(_Shooter):
         try:
             Db = self._checked_D(b)
         except ValueError:
-            return self.Result(b=b,
-                               d_dob=None,
-                               i_residual=-self._theta_direction*np.inf,
-                               D_calls=1,
-                               o=None,
-                               sol=None)
+            return self.Result(
+                b=b,
+                d_dob=None,
+                i_residual=-self._theta_direction * np.inf,
+                D_calls=1,
+                o=None,
+                sol=None,
+            )
 
-        d_dob = -self._rel_flowrate/(Db*self._ob)
+        d_dob = -self._rel_flowrate / (Db * self._ob)
 
         result = super().integrate(b=b, d_dob=d_dob)
 
-        D_calls = result.D_calls+1 if result.D_calls is not None else None
+        D_calls = result.D_calls + 1 if result.D_calls is not None else None
 
         return result._replace(D_calls=D_calls)
 
 
-def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
-                   itol=1e-3, b_hint=None, b_bracket=None, method='implicit',
-                   maxiter=100, verbose=0):
+def solve_flowrate(
+    D,
+    i,
+    Qb,
+    radial,
+    ob=1e-6,
+    angle=2 * np.pi,
+    height=None,
+    itol=1e-3,
+    b_hint=None,
+    b_bracket=None,
+    method="implicit",
+    maxiter=100,
+    verbose=0,
+):
     r"""
     Solve a radial problem with a fixed-flowrate boundary condition.
 
@@ -935,19 +977,23 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     if ob <= 0:
         raise ValueError("ob must be positive")
 
-    if not 0 < angle <= 2*np.pi:
+    if not 0 < angle <= 2 * np.pi:
         raise ValueError("angle must be positive and no greater than 2*pi")
 
-    if radial == 'cylindrical':
+    if radial == "cylindrical":
         if height is None:
-            raise TypeError("must pass a height if radial == 'cylindrical' "
-                            "(or use radial='polar')")
+            raise TypeError(
+                "must pass a height if radial == 'cylindrical' "
+                "(or use radial='polar')"
+            )
         if height <= 0:
             raise ValueError("height must be positive")
-    elif radial == 'polar':
+    elif radial == "polar":
         if height is not None:
-            raise TypeError("height parameter not allowed if radial == "
-                            "'polar' (use radial='cylindrical' instead)")
+            raise TypeError(
+                "height parameter not allowed if radial == "
+                "'polar' (use radial='cylindrical' instead)"
+            )
     else:
         raise ValueError("radial must be one of {'cylindrical', 'polar'}")
 
@@ -955,59 +1001,70 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
         raise ValueError("maxiter must not be negative")
 
     if not callable(D):
-        D = from_expr(D,
-                      vectorized=False,
-                      max_derivatives=(1 if method=='explicit' else 2))
+        D = from_expr(
+            D, vectorized=False, max_derivatives=(1 if method == "explicit" else 2)
+        )
 
     if b_bracket is not None:
         if b_hint is not None:
             raise TypeError("cannot pass both b_hint and b_bracket")
 
-        b_bracket = tuple(x if np.sign(i-x) == np.sign(-Qb) else i
-                           for x in b_bracket)
+        b_bracket = tuple(x if np.sign(i - x) == np.sign(-Qb) else i for x in b_bracket)
 
     elif b_hint is None:
         b_hint = i + np.sign(Qb)
 
-    elif np.sign(i-b_hint) != np.sign(-Qb):
+    elif np.sign(i - b_hint) != np.sign(-Qb):
         raise ValueError("value of b_hint disagrees with flowrate sign")
 
     if verbose >= 2:
-        print(f"{'Iteration':^15}{'Residual':^15}{'Boundary value':^15}{'d/do|b':^15}{'Calls to D':^15}")
+        print(
+            f"{'Iteration':^15}{'Residual':^15}{'Boundary value':^15}{'d/do|b':^15}{'Calls to D':^15}"
+        )
 
         def shot_callback(result):
             if np.isfinite(result.i_residual):
-                print(f"{shooter.shots:^15}{result.i_residual:^15.2e}{result.b:^15.2e}{result.d_dob:^15.7e}{result.D_calls:^15}")
+                print(
+                    f"{shooter.shots:^15}{result.i_residual:^15.2e}{result.b:^15.2e}{result.d_dob:^15.7e}{result.D_calls:^15}"
+                )
 
             elif result.d_dob is not None:
-                print(f"{shooter.shots:^15}{'*':^15}{result.b:^15.2e}{result.d_dob:^15.7e}{result.D_calls or '*':^15}")
+                print(
+                    f"{shooter.shots:^15}{'*':^15}{result.b:^15.2e}{result.d_dob:^15.7e}{result.D_calls or '*':^15}"
+                )
             else:
-                print(f"{shooter.shots:^15}{'*':^15}{result.b:^15.2e}{'*':^15}{result.D_calls or '*':^15}")
+                print(
+                    f"{shooter.shots:^15}{'*':^15}{result.b:^15.2e}{'*':^15}{result.D_calls or '*':^15}"
+                )
 
     else:
         shot_callback = None
 
-    shooter = _FlowrateShooter(D=D,
-                               i=i,
-                               rel_flowrate=Qb/(angle*(height or 1)),
-                               ob=ob,
-                               itol=itol,
-                               method=method,
-                               max_shots=maxiter,
-                               shot_callback=shot_callback)
+    shooter = _FlowrateShooter(
+        D=D,
+        i=i,
+        rel_flowrate=Qb / (angle * (height or 1)),
+        ob=ob,
+        itol=itol,
+        method=method,
+        max_shots=maxiter,
+        shot_callback=shot_callback,
+    )
 
     try:
         if b_bracket is None:
             if Qb == 0:
                 b = i
                 b_bracket = (i, i)
-        
+
             else:
-                b_result = bracket_root(shooter.shoot,
-                                        interval=(i, b_hint),
-                                        f_interval=(None, None),
-                                        ftol=itol,
-                                        maxiter=None)
+                b_result = bracket_root(
+                    shooter.shoot,
+                    interval=(i, b_hint),
+                    f_interval=(None, None),
+                    ftol=itol,
+                    maxiter=None,
+                )
 
                 b = b_result.root
                 b_bracket = b_result.bracket
@@ -1016,15 +1073,17 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
         else:
             assert b_hint is None
             b = None
-            f_bracket = tuple(0 if Qb==0 and x==i else None for x in b_bracket)
+            f_bracket = tuple(0 if Qb == 0 and x == i else None for x in b_bracket)
 
         if b is None:
             try:
-                b_result = bisect(shooter.shoot,
-                                  bracket=b_bracket,
-                                  f_bracket=f_bracket,
-                                  ftol=itol,
-                                  maxiter=None)
+                b_result = bisect(
+                    shooter.shoot,
+                    bracket=b_bracket,
+                    f_bracket=f_bracket,
+                    ftol=itol,
+                    maxiter=None,
+                )
 
                 b = b_result.root
                 b_bracket = b_result.bracket
@@ -1033,25 +1092,28 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
             except NotABracketError:
                 assert b_hint is None
                 if verbose:
-                    print("b_bracket does not contain target boundary value. "
-                          "Try again with a correct interval.")
-                raise ValueError("b_bracket does not contain target bounday value") from None
+                    print(
+                        "b_bracket does not contain target boundary value. "
+                        "Try again with a correct interval."
+                    )
+                raise ValueError(
+                    "b_bracket does not contain target bounday value"
+                ) from None
 
     except shooter.ShotLimitReached:
         if verbose:
             print(f"The solver did not converge after {maxiter} iterations.")
             print(f"Execution time: {process_time() - start_time:.3f} s")
-        raise RuntimeError(f"The solver did not converge after {maxiter} iterations.") from None
+        raise RuntimeError(
+            f"The solver did not converge after {maxiter} iterations."
+        ) from None
 
     if shooter.best_shot is not None and shooter.best_shot.b == b:
         result = shooter.best_shot
     else:
         result = shooter.integrate(b=b)
 
-    solution = Solution(sol=result.sol,
-                        ob=result.o[0],
-                        oi=result.o[-1],
-                        D=D)
+    solution = Solution(sol=result.sol, ob=result.o[0], oi=result.o[-1], D=D)
 
     solution.o = result.o
     solution.niter = shooter.shots
@@ -1061,7 +1123,9 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
         print(f"Solved in {shooter.shots} iterations.")
         print(f"Residual: {result.i_residual:.2e}")
         if b_bracket is not None:
-            print(f"Boundary value: {b:.7e} (bracket: [{min(b_bracket):.7e}, {max(b_bracket):.7e}])")
+            print(
+                f"Boundary value: {b:.7e} (bracket: [{min(b_bracket):.7e}, {max(b_bracket):.7e}])"
+            )
         else:
             print(f"Boundary value: {b:.7e}")
         print(f"Execution time: {process_time() - start_time:.3f} s")
@@ -1069,8 +1133,7 @@ def solve_flowrate(D, i, Qb, radial, ob=1e-6, angle=2*np.pi, height=None,
     return solution
 
 
-def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
-                     verbose=0):
+def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verbose=0):
     r"""
     Alternative solver for problems with a Dirichlet boundary condition.
 
@@ -1196,8 +1259,9 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
         start_time = process_time()
 
     if radial and o_guess[0] <= 0:
-        raise ValueError("o_guess[0] must be positive when using a radial "
-                         "coordinate")
+        raise ValueError(
+            "o_guess[0] must be positive when using a radial " "coordinate"
+        )
 
     if not callable(D):
         D = from_expr(D)
@@ -1211,35 +1275,44 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000,
 
     # Boundary conditions
     def bc(yb, yi):
-        return (yb[0]-b, yi[0]-i)
+        return (yb[0] - b, yi[0] - i)
 
     dbc_dyb = np.array(((1, 0), (0, 0)))
     dbc_dyi = np.array(((0, 0), (1, 0)))
+
     def bc_jac(yb, yi):
         return dbc_dyb, dbc_dyi
 
-    with np.errstate(divide='ignore', invalid='ignore'):
-        bvp_result = solve_bvp(fun, bc=bc, x=o_guess, y=(guess, d_do_guess),
-                               fun_jac=jac, bc_jac=bc_jac,
-                               max_nodes=max_nodes, verbose=verbose)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        bvp_result = solve_bvp(
+            fun,
+            bc=bc,
+            x=o_guess,
+            y=(guess, d_do_guess),
+            fun_jac=jac,
+            bc_jac=bc_jac,
+            max_nodes=max_nodes,
+            verbose=verbose,
+        )
 
     if not bvp_result.success:
         if verbose:
             print(f"Execution time: {process_time() - start_time:.3f} s")
         raise RuntimeError(f"The solver did not converge: {bvp_result.message}")
 
-    if abs(bvp_result.y[1,-1]) > 1e-6:
+    if abs(bvp_result.y[1, -1]) > 1e-6:
         if verbose:
-            print("The given mesh is too small for the problem. Try again "
-                  "after extending o_guess towards the right")
+            print(
+                "The given mesh is too small for the problem. Try again "
+                "after extending o_guess towards the right"
+            )
             print(f"Execution time: {process_time() - start_time:.3f} s")
 
         raise RuntimeError("o_guess cannot contain solution")
 
-    solution = Solution(sol=bvp_result.sol,
-                        ob=bvp_result.x[0],
-                        oi=bvp_result.x[-1],
-                        D=D)
+    solution = Solution(
+        sol=bvp_result.sol, ob=bvp_result.x[0], oi=bvp_result.x[-1], D=D
+    )
 
     solution.o = bvp_result.x
     solution.niter = bvp_result.niter
