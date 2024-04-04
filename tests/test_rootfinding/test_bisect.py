@@ -62,7 +62,7 @@ def test_iterationlimit():
     f.calls = 0
 
     with pytest.raises(rootfinding.IterationLimitReached) as exc_info:
-        result = rootfinding.bisect(f, bracket, maxiter=1)
+        rootfinding.bisect(f, bracket, maxiter=1)
 
     exc = exc_info.value
     assert f.calls == 3

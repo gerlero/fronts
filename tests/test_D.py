@@ -8,7 +8,7 @@ from autograd import deriv
 import fronts.D
 
 
-def van_genuchten_D(theta, m, l, alpha, Ks, theta_range):
+def van_genuchten_D(theta, m, l, alpha, Ks, theta_range):  # noqa: E741
     # Reference: Van Genuchten (1980) Equation 11
     # https://doi.org/10.2136/sssaj1980.03615995004400050002x
 

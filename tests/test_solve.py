@@ -157,17 +157,17 @@ def test_exact_bracket():
 
 def test_badbracket():
     with pytest.raises(ValueError):
-        theta = fronts.solve(D="theta", i=0, b=1, d_dob_bracket=(-2, -3))
+        fronts.solve(D="theta", i=0, b=1, d_dob_bracket=(-2, -3))
 
 
 def test_badDi():
     with pytest.raises(ValueError):
-        theta = fronts.solve(D="theta", i=-0.1, b=1)
+        fronts.solve(D="theta", i=-0.1, b=1)
 
 
 def test_badDb():
     with pytest.raises(ValueError):
-        theta = fronts.solve(D="theta", i=1, b=-1)
+        fronts.solve(D="theta", i=1, b=-1)
 
 
 def test_scipy_17066():
@@ -179,5 +179,5 @@ def test_scipy_17066():
         T=0.01188100116655999,
         theta_range=(0.012564800420959716, 0.7),
     )
-    theta1 = fronts.solve(D=D, i=0.025, b=0.7 - 1e-7)
-    theta2 = fronts.solve(D=D, i=0.025, b=0.7 - 1e-7, method="explicit")
+    fronts.solve(D=D, i=0.025, b=0.7 - 1e-7)
+    fronts.solve(D=D, i=0.025, b=0.7 - 1e-7, method="explicit")
