@@ -1,2 +1,4 @@
 # Format with Ruff
 d4a7e93cf1385fceb17b9770edf23a27b32a956e
+# Apply extra Ruff rules
+90b52ecbfe18701b3234876646f6b337ce8e8cee
