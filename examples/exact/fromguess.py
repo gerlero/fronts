@@ -5,9 +5,8 @@ This example solves a problem that has an exact solution (using
 `fronts.solve_from_guess`) and compares the solutions.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 from fronts import solve_from_guess
 
 o = np.linspace(0, 20, 100)

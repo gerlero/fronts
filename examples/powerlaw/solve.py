@@ -2,12 +2,10 @@
 
 """Example of usage of `fronts.solve`."""
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 from fronts import solve
 from fronts.D import power_law
-
 
 k = 4.0
 ci = 0.1

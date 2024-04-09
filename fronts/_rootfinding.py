@@ -41,6 +41,8 @@ class Result:
 
 class IterationLimitReached(RuntimeError):
     """
+    Iteration limit reached during a call to a function in this module.
+
     Exception raised when a function in this module does not finish within the
     specified maximum number of iterations.
 
@@ -66,8 +68,7 @@ def bracket_root(
     f, interval, growth_factor=2, maxiter=100, f_interval=(None, None), ftol=None
 ):
     """
-    Find an interval that brackets a root of a function by searching in one
-    direction.
+    Find an interval that brackets a root of a function.
 
     Starting from an interval, it moves and expands the interval in the
     direction of the second endpoint until the interval brackets a root of the
@@ -106,7 +107,7 @@ def bracket_root(
         the result will also include a bracket only if one was found at the
         same time as the root.
 
-    See also
+    See Also
     --------
     bisect
 
@@ -198,6 +199,8 @@ def bracket_root(
 
 class NotABracketError(ValueError):
     """
+    Exception raised when a bracket is not valid.
+
     Exception raised by :func:`bisect` when the interval passed as `bracket`
     does not actually contain a root.
 
@@ -253,7 +256,7 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
     result : Result
         Contains the root and the final bracket.
 
-    See also
+    See Also
     --------
     bracket_root : Search for a bracket.
 
@@ -265,7 +268,6 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
     qualify as roots, the one where the absolute value of `f` is lower is
     returned.
     """
-
     if ftol < 0:
         raise ValueError("ftol cannot be negative")
 

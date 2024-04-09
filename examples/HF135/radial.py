@@ -4,14 +4,12 @@
 Radial flow in a HF135 nitrocellulose membrane.
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-
 from math import pi
 
+import matplotlib.pyplot as plt
+import numpy as np
 from fronts import solve_flowrate
 from fronts.D import van_genuchten
-
 from validation import r_unit, t_unit
 
 epsilon = 1e-7

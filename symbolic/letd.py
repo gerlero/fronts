@@ -24,6 +24,6 @@ theta = sympy.Symbol("theta", real=True)
 Swp = (theta - theta_range[0]) / (theta_range[1] - theta_range[0])
 D = Dwt * Swp**L / (Swp**L + E * (1 - Swp) ** T)
 
-print("D={}".format(D))
+print(f"D={D}")
 
 print(functionstr(theta, D.simplify()))

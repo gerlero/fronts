@@ -2,8 +2,8 @@
 
 """Plot of D for the 'exact' validation case."""
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def D(theta):

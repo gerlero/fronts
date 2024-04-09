@@ -10,10 +10,8 @@ Warning: this example takes ~70 seconds to run to completion.
 """
 
 import matplotlib.pyplot as plt
-
-from fronts import solve, inverse, o
-
 import validation
+from fronts import inverse, o, solve
 
 D_inverse = inverse(o=o(validation.r, validation.t)[::5], samples=validation.theta[::5])
 # Using only a fifth of the points so that it does not run too slow

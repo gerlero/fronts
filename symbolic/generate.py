@@ -1,6 +1,6 @@
-import sympy
-
 import itertools
+
+import sympy
 
 
 def _derivative_names(var):
