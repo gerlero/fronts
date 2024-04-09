@@ -1,7 +1,6 @@
+import fronts
 import numpy as np
 from numpy.testing import assert_allclose
-
-import fronts
 
 
 def test_exact():

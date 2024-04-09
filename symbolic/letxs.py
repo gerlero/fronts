@@ -48,6 +48,6 @@ D = (
 
 ################################
 
-print("D={}".format(D))
+print(f"D={D}")
 
 print(functionstr(theta, D))

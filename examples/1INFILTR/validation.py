@@ -7,13 +7,12 @@ Data obtained using Hydrus-1D version 4.17.0140
 1001 nodes, water content tolerance = 1e-6
 """
 
-import sys
-import os
 import itertools
+import os
+import sys
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 r_unit = "cm"
 t_unit = "h"

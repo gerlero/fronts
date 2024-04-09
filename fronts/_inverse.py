@@ -50,7 +50,7 @@ def inverse(o, samples):
         :math:`D` is guaranteed to be continuous; however, its derivatives are
         not.
 
-    See also
+    See Also
     --------
     o
 
@@ -70,7 +70,6 @@ def inverse(o, samples):
     [2] BRUCE, R. R.; KLUTE, A. The measurement of soil moisture diffusivity.
     Soil Science Society of America Journal, 1956, vol. 20, no. 4, pp. 458-462.
     """
-
     o = np.asarray(o)
 
     if not np.all(np.diff(o) > 0):

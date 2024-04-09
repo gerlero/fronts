@@ -1,11 +1,9 @@
-import pytest
-
 import functools
 
-import numpy as np
-from autograd import deriv
-
 import fronts.D
+import numpy as np
+import pytest
+from autograd import deriv
 
 
 def van_genuchten_D(theta, m, l, alpha, Ks, theta_range):  # noqa: E741

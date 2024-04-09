@@ -1,6 +1,6 @@
-import pytest
-
 import os
+
+import pytest
 
 examples = []
 for root, dirs, files in os.walk("examples"):

@@ -1,4 +1,6 @@
 """
+Internal Boltzmann transformation module.
+
 This module defines the Boltzmann variable, transformation of the partial
 differential equation into the ODE in terms of that variable, and inverse
 transformation of the ODE's solution into a solution to the partial
@@ -32,7 +34,7 @@ def o(r, t):
         The return is a float if both `r` and `t` are floats. Otherwise it is
         an array of the shape that results from broadcasting `r` and `t`.
 
-    See also
+    See Also
     --------
     do_dr
     do_dt
@@ -64,7 +66,7 @@ def do_dr(r, t):
         The return is a float if both `r` and `t` are floats. Otherwise it is
         an array of the shape that results from broadcasting `r` and `t`.
 
-    See also
+    See Also
     --------
     o
     do_dt
@@ -93,7 +95,7 @@ def do_dt(r, t):
         The return is a float if both `r` and `t` are floats. Otherwise it is
         an array of the shape that results from broadcasting `r` and `t`.
 
-    See also
+    See Also
     --------
     o
     do_dr
@@ -120,7 +122,7 @@ def r(o, t):
         The return is a float if both `o` and `t` are floats. Otherwise it is
         an array of the shape that results from broadcasting `o` and `t`.
 
-    See also
+    See Also
     --------
     o
     t
@@ -147,7 +149,7 @@ def t(o, r):
         The return is a float if both `o` and `r` are floats. Otherwise it is
         an array of the shape that results from broadcasting `o` and `r`.
 
-    See also
+    See Also
     --------
     o
     r
@@ -160,9 +162,10 @@ _o = o
 
 def as_o(r=None, t=None, o=None):
     """
-    Transform to the Boltzmann variable if called with `r` and `t`. Passes the
-    values through if called with `o` only. On other combinations of arguments,
-    it raises a `TypeError` with a message explaining valid usage.
+    Transform to the Boltzmann variable if called with `r` and `t`.
+
+    Passes the values through if called with `o` only. On other combinations of
+    arguments, it raises a `TypeError` with a message explaining valid usage.
 
     This function is a helper to define other functions that may be called
     either with `r` and `t`, or with just `o`.
@@ -185,7 +188,7 @@ def as_o(r=None, t=None, o=None):
         Passes `o` through if it is given. Otherwise, it calls the function
         :func:`o` and returns ``o(r,t)``.
 
-    See also
+    See Also
     --------
     o
     """
@@ -267,7 +270,7 @@ def ode(D, radial=False, catch_errors=False):
         and (2,n) respectively, and the return is a NumPy array of shape
         (2,2,n).
 
-    Other parameters
+    Other Parameters
     ----------------
     catch_errors : bool, optional
         Whether to catch exceptions that may be attributed to a domain error of
@@ -296,7 +299,7 @@ def ode(D, radial=False, catch_errors=False):
         If False (default), the exceptions will be allowed to propagate to the
         callers of `fun` and `jac`.
 
-    See also
+    See Also
     --------
     BaseSolution
     o
@@ -306,7 +309,6 @@ def ode(D, radial=False, catch_errors=False):
     If `radial` is other than `False`, the PDE is undefined at :math:`r=0`, and
     therefore the returned ODE is also undefined for :math:`o=0`.
     """
-
     try:
         k = _k[radial]
     except KeyError:
@@ -352,7 +354,7 @@ def ode(D, radial=False, catch_errors=False):
     def jac(o, y):
         theta, dtheta_do = y
 
-        J = np.empty((2, 2) + np.shape(o))
+        J = np.empty((2, 2, *np.shape(o)))
         J[0, 0] = 0
         J[0, 1] = 1
 
@@ -430,7 +432,7 @@ class BaseSolution:
         Function to evaluate :math:`D` at arbitrary values of the solution.
         Must be callable with a float or NumPy array as its argument.
 
-    See also
+    See Also
     --------
     ode
     """

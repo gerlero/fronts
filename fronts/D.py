@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """D functions."""
 
 import functools
@@ -42,7 +40,6 @@ def constant(D0):
     numerical solvers are necessary. However, it is provided here given that it
     is the simplest supported function.
     """
-
     if D0 <= 0:
         raise ValueError("D0 must be positive")
 
@@ -103,7 +100,6 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
     Users will rarely need to call this function, as all built-in solver
     functions already do so themselves when they receive an expression as `D`.
     """
-
     expr = sympy.sympify(expr)
 
     free = expr.free_symbols
@@ -181,7 +177,7 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
                 return f01(theta)
 
             if derivatives == 2 and max_derivatives == 2:
-                return f01(theta) + [f2(theta)]
+                return (*f01(theta), f2(theta))
 
             raise ValueError(
                 f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}"
@@ -251,7 +247,9 @@ def power_law(k, a=1.0, epsilon=0.0):
 
 def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
     r"""
-    Return the saturated hydraulic conductivity, computed from the instrinsic
+    Return the saturated hydraulic conductivity.
+
+    The saturated hydraulic conductivity is computed from the instrinsic
     permeability if necessary.
 
     Parameters
@@ -372,10 +370,9 @@ def brooks_and_corey(
 
     References
     ----------
-    [1] BROOKS, R.; COREY, T. Hydraulic properties of porous media. Hydrology
+    [1] BROOKS, R.; COREY, T. Hydraulic properties of porous media. Hydrology
     Papers, Colorado State University, 1964, vol. 24, p. 37.
     """
-
     if alpha <= 0:
         raise ValueError("alpha must be positive")
 
@@ -496,11 +493,10 @@ def van_genuchten(
 
     References
     ----------
-    [1] VAN GENUCHTEN, M. Th. A closed-form equation for predicting the
+    [1] VAN GENUCHTEN, M. Th. A closed-form equation for predicting the
     hydraulic conductivity of unsaturated soils. Soil Science Society of
     America Journal, 1980, vol. 44, no 5, p. 892-898.
     """
-
     if n is not None:
         if m is not None:
             raise TypeError("cannot pass both n and m")
@@ -605,6 +601,8 @@ def letxs(
     theta_range=(0.0, 1.0),
 ):
     r"""
+    Return a LETx + LETs diffusivity function.
+
     Return a diffusivity function that combines the LETx relative permeability
     correlation and the LETs capillary pressure correlation for spontaneous
     imbibition. Both correlations are part of the LET family of hydraulic
@@ -699,7 +697,6 @@ def letxs(
     capillary imbibition models in paper-based microfluidic applications.
     Transport in Porous Media, 2022, vol. 141, no. 7, pp. 1-20.
     """
-
     Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
 
     # - Code generated with functionstr() from ../symbolic/generate.py - #
@@ -997,7 +994,6 @@ def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
         In all cases, the argument ``theta`` may be a single float or a NumPy
         array.
     """
-
     Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
 
     def D(theta, derivatives=0):

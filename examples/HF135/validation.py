@@ -9,11 +9,11 @@ groundwaterFoam solver was used.
 
 """
 
-import sys
 import os
+import sys
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 _filename = os.path.join(sys.path[0], "groundwaterFoam_results.csv")
 

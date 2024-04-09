@@ -1,4 +1,6 @@
 """
+Semi-infinite domain problems with the Boltzmann transformation.
+
 This module uses the Boltzmann transformation to deal with initial-boundary
 value problems in semi-infinite domains.
 """
@@ -7,11 +9,11 @@ from collections import namedtuple
 from time import process_time
 
 import numpy as np
-from scipy.integrate import solve_ivp, solve_bvp
+from scipy.integrate import solve_bvp, solve_ivp
 
-from ._boltzmann import ode, BaseSolution, r
-from ._rootfinding import bracket_root, bisect, NotABracketError
-from .D import from_expr, _checked
+from ._boltzmann import BaseSolution, ode, r
+from ._rootfinding import NotABracketError, bisect, bracket_root
+from .D import _checked, from_expr
 
 
 class Solution(BaseSolution):
@@ -79,8 +81,12 @@ class Solution(BaseSolution):
 
     @property
     def oi(self):
-        """float: Value of the Boltzmann variable at which the solution can be
-        considered to be equal to the initial condition."""
+        """
+        float: Parameter :math:`o_i`.
+
+        The value of the Boltzmann variable at which the solution can be
+        considered to be equal to the initial condition.
+        """
         return self._oi
 
     def rb(self, t):
@@ -167,7 +173,9 @@ class Solution(BaseSolution):
     @property
     def d_dob(self):
         """
-        float: Derivative of the solution with respect to the Boltzmann
+        float: boundary Boltzmann derivative.
+
+        Derivative of the solution with respect to the Boltzmann
         variable at the boundary.
         """
         return self.d_do(o=self.ob)
@@ -227,9 +235,7 @@ class _Shooter:
 
     @staticmethod
     def _native_float_inputs(f):
-        """
-        Speeds up arithmetic by converting NumPy inputs to native floats.
-        """
+        """Speeds up arithmetic by converting NumPy inputs to native floats."""
 
         def wrapper(o, y):
             return f(float(o), (float(y[0]), float(y[1])))
@@ -351,14 +357,17 @@ class _Shooter:
 
     class ShotLimitReached(RuntimeError):
         """
+        Shot limit reached.
+
         Exception raised when `shoot` is called after the maximum number of
         shots has been reached.
         """
 
     def shoot(self, *args, **kwargs):
         """
-        Calls `integrate` and returns the result's `i_residual`. Each call
-        increments the number of shots.
+        Call `integrate` and returns the result's `i_residual`.
+
+        Each call increments the number of shots.
 
         It raises a `ShotLimitReached` exception if the maximum number of
         allowed shots has been reached.
@@ -536,7 +545,7 @@ def solve(
                 the solver; in particular, this field is never `None` if a
                 `d_dob_bracket` is passed when calling the function.
 
-    Other parameters
+    Other Parameters
     ----------------
     itol : float, optional
         Absolute tolerance for the initial condition.
@@ -574,7 +583,7 @@ def solve(
             * 1: display a termination report
             * 2: also display progress during iterations
 
-    See also
+    See Also
     --------
     solve_from_guess
     solve_flowrate
@@ -910,7 +919,7 @@ def solve_flowrate(
                 solver; in particular, this field is never `None` if a
                 `b_bracket` is passed when calling the function.
 
-    Other parameters
+    Other Parameters
     ----------------
     itol : float, optional
         Absolute tolerance for the initial condition.
@@ -946,7 +955,7 @@ def solve_flowrate(
             * 1: display a termination report
             * 2: also display progress during iterations
 
-    See also
+    See Also
     --------
     solve
 
@@ -1229,7 +1238,7 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verb
             *   `rms_residuals` *(numpy.ndarray, shape (n-1,))* --
                 RMS values of the relative residuals over each mesh interval.
 
-    Other parameters
+    Other Parameters
     ----------------
     max_nodes : int, optional
         Maximum allowed number of mesh nodes.
@@ -1240,7 +1249,7 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verb
             * 1: display a termination report
             * 2: also display progress during iterations
 
-    See also
+    See Also
     --------
     solve
 

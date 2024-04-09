@@ -8,11 +8,9 @@ This example shows a possible usage of `fronts.solve_from_guess` (and also
 """
 
 import matplotlib.pyplot as plt
-
+import validation
 from fronts import solve, solve_from_guess
 from fronts.D import van_genuchten
-
-import validation
 
 epsilon = 1e-7
 

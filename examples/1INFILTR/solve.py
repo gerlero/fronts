@@ -3,11 +3,9 @@
 """1INFILTR case from Hydrus-1D, horizontal."""
 
 import matplotlib.pyplot as plt
-
+import validation
 from fronts import solve
 from fronts.D import van_genuchten
-
-import validation
 
 epsilon = 1e-6
 

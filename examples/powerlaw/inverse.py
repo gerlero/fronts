@@ -2,10 +2,9 @@
 
 """Examples of usage of `fronts.solve` and `fronts.inverse`."""
 
-import numpy as np
 import matplotlib.pyplot as plt
-
-from fronts import solve, inverse
+import numpy as np
+from fronts import inverse, solve
 from fronts.D import power_law
 
 k = 4.0

@@ -4,9 +4,8 @@
 Plot of D in the powerlaw case.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 from fronts.D import power_law
 
 k = 4.0
