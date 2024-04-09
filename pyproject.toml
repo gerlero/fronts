@@ -67,3 +67,9 @@ packages = ["fronts"]
 
 [tool.setuptools.dynamic]
 version = {attr = "fronts.__version__"}
+
+[tool.ruff.lint]
+extend-select = ["D", "I", "RUF", "UP"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
