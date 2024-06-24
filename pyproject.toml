@@ -48,7 +48,6 @@ lint = ["ruff"]
 test = [
     "pytest>=7,<9",
     "pytest-cov",
-    "autograd>=1.3,<2",
     "fronts[examples]",
 ]
 doc = [
