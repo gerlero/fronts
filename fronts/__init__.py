@@ -1,6 +1,6 @@
 """Numerical library for nonlinear diffusion problems based on the Boltzmann transformation."""
 
-__version__ = "1.2.3"
+__version__ = "1.2.4"
 
 from ._boltzmann import BaseSolution, as_o, do_dr, do_dt, o, ode, r, t
 from ._inverse import inverse, sorptivity
