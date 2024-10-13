@@ -104,5 +104,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# macOS DS_Store files
+# uv
+uv.lock
+
+# macOS
 .DS_Store
