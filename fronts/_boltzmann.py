@@ -324,8 +324,7 @@ def ode(D, radial=False, catch_errors=False):
         except (ValueError, ArithmeticError):
             if catch_errors:
                 return np.array((dtheta_do, np.nan * o), float)
-            else:
-                raise
+            raise
 
         D_, dD_dtheta = D1
 
@@ -348,8 +347,7 @@ def ode(D, radial=False, catch_errors=False):
         except TypeError:
             if catch_errors:
                 return np.array((dtheta_do, np.nan * o), float)
-            else:
-                raise
+            raise
 
     def jac(o, y):
         theta, dtheta_do = y

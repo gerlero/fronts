@@ -38,7 +38,7 @@ def functionstr(var, expr):
 
     exprs = [expr]
 
-    for n in range(1, 3):
+    for _ in range(1, 3):
         exprs.append(exprs[-1].diff(var))
 
     xs, exprs = sympy.cse(exprs, optimizations="basic")
