@@ -69,7 +69,27 @@ packages = ["fronts"]
 version = {attr = "fronts.__version__"}
 
 [tool.ruff.lint]
-extend-select = ["D", "I", "RUF", "UP"]
+extend-select = [
+    "B",
+    "C4",
+    "D",
+    "F",
+    "FLY",
+    "FURB",
+    "I",
+    "ICN",
+    "INT",
+    "PIE",
+    "PLC",
+    "PLE",
+    "PLW",
+    "Q",
+    "RSE",
+    "RUF",
+    "TCH",
+    "UP",
+    "YTT",
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
