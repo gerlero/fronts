@@ -3,7 +3,7 @@ import os
 import pytest
 
 examples = []
-for root, dirs, files in os.walk("examples"):
+for root, _dirs, files in os.walk("examples"):
     for file in files:
         if file.endswith(".py"):
             examples.append(os.path.join(root, file))

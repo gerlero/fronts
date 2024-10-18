@@ -332,8 +332,7 @@ class _Shooter:
                         o=None,
                         sol=None,
                     )
-                else:
-                    raise
+                raise
 
         if ivp_result.success and ivp_result.t_events[0].size == 1:
             return self.Result(
@@ -345,15 +344,14 @@ class _Shooter:
                 sol=ivp_result.sol,
             )
 
-        else:
-            return self.Result(
-                b=b,
-                d_dob=d_dob,
-                i_residual=self._theta_direction * np.inf,
-                D_calls=ivp_result.nfev + ivp_result.njev,
-                o=None,
-                sol=None,
-            )
+        return self.Result(
+            b=b,
+            d_dob=d_dob,
+            i_residual=self._theta_direction * np.inf,
+            D_calls=ivp_result.nfev + ivp_result.njev,
+            o=None,
+            sol=None,
+        )
 
     class ShotLimitReached(RuntimeError):
         """

@@ -283,7 +283,7 @@ def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
             raise ValueError("Ks must be positive")
         return Ks
 
-    elif k is not None:
+    if k is not None:
         if k <= 0:
             raise ValueError("k must be positive")
         if nu <= 0:
@@ -292,8 +292,7 @@ def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
             raise ValueError("g must be positive")
         return g * k / nu
 
-    else:
-        return 1
+    return 1
 
 
 def brooks_and_corey(
