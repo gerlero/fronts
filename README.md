@@ -14,12 +14,14 @@ Python 3.9.6 (default, Sep 26 2022, 11:37:49)
 ```
 
 [![Documentation](https://img.shields.io/readthedocs/fronts)](https://fronts.readthedocs.io/)
-[![GitHub Actions - CI](https://github.com/gerlero/fronts/workflows/CI/badge.svg)](https://github.com/gerlero/fronts/actions)
+[![CI](https://github.com/gerlero/fronts/actions/workflows/ci.yml/badge.svg)](https://github.com/gerlero/fronts/actions/workflows/ci.yml)
 [![Code coverage](https://img.shields.io/codecov/c/gh/gerlero/fronts)](https://codecov.io/gh/gerlero/fronts)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Publish](https://github.com/gerlero/fronts/actions/workflows/pypi-publish.yml/badge.svg)](https://github.com/gerlero/fronts/actions/workflows/pypi-publish.yml)
 [![PyPI](https://img.shields.io/pypi/v/fronts?color=%2300b0f0)](https://pypi.org/project/fronts/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fronts)](https://pypi.org/project/fronts/)
+[![Docker](https://github.com/gerlero/fronts/actions/workflows/docker.yml/badge.svg)](https://github.com/gerlero/fronts/actions/workflows/docker.yml)
 [![Docker image](https://img.shields.io/badge/docker%20image-microfluidica%2Ffronts-0085a0)](https://hub.docker.com/r/microfluidica/fronts)
 
 
