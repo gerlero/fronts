@@ -59,9 +59,7 @@ def functionstr(var, expr):
 
     lines = ["# - Code generated with functionstr() from ../symbolic/generate.py - #"]
 
-    for x in xs:
-        if x[0] not in variable:
-            lines.append("{} = {}".format(*x))
+    lines.extend("{} = {}".format(*x) for x in xs if x[0] not in variable)
 
     lines.append(f"def D({var}, derivatives=0):")
 
@@ -69,8 +67,11 @@ def functionstr(var, expr):
 
     for n, (name, expr) in enumerate(zip(deriv_names, exprs)):
         for x in xs:
-            if x[0] in variable and appearance[x] == n:
-                lines.append("    {} = {}".format(*x))
+            lines.extend(
+                "    {} = {}".format(*x)
+                for x in xs
+                if x[0] in variable and appearance[x] == n
+            )
         lines.append(f"    {name} = {expr}")
         lines.append(
             f"    if derivatives == {n}: return {', '.join(deriv_names[:n+1])}"

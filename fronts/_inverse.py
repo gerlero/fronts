@@ -43,7 +43,7 @@ def inverse(o, samples):
                 first derivative at ``theta``
             *   ``D(theta, 2)`` returns the value of :math:`D`, its first
                 derivative, and its second derivative at ``theta``
-        
+
         In all cases, the argument ``theta`` may be a single float or a NumPy
         array.
 
@@ -66,20 +66,22 @@ def inverse(o, samples):
     [1] GERLERO, G. S.; BERLI, C. L. A.; KLER, P. A. Open-source
     high-performance software packages for direct and inverse solving of
     horizontal capillary flow. Capillarity, 2023, vol. 6, no. 2, pp. 31-40.
-    
+
     [2] BRUCE, R. R.; KLUTE, A. The measurement of soil moisture diffusivity.
     Soil Science Society of America Journal, 1956, vol. 20, no. 4, pp. 458-462.
     """
     o = np.asarray(o)
 
     if not np.all(np.diff(o) > 0):
-        raise ValueError("o must be strictly increasing")
+        msg = "o must be strictly increasing"
+        raise ValueError(msg)
 
     samples = np.asarray(samples)
 
     dsamples = np.diff(samples)
     if not (np.all(dsamples >= -1e-12) or np.all(dsamples <= 1e-12)):
-        raise ValueError("samples must be monotonic")
+        msg = "samples must be monotonic"
+        raise ValueError(msg)
 
     i = samples[-1]
 
@@ -118,7 +120,8 @@ def inverse(o, samples):
         if derivatives == 2:
             return D, dD_dtheta, d2D_dtheta2
 
-        raise ValueError("derivatives must be 0, 1, or 2")
+        msg = "derivatives must be 0, 1, or 2"
+        raise ValueError(msg)
 
     return D
 

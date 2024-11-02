@@ -194,11 +194,13 @@ def as_o(r=None, t=None, o=None):
     """
     if o is not None:
         if r is not None or t is not None:
-            raise TypeError("must pass either r and t, or just o")
+            msg = "must pass either r and t, or just o"
+            raise TypeError(msg)
         return o
 
     if r is None or t is None:
-        raise TypeError("must pass either r and t, or just o")
+        msg = "must pass either r and t, or just o"
+        raise TypeError(msg)
     return _o(r, t)
 
 
@@ -312,9 +314,8 @@ def ode(D, radial=False, catch_errors=False):
     try:
         k = _k[radial]
     except KeyError:
-        raise ValueError(
-            f"radial must be one of {{{', '.join(repr(key) for key in _k)}}}"
-        ) from None
+        msg = f"radial must be one of {{{', '.join(repr(key) for key in _k)}}}"
+        raise ValueError(msg) from None
 
     def fun(o, y):
         theta, dtheta_do = y

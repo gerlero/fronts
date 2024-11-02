@@ -41,7 +41,8 @@ def constant(D0):
     is the simplest supported function.
     """
     if D0 <= 0:
-        raise ValueError("D0 must be positive")
+        msg = "D0 must be positive"
+        raise ValueError(msg)
 
     def D(_, derivatives=0):
         if derivatives == 0:
@@ -108,10 +109,12 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
     elif not free:
         return constant(float(expr))
     else:
-        raise ValueError("expression cannot contain more than one variable")
+        msg = "expression cannot contain more than one variable"
+        raise ValueError(msg)
 
     if max_derivatives not in {0, 1, 2}:
-        raise ValueError("max_derivatives must be 0, 1 or 2")
+        msg = "max_derivatives must be 0, 1 or 2"
+        raise ValueError(msg)
 
     if max_derivatives == 0:
         func = sympy.lambdify(theta, expr, modules=np)
@@ -152,9 +155,8 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
             if derivatives == 2 and max_derivatives == 2:
                 return funcs[0](theta), funcs[1](theta), funcs[2](theta)
 
-            raise ValueError(
-                f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}"
-            )
+            msg = f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}"
+            raise ValueError(msg)
 
     else:
         f0v = sympy.lambdify(theta, exprs[0], modules=np)
@@ -179,9 +181,8 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
             if derivatives == 2 and max_derivatives == 2:
                 return (*f01(theta), f2(theta))
 
-            raise ValueError(
-                f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}"
-            )
+            msg = f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}"
+            raise ValueError(msg)
 
     return D
 
@@ -240,7 +241,8 @@ def power_law(k, a=1.0, epsilon=0.0):
         if derivatives == 2:
             return D, dD_dtheta, d2D_dtheta2
 
-        raise ValueError("derivatives must be 0, 1, or 2")
+        msg = "derivatives must be 0, 1, or 2"
+        raise ValueError(msg)
 
     return D
 
@@ -278,18 +280,23 @@ def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
     """
     if Ks is not None:
         if k is not None:
-            raise TypeError("cannot pass both Ks and k")
+            msg = "cannot pass both Ks and k"
+            raise TypeError(msg)
         if Ks <= 0:
-            raise ValueError("Ks must be positive")
+            msg = "Ks must be positive"
+            raise ValueError(msg)
         return Ks
 
     if k is not None:
         if k <= 0:
-            raise ValueError("k must be positive")
+            msg = "k must be positive"
+            raise ValueError(msg)
         if nu <= 0:
-            raise ValueError("nu must be positive")
+            msg = "nu must be positive"
+            raise ValueError(msg)
         if g <= 0:
-            raise ValueError("g must be positive")
+            msg = "g must be positive"
+            raise ValueError(msg)
         return g * k / nu
 
     return 1
@@ -373,12 +380,14 @@ def brooks_and_corey(
     Papers, Colorado State University, 1964, vol. 24, p. 37.
     """
     if alpha <= 0:
-        raise ValueError("alpha must be positive")
+        msg = "alpha must be positive"
+        raise ValueError(msg)
 
     Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
 
     if theta_range[1] <= theta_range[0]:
-        raise ValueError("theta_range[1] must be greater than theta_range[0]")
+        msg = "theta_range[1] must be greater than theta_range[0]"
+        raise ValueError(msg)
 
     # - Code generated with functionstr() from ../symbolic/generate.py - #
     # Source: ../symbolic/brooks_and_corey.py
@@ -398,7 +407,8 @@ def brooks_and_corey(
         d2D_dtheta2 = x4 * (-3 * x3 + 2 + x2**2 / n**2) / x0**3
         if derivatives == 2:
             return D, dD_dtheta, d2D_dtheta2
-        raise ValueError("derivatives must be 0, 1 or 2")
+        msg = "derivatives must be 0, 1 or 2"
+        raise ValueError(msg)
 
     # ----------------------- End generated code ----------------------- #
 
@@ -498,24 +508,30 @@ def van_genuchten(
     """
     if n is not None:
         if m is not None:
-            raise TypeError("cannot pass both n and m")
+            msg = "cannot pass both n and m"
+            raise TypeError(msg)
         if n <= 1:
-            raise ValueError("n must be greater than 1.0")
+            msg = "n must be greater than 1.0"
+            raise ValueError(msg)
         m = 1 - 1 / n
 
     elif m is None:
-        raise TypeError("either n or m must be given")
+        msg = "either n or m must be given"
+        raise TypeError(msg)
 
     if not (0 < m < 1):
-        raise ValueError("m must be strictly between 0.0 and 1.0")
+        msg = "m must be strictly between 0.0 and 1.0"
+        raise ValueError(msg)
 
     if alpha <= 0:
-        raise ValueError("alpha must be positive")
+        msg = "alpha must be positive"
+        raise ValueError(msg)
 
     Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
 
     if theta_range[1] - theta_range[0] <= 0:
-        raise ValueError("theta_range[1] must be greater than theta_range[0]")
+        msg = "theta_range[1] must be greater than theta_range[0]"
+        raise ValueError(msg)
 
     # - Code generated with functionstr() from ../symbolic/generate.py - #
     # Source: ../symbolic/van_genuchten.py
@@ -578,7 +594,8 @@ def van_genuchten(
         )
         if derivatives == 2:
             return D, dD_dtheta, d2D_dtheta2
-        raise ValueError("derivatives must be 0, 1 or 2")
+        msg = "derivatives must be 0, 1 or 2"
+        raise ValueError(msg)
 
     # ----------------------- End generated code ----------------------- #
 
@@ -825,7 +842,8 @@ def letxs(
         )
         if derivatives == 2:
             return D, dD_dtheta, d2D_dtheta2
-        raise ValueError("derivatives must be 0, 1 or 2")
+        msg = "derivatives must be 0, 1 or 2"
+        raise ValueError(msg)
 
     # ----------------------- End generated code ----------------------- #
 
@@ -919,7 +937,8 @@ def letd(L, E, T, Dwt=1.0, theta_range=(0.0, 1.0)):
         )
         if derivatives == 2:
             return D, dD_dtheta, d2D_dtheta2
-        raise ValueError("derivatives must be 0, 1 or 2")
+        msg = "derivatives must be 0, 1 or 2"
+        raise ValueError(msg)
 
     # ----------------------- End generated code ----------------------- #
 
@@ -1014,7 +1033,8 @@ def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
         if derivatives == 2:
             return D, dD_dtheta, d2D_dtheta2
 
-        raise ValueError("derivatives must be 0, 1, or 2")
+        msg = "derivatives must be 0, 1, or 2"
+        raise ValueError(msg)
 
     return D
 
@@ -1046,15 +1066,18 @@ def _checked(D, theta=None):
         try:
             D_, dD_dtheta = D(theta, 1)
         except (ValueError, ArithmeticError) as e:
-            raise ValueError(f"D({theta}, 1) failed with {e.__class__.__name__}") from e
+            msg = f"D({theta}, 1) failed with {e.__class__.__name__}"
+            raise ValueError(msg) from e
 
     try:
         D_ = float(D_)
         dD_dtheta = float(dD_dtheta)
     except TypeError as e:
-        raise ValueError(f"D({theta}, 1) returned wrong type") from e
+        msg = f"D({theta}, 1) returned wrong type"
+        raise ValueError(msg) from e
 
     if not np.isfinite(D_) or D_ <= 0 or not np.isfinite(dD_dtheta):
-        raise ValueError(f"D({theta}, 1) returned invalid value")
+        msg = f"D({theta}, 1) returned invalid value"
+        raise ValueError(msg)
 
     return D_

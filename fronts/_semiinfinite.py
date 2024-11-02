@@ -51,7 +51,8 @@ class Solution(BaseSolution):
 
     def __init__(self, sol, ob, oi, D):
         if ob > oi:
-            raise ValueError("ob cannot be greater than oi")
+            msg = "ob cannot be greater than oi"
+            raise ValueError(msg)
 
         def wrapped_sol(o):
             under = np.less(o, ob)
@@ -491,7 +492,7 @@ def solve(
                 first derivative at ``theta``
             *   ``D(theta, 2)`` returns the value of :math:`D`, its first
                 derivative, and its second derivative at ``theta``
-        
+
         When called by this function, ``theta`` is always a single float.
         However, calls as ``D(theta)`` should also accept a NumPy array
         argument.
@@ -611,10 +612,12 @@ def solve(
         start_time = process_time()
 
     if radial and ob <= 0:
-        raise ValueError("ob must be positive when using a radial coordinate")
+        msg = "ob must be positive when using a radial coordinate"
+        raise ValueError(msg)
 
     if maxiter < 0:
-        raise ValueError("maxiter must not be negative")
+        msg = "maxiter must not be negative"
+        raise ValueError(msg)
 
     if not callable(D):
         D = from_expr(
@@ -623,7 +626,8 @@ def solve(
 
     if d_dob_bracket is not None:
         if d_dob_hint is not None:
-            raise TypeError("cannot pass both d_dob_hint and d_dob_bracket")
+            msg = "cannot pass both d_dob_hint and d_dob_bracket"
+            raise TypeError(msg)
 
         d_dob_bracket = tuple(
             x if np.sign(x) == np.sign(i - b) else 0 for x in d_dob_bracket
@@ -633,9 +637,8 @@ def solve(
         d_dob_hint = (i - b) / (2 * _checked(D, b) ** 0.5)
 
     elif np.sign(d_dob_hint) != np.sign(i - b):
-        raise ValueError(
-            "sign of d_dob_hint does not match direction given " "by b and i"
-        )
+        msg = "sign of d_dob_hint does not match direction given " "by b and i"
+        raise ValueError(msg)
 
     if verbose >= 2:
         print(f"{'Iteration':^15}{'Residual':^15}{'d/do|b':^15}{'Calls to D':^15}")
@@ -710,17 +713,15 @@ def solve(
                         "d_dob_bracket does not contain target d/do|b. Try "
                         "again with a correct interval."
                     )
-                raise ValueError(
-                    "d_dob_bracket does not contain target d/do|b"
-                ) from None
+                msg = "d_dob_bracket does not contain target d/do|b"
+                raise ValueError(msg) from None
 
     except shooter.ShotLimitReached:
         if verbose:
             print(f"The solver did not converge after {maxiter} iterations.")
             print(f"Execution time: {process_time() - start_time:.3f} s")
-        raise RuntimeError(
-            f"The solver did not converge after {maxiter} iterations."
-        ) from None
+        msg = f"The solver did not converge after {maxiter} iterations."
+        raise RuntimeError(msg) from None
 
     if shooter.best_shot is not None and shooter.best_shot.d_dob == d_dob:
         result = shooter.best_shot
@@ -858,7 +859,7 @@ def solve_flowrate(
                 first derivative at ``theta``
             *   ``D(theta, 2)`` returns the value of :math:`D`, its first
                 derivative, and its second derivative at ``theta``
-        
+
         where ``theta`` is always a float in the latter two cases, but it may
         be either a single float or a NumPy array when `D` is called as
         ``D(theta)``.
@@ -982,30 +983,37 @@ def solve_flowrate(
         start_time = process_time()
 
     if ob <= 0:
-        raise ValueError("ob must be positive")
+        msg = "ob must be positive"
+        raise ValueError(msg)
 
     if not 0 < angle <= 2 * np.pi:
-        raise ValueError("angle must be positive and no greater than 2*pi")
+        msg = "angle must be positive and no greater than 2*pi"
+        raise ValueError(msg)
 
     if radial == "cylindrical":
         if height is None:
-            raise TypeError(
+            msg = (
                 "must pass a height if radial == 'cylindrical' "
                 "(or use radial='polar')"
             )
+            raise TypeError(msg)
         if height <= 0:
-            raise ValueError("height must be positive")
+            msg = "height must be positive"
+            raise ValueError(msg)
     elif radial == "polar":
         if height is not None:
-            raise TypeError(
+            msg = (
                 "height parameter not allowed if radial == "
                 "'polar' (use radial='cylindrical' instead)"
             )
+            raise TypeError(msg)
     else:
-        raise ValueError("radial must be one of {'cylindrical', 'polar'}")
+        msg = "radial must be one of {'cylindrical', 'polar'}"
+        raise ValueError(msg)
 
     if maxiter < 0:
-        raise ValueError("maxiter must not be negative")
+        msg = "maxiter must not be negative"
+        raise ValueError(msg)
 
     if not callable(D):
         D = from_expr(
@@ -1014,7 +1022,8 @@ def solve_flowrate(
 
     if b_bracket is not None:
         if b_hint is not None:
-            raise TypeError("cannot pass both b_hint and b_bracket")
+            msg = "cannot pass both b_hint and b_bracket"
+            raise TypeError(msg)
 
         b_bracket = tuple(x if np.sign(i - x) == np.sign(-Qb) else i for x in b_bracket)
 
@@ -1022,7 +1031,8 @@ def solve_flowrate(
         b_hint = i + np.sign(Qb)
 
     elif np.sign(i - b_hint) != np.sign(-Qb):
-        raise ValueError("value of b_hint disagrees with flowrate sign")
+        msg = "value of b_hint disagrees with flowrate sign"
+        raise ValueError(msg)
 
     if verbose >= 2:
         print(
@@ -1103,17 +1113,15 @@ def solve_flowrate(
                         "b_bracket does not contain target boundary value. "
                         "Try again with a correct interval."
                     )
-                raise ValueError(
-                    "b_bracket does not contain target bounday value"
-                ) from None
+                msg = "b_bracket does not contain target bounday value"
+                raise ValueError(msg) from None
 
     except shooter.ShotLimitReached:
         if verbose:
             print(f"The solver did not converge after {maxiter} iterations.")
             print(f"Execution time: {process_time() - start_time:.3f} s")
-        raise RuntimeError(
-            f"The solver did not converge after {maxiter} iterations."
-        ) from None
+        msg = f"The solver did not converge after {maxiter} iterations."
+        raise RuntimeError(msg) from None
 
     if shooter.best_shot is not None and shooter.best_shot.b == b:
         result = shooter.best_shot
@@ -1184,7 +1192,7 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verb
                 first derivative at ``theta``
             *   ``D(theta, 2)`` returns the value of :math:`D`, its first
                 derivative, and its second derivative at ``theta``
-        
+
         where ``theta`` may be a single float or a NumPy array.
 
         Alternatively, instead of a callable, the argument can be the
@@ -1266,9 +1274,8 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verb
         start_time = process_time()
 
     if radial and o_guess[0] <= 0:
-        raise ValueError(
-            "o_guess[0] must be positive when using a radial " "coordinate"
-        )
+        msg = "o_guess[0] must be positive when using a radial " "coordinate"
+        raise ValueError(msg)
 
     if not callable(D):
         D = from_expr(D)
@@ -1305,7 +1312,8 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verb
     if not bvp_result.success:
         if verbose:
             print(f"Execution time: {process_time() - start_time:.3f} s")
-        raise RuntimeError(f"The solver did not converge: {bvp_result.message}")
+        msg = f"The solver did not converge: {bvp_result.message}"
+        raise RuntimeError(msg)
 
     if abs(bvp_result.y[1, -1]) > 1e-6:
         if verbose:
@@ -1315,7 +1323,8 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verb
             )
             print(f"Execution time: {process_time() - start_time:.3f} s")
 
-        raise RuntimeError("o_guess cannot contain solution")
+        msg = "o_guess cannot contain solution"
+        raise RuntimeError(msg)
 
     solution = Solution(
         sol=bvp_result.sol, ob=bvp_result.x[0], oi=bvp_result.x[-1], D=D

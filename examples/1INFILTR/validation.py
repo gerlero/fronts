@@ -8,8 +8,7 @@ Data obtained using Hydrus-1D version 4.17.0140
 """
 
 import itertools
-import os
-import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,7 +16,7 @@ import numpy as np
 r_unit = "cm"
 t_unit = "h"
 
-_filename = os.path.join(sys.path[0], "Nod_Inf.out")
+_filename = Path(__file__).parent / "Nod_Inf.out"
 
 
 t = []
@@ -25,7 +24,7 @@ r = None
 theta = []
 velocity = []
 
-with open(_filename) as file:
+with _filename.open() as file:
     for i, line in enumerate(file):
         if i <= 10:
             continue  # Skip time 0

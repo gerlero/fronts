@@ -9,13 +9,12 @@ groundwaterFoam solver was used.
 
 """
 
-import os
-import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-_filename = os.path.join(sys.path[0], "groundwaterFoam_results.csv")
+_filename = Path(__file__).parent / "groundwaterFoam_results.csv"
 
 name = "porousMultiphaseFoam"
 
