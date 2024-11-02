@@ -70,26 +70,25 @@ packages = ["fronts"]
 version = {attr = "fronts.__version__"}
 
 [tool.ruff.lint]
-extend-select = [
-    "B",
-    "C4",
-    "D",
-    "F",
-    "FLY",
-    "FURB",
-    "I",
-    "ICN",
-    "INT",
-    "PIE",
-    "PLC",
-    "PLE",
-    "PLW",
-    "Q",
-    "RSE",
-    "RUF",
-    "TCH",
-    "UP",
-    "YTT",
+extend-select = ["ALL"]
+extend-ignore = [
+    "ANN",
+    "ARG001",
+    "C901",
+    "COM812",
+    "E501",
+    "FBT002",
+    "ISC001",
+    "N",
+    "NPY201",
+    "PLR0912",
+    "PLR0913",
+    "PLR0915",
+    "PLR2004",
+    "PYI",
+    "S101",
+    "SIM105",
+    "T201",
 ]
 
 [tool.ruff.lint.pydocstyle]

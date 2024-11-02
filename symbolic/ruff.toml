@@ -1,4 +1,7 @@
 extend = "../pyproject.toml"
 
 [lint]
-ignore = ["D"]
+extend-ignore = [
+    "D",
+    "ERA001",
+]
