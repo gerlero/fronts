@@ -118,18 +118,22 @@ def bracket_root(
     root.
     """
     if growth_factor < 1:
-        raise ValueError("growth_factor cannot be less than 1")
+        msg = "growth_factor cannot be less than 1"
+        raise ValueError(msg)
 
     if ftol is not None and ftol < 0:
-        raise ValueError("ftol cannot be negative")
+        msg = "ftol cannot be negative"
+        raise ValueError(msg)
 
     if maxiter is not None and maxiter < 0:
-        raise ValueError("maxiter cannot be negative")
+        msg = "maxiter cannot be negative"
+        raise ValueError(msg)
 
     a, b = interval
 
     if a == b:
-        raise ValueError("interval must have different endpoints")
+        msg = "interval must have different endpoints"
+        raise ValueError(msg)
 
     f_a, f_b = f_interval
 
@@ -185,8 +189,9 @@ def bracket_root(
             )
 
         if maxiter is not None and iteration >= maxiter:
+            msg = f"failed to converge after {maxiter} iterations"
             raise IterationLimitReached(
-                f"failed to converge after {maxiter} iterations",
+                msg,
                 interval=(a, b),
                 f_interval=(f_a, f_b),
                 function_calls=function_calls,
@@ -195,6 +200,7 @@ def bracket_root(
         a, b = b, b + growth_factor * (b - a)
         f_a, f_b = f_b, f(b)
         function_calls += 1
+    return None
 
 
 class NotABracketError(ValueError):
@@ -269,10 +275,12 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
     returned.
     """
     if ftol < 0:
-        raise ValueError("ftol cannot be negative")
+        msg = "ftol cannot be negative"
+        raise ValueError(msg)
 
     if maxiter is not None and maxiter < 0:
-        raise ValueError("maxiter cannot be negative")
+        msg = "maxiter cannot be negative"
+        raise ValueError(msg)
 
     a, b = bracket
     f_a, f_b = f_bracket
@@ -290,8 +298,9 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
 
     # Check that the bracket is valid
     if f_a * f_b > 0:
+        msg = "f must have different signs at the bracket " "endpoints"
         raise NotABracketError(
-            "f must have different signs at the bracket " "endpoints",
+            msg,
             f_interval=(f_a, f_b),
             function_calls=function_calls,
         )
@@ -315,8 +324,9 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
     # Perform the actual bisection
     for iteration in itertools.count(start=1):
         if maxiter is not None and iteration > maxiter:
+            msg = f"failed to converge after {maxiter} iterations"
             raise IterationLimitReached(
-                f"failed to converge after {maxiter} iterations",
+                msg,
                 interval=(a, b),
                 f_interval=(f_a, f_b),
                 function_calls=function_calls,
@@ -340,3 +350,4 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
                 iterations=iteration,
                 function_calls=function_calls,
             )
+    return None

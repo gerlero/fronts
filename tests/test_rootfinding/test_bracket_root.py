@@ -1,6 +1,7 @@
 import fronts._rootfinding as rootfinding
 import pytest
-from checkobj import check_iterationlimitreached, check_result
+
+from .checkobj import check_iterationlimitreached, check_result
 
 
 def f(x):

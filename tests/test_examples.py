@@ -1,14 +1,13 @@
 import os
+import subprocess
+from pathlib import Path
 
 import pytest
 
-examples = []
 for root, _dirs, files in os.walk("examples"):
-    for file in files:
-        if file.endswith(".py"):
-            examples.append(os.path.join(root, file))
+    examples = [Path(root, file) for file in files if file.endswith(".py")]
 
 
 @pytest.mark.parametrize("file", examples)
 def test_run_example(file):
-    assert os.system(file) == 0
+    subprocess.run([file], check=True)
