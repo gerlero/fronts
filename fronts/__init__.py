@@ -7,18 +7,18 @@ from ._inverse import inverse, sorptivity
 from ._semiinfinite import Solution, solve, solve_flowrate, solve_from_guess
 
 __all__ = [
+    "BaseSolution",
+    "Solution",
+    "as_o",
+    "do_dr",
+    "do_dt",
+    "inverse",
+    "o",
+    "ode",
+    "r",
     "solve",
     "solve_flowrate",
     "solve_from_guess",
-    "Solution",
-    "inverse",
     "sorptivity",
-    "ode",
-    "BaseSolution",
-    "o",
-    "do_dr",
-    "do_dt",
-    "r",
     "t",
-    "as_o",
 ]
