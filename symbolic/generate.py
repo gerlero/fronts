@@ -47,9 +47,9 @@ def functionstr(var, expr):
 
     for x in reversed(xs):
         appearance[x] = 2
-        for other in appearance:
+        for other, n in appearance.items():
             if x[0] in other[1].free_symbols:
-                appearance[x] = min(appearance[x], appearance[other])
+                appearance[x] = min(appearance[x], n)
 
     variable = {var}
 
