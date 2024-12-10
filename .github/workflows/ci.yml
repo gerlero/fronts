@@ -39,9 +39,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
     - name: Install test dependencies
-      run: uv pip install --system .[test]
+      run: uv sync --extra test
     - name: Test with pytest
-      run: pytest --cov=fronts
+      run: uv run pytest --cov=fronts --cov-report xml
       env: # for Matplotlib
         MPLBACKEND: agg
     - name: Upload code coverage results to Codecov
