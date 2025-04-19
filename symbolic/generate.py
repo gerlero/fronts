@@ -16,7 +16,7 @@ def _derivative_names(var: str) -> Generator[str, None, None]:
         yield f"d{n}D_d{var}{n}"
 
 
-def functionstr(var: sympy.Symbol | str, expr: sympy.Expression | str | float) -> str:
+def functionstr(var: sympy.Symbol | str, expr: sympy.Expr | str | float) -> str:
     """
     Return a string that defines a function ``D`` that can evaluate `expr` and
     its first two derivatives with respect to `var`.
@@ -27,7 +27,7 @@ def functionstr(var: sympy.Symbol | str, expr: sympy.Expression | str | float) -
     ----------
     var : `sympy.Symbol` or str
         The function's variable.
-    expr : `sympy.Expression` or str or float
+    expr : `sympy.Expr` or str or float
         SymPy-compatible expression. Any free symbols other than `var` will be
         taken as parameters that must be in scope when the returned code is
         executed. Use of special functions and constructs is not currently

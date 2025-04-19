@@ -10,7 +10,7 @@ differential equation.
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Literal, overload
+from typing import TYPE_CHECKING, overload
 
 if sys.version_info >= (3, 8):
     from typing import Literal
