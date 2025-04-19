@@ -22,6 +22,21 @@ jobs:
       with:
         args: 'format --check'
 
+  typing:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version-file: pyproject.toml
+    - name: Check types with mypy
+      run: |
+        uv run mypy
+
   test:
     runs-on: ubuntu-22.04
     strategy:
