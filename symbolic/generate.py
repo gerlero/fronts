@@ -74,7 +74,7 @@ def functionstr(var, expr):
             )
         lines.append(f"    {name} = {expr}")
         lines.append(
-            f"    if derivatives == {n}: return {', '.join(deriv_names[:n+1])}"
+            f"    if derivatives == {n}: return {', '.join(deriv_names[: n + 1])}"
         )
 
     lines.append('    raise ValueError("derivatives must be 0, 1 or 2")')

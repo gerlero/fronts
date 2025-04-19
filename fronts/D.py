@@ -155,7 +155,7 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
             if derivatives == 2 and max_derivatives == 2:
                 return funcs[0](theta), funcs[1](theta), funcs[2](theta)
 
-            msg = f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}"
+            msg = f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives + 1))}}}"
             raise ValueError(msg)
 
     else:
@@ -181,7 +181,7 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
             if derivatives == 2 and max_derivatives == 2:
                 return (*f01(theta), f2(theta))
 
-            msg = f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives+1))}}}"
+            msg = f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives + 1))}}}"
             raise ValueError(msg)
 
     return D
