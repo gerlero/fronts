@@ -298,7 +298,7 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
 
     # Check that the bracket is valid
     if f_a * f_b > 0:
-        msg = "f must have different signs at the bracket " "endpoints"
+        msg = "f must have different signs at the bracket endpoints"
         raise NotABracketError(
             msg,
             f_interval=(f_a, f_b),

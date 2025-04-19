@@ -637,7 +637,7 @@ def solve(
         d_dob_hint = (i - b) / (2 * _checked(D, b) ** 0.5)
 
     elif np.sign(d_dob_hint) != np.sign(i - b):
-        msg = "sign of d_dob_hint does not match direction given " "by b and i"
+        msg = "sign of d_dob_hint does not match direction given by b and i"
         raise ValueError(msg)
 
     if verbose >= 2:
@@ -993,8 +993,7 @@ def solve_flowrate(
     if radial == "cylindrical":
         if height is None:
             msg = (
-                "must pass a height if radial == 'cylindrical' "
-                "(or use radial='polar')"
+                "must pass a height if radial == 'cylindrical' (or use radial='polar')"
             )
             raise TypeError(msg)
         if height <= 0:
@@ -1274,7 +1273,7 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verb
         start_time = process_time()
 
     if radial and o_guess[0] <= 0:
-        msg = "o_guess[0] must be positive when using a radial " "coordinate"
+        msg = "o_guess[0] must be positive when using a radial coordinate"
         raise ValueError(msg)
 
     if not callable(D):
