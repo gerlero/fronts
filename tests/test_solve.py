@@ -5,7 +5,7 @@ import pytest
 from numpy.testing import assert_allclose
 
 
-def test_nogradient():
+def test_nogradient() -> None:
     theta = fronts.solve(D="theta", i=1, b=1)
 
     o = np.linspace(0, 20, 100)
@@ -13,7 +13,7 @@ def test_nogradient():
     assert_allclose(theta(o=o), theta.i)
 
 
-def test_exact():
+def test_exact() -> None:
     # Reference: Philip (1960) Table 1, No. 13
     # https://doi.org/10.1071/PH600001
     theta = fronts.solve(D="0.5*(1 - log(theta))", i=0, b=1)
@@ -33,7 +33,7 @@ def test_exact():
     assert theta(o=theta.oi) == theta.i
 
 
-def test_HF135():
+def test_HF135() -> None:
     r = np.array(
         [
             0.0,
@@ -136,7 +136,7 @@ def test_HF135():
     assert_allclose(theta.flux(r, t), U_pmf, atol=1e-6)
 
 
-def test_exact_explicit():
+def test_exact_explicit() -> None:
     theta = fronts.solve(D="0.5*(1 - log(theta))", i=0, b=1, method="explicit")
 
     o = np.linspace(0, 20, 100)
@@ -144,31 +144,31 @@ def test_exact_explicit():
     assert_allclose(theta(o=o), np.exp(-o), atol=1e-3)
 
 
-def test_exact_bracket():
+def test_exact_bracket() -> None:
     theta = fronts.solve(D="0.5*(1 - log(theta))", i=0, b=1, d_dob_bracket=(-1, -2))
 
     o = np.linspace(0, 20, 100)
 
-    assert len(theta.d_dob_bracket) == 2
+    assert len(theta.d_dob_bracket) == 2  # type: ignore[attr-defined]
     assert_allclose(theta(o=o), np.exp(-o), atol=1e-3)
 
 
-def test_badbracket():
+def test_badbracket() -> None:
     with pytest.raises(ValueError):
         fronts.solve(D="theta", i=0, b=1, d_dob_bracket=(-2, -3))
 
 
-def test_badDi():
+def test_badDi() -> None:
     with pytest.raises(ValueError):
         fronts.solve(D="theta", i=-0.1, b=1)
 
 
-def test_badDb():
+def test_badDb() -> None:
     with pytest.raises(ValueError):
         fronts.solve(D="theta", i=1, b=-1)
 
 
-def test_scipy_17066():
+def test_scipy_17066() -> None:
     # Test workaround for https://github.com/scipy/scipy/issues/17066
     D = fronts.D.letd(
         Dwt=0.7434647830290397,

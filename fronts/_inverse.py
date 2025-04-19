@@ -1,8 +1,18 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Literal, overload
+
 import numpy as np
 from scipy.interpolate import PchipInterpolator
 
+if TYPE_CHECKING:
+    from .D import _VectorizedD2
 
-def inverse(o, samples):
+
+def inverse(
+    o: np.ndarray[tuple[int], np.dtype[np.floating]],
+    samples: np.ndarray[tuple[int], np.dtype[np.floating]],
+) -> _VectorizedD2:
     r"""
     Extract `D` from samples of a solution.
 
@@ -86,7 +96,7 @@ def inverse(o, samples):
     i = samples[-1]
 
     samples, indices = np.unique(samples, return_index=True)
-    o = o[indices]
+    o = o[indices]  # type: ignore[assignment]
 
     o_func = PchipInterpolator(x=samples, y=o, extrapolate=False)
 
@@ -95,7 +105,58 @@ def inverse(o, samples):
 
     o_funcs = [o_func.derivative(n) for n in range(4)]
 
-    def D(theta, derivatives=0):
+    @overload
+    def D(theta: float, derivatives: Literal[0] = 0) -> float: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0] = 0,
+    ) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+    @overload
+    def D(theta: float, derivatives: Literal[1]) -> tuple[float, float]: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[1],
+    ) -> tuple[
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ]: ...
+
+    @overload
+    def D(theta: float, derivatives: Literal[2]) -> tuple[float, float, float]: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[2],
+    ) -> tuple[
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ]: ...
+
+    def D(
+        theta: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0, 1, 2] = 0,
+    ) -> (
+        float
+        | tuple[float, float]
+        | tuple[float, float, float]
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+        | tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]
+        | tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]
+    ):
         Iodtheta = o_antiderivative_func(theta) - o_antiderivative_i
 
         do_dtheta = o_funcs[1](theta)
@@ -126,7 +187,14 @@ def inverse(o, samples):
     return D
 
 
-def sorptivity(o, samples, *, i=None, b=None, ob=0):
+def sorptivity(
+    o: np.ndarray[tuple[int], np.dtype[np.floating]],
+    samples: np.ndarray[tuple[int], np.dtype[np.floating]],
+    *,
+    i: float | None = None,
+    b: float | None = None,
+    ob: float = 0,
+) -> float:
     r"""
     Extract the sorptivity from samples of a solution.
 
@@ -162,4 +230,4 @@ def sorptivity(o, samples, *, i=None, b=None, ob=0):
     if i is None:
         i = samples[-1]
 
-    return np.trapz(samples - i, o)
+    return np.trapz(samples - i, o)  # type: ignore[return-value]

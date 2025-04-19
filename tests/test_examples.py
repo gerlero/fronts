@@ -9,5 +9,5 @@ for root, _dirs, files in os.walk("examples"):
 
 
 @pytest.mark.parametrize("file", examples)
-def test_run_example(file):
+def test_run_example(file: Path) -> None:
     subprocess.run([file], check=True)

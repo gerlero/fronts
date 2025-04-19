@@ -1,12 +1,140 @@
 """D functions."""
 
+from __future__ import annotations
+
 import functools
+import sys
+from typing import TYPE_CHECKING, overload
+
+if sys.version_info >= (3, 8):
+    from typing import Literal, Protocol
+else:
+    from typing_extensions import Literal, Protocol
 
 import numpy as np
-import sympy
+import sympy  # type: ignore[import-untyped]
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
-def constant(D0):
+class _D0(Protocol):
+    @overload
+    def __call__(self, theta: float, derivatives: Literal[0] = 0) -> float: ...
+
+    @overload
+    def __call__(
+        self,
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0] = 0,
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+class _ScalarD1(Protocol):
+    @overload
+    def __call__(self, theta: float, derivatives: Literal[0] = 0) -> float: ...
+
+    @overload
+    def __call__(
+        self,
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0] = 0,
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+    @overload
+    def __call__(
+        self, theta: float, derivatives: Literal[1]
+    ) -> tuple[float, float]: ...
+
+
+class _ScalarD2(Protocol):
+    @overload
+    def __call__(self, theta: float, derivatives: Literal[0] = 0) -> float: ...
+
+    @overload
+    def __call__(
+        self,
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0] = 0,
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+    @overload
+    def __call__(
+        self, theta: float, derivatives: Literal[1]
+    ) -> tuple[float, float]: ...
+
+    @overload
+    def __call__(
+        self, theta: float, derivatives: Literal[2]
+    ) -> tuple[float, float, float]: ...
+
+
+class _VectorizedD1(Protocol):
+    @overload
+    def __call__(self, theta: float, derivatives: Literal[0] = 0) -> float: ...
+
+    @overload
+    def __call__(
+        self,
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0] = 0,
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+    @overload
+    def __call__(
+        self, theta: float, derivatives: Literal[1]
+    ) -> tuple[float, float]: ...
+
+    @overload
+    def __call__(
+        self,
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[1],
+    ) -> (
+        tuple[float, float]
+        | tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]
+    ): ...
+
+
+class _VectorizedD2(Protocol):
+    @overload
+    def __call__(self, theta: float, derivatives: Literal[0] = 0) -> float: ...
+
+    @overload
+    def __call__(
+        self,
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0] = 0,
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+    @overload
+    def __call__(
+        self, theta: float, derivatives: Literal[1]
+    ) -> tuple[float, float]: ...
+
+    @overload
+    def __call__(
+        self,
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[1],
+    ) -> (
+        tuple[float, float]
+        | tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]
+    ): ...
+
+    @overload
+    def __call__(
+        self, theta: float, derivatives: Literal[2]
+    ) -> tuple[float, float, float]: ...
+
+
+def constant(D0: float) -> _VectorizedD2:
     r"""
     Return a constant `D` function.
 
@@ -44,7 +172,18 @@ def constant(D0):
         msg = "D0 must be positive"
         raise ValueError(msg)
 
-    def D(_, derivatives=0):
+    @overload
+    def D(theta: object, derivatives: Literal[0] = 0) -> float: ...
+
+    @overload
+    def D(theta: object, derivatives: Literal[1]) -> tuple[float, float]: ...
+
+    @overload
+    def D(theta: object, derivatives: Literal[2]) -> tuple[float, float, float]: ...
+
+    def D(
+        theta: object, derivatives: Literal[0, 1, 2] = 0
+    ) -> float | tuple[float, ...]:
         if derivatives == 0:
             return D0
 
@@ -53,7 +192,45 @@ def constant(D0):
     return D
 
 
-def from_expr(expr, vectorized=True, max_derivatives=2):
+@overload
+def from_expr(
+    expr: sympy.Expression,
+    vectorized: bool,  # noqa: FBT001
+    max_derivatives: Literal[0],
+) -> _D0: ...
+
+
+@overload
+def from_expr(
+    expr: sympy.Expression, vectorized: Literal[False], max_derivatives: Literal[1]
+) -> _ScalarD1: ...
+
+
+@overload
+def from_expr(
+    expr: sympy.Expression, vectorized: Literal[False], max_derivatives: Literal[2]
+) -> _ScalarD2: ...
+
+
+@overload
+def from_expr(
+    expr: sympy.Expression, vectorized: Literal[True], max_derivatives: Literal[1]
+) -> _VectorizedD1: ...
+
+
+@overload
+def from_expr(
+    expr: sympy.Expression,
+    vectorized: Literal[True] = True,
+    max_derivatives: Literal[2] = 2,
+) -> _VectorizedD2: ...
+
+
+def from_expr(
+    expr: sympy.Expression | str | float,
+    vectorized: bool = True,  # noqa: FBT001
+    max_derivatives: Literal[0, 1, 2] = 2,
+) -> _D0 | _ScalarD1 | _ScalarD2 | _VectorizedD1 | _VectorizedD2:
     """
     Create a `D` function from a SymPy-compatible expression.
 
@@ -119,7 +296,21 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
     if max_derivatives == 0:
         func = sympy.lambdify(theta, expr, modules=np)
 
-        def D(theta):
+        @overload
+        def D0(theta: float, derivatives: Literal[0] = 0) -> float: ...
+
+        @overload
+        def D0(
+            theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            derivatives: Literal[0] = 0,
+        ) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+        def D0(
+            theta: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            derivatives: Literal[0] = 0,
+        ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
+            assert derivatives == 0
+
             try:
                 # Convert scalars to NumPy scalars; avoids
                 # https://github.com/sympy/sympy/issues/11306
@@ -127,9 +318,9 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
             except TypeError:
                 pass
 
-            return func(theta)
+            return func(theta)  # type: ignore[no-any-return]
 
-        return D
+        return D0
 
     exprs = [expr]
     for _ in range(max_derivatives):
@@ -138,7 +329,39 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
     if vectorized:
         funcs = tuple(sympy.lambdify(theta, expr, modules=np) for expr in exprs)
 
-        def D(theta, derivatives=0):
+        @overload
+        def Dv(theta: float, derivatives: Literal[0] = 0) -> float: ...
+        @overload
+        def Dv(
+            theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            derivatives: Literal[0] = 0,
+        ) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+        @overload
+        def Dv(theta: float, derivatives: Literal[1]) -> tuple[float, float]: ...
+        @overload
+        def Dv(
+            theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            derivatives: Literal[1],
+        ) -> tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]: ...
+        @overload
+        def Dv(theta: float, derivatives: Literal[2]) -> tuple[float, float, float]: ...
+
+        def Dv(
+            theta: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            derivatives: Literal[0, 1, 2] = 0,
+        ) -> (
+            float
+            | tuple[float, float]
+            | tuple[float, float, float]
+            | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+            | tuple[
+                np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+                np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            ]
+        ):
             try:
                 # Convert scalars to NumPy scalars; avoids
                 # https://github.com/sympy/sympy/issues/11306
@@ -147,7 +370,7 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
                 pass
 
             if derivatives == 0:
-                return funcs[0](theta)
+                return funcs[0](theta)  # type: ignore[no-any-return]
 
             if derivatives == 1:
                 return funcs[0](theta), funcs[1](theta)
@@ -158,36 +381,55 @@ def from_expr(expr, vectorized=True, max_derivatives=2):
             msg = f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives + 1))}}}"
             raise ValueError(msg)
 
-    else:
-        f0v = sympy.lambdify(theta, exprs[0], modules=np)
-        f01 = sympy.lambdify(theta, exprs[:2], modules="math")
-        if max_derivatives == 2:
-            f2 = sympy.lambdify(theta, exprs[2], modules="math")
+        return Dv
 
-        def D(theta, derivatives=0):
-            if derivatives == 0:
-                try:
-                    # Convert scalars to NumPy scalars; avoids
-                    # https://github.com/sympy/sympy/issues/11306
-                    theta = np.float64(theta)
-                except TypeError:
-                    pass
+    f0v = sympy.lambdify(theta, exprs[0], modules=np)
+    f01 = sympy.lambdify(theta, exprs[:2], modules="math")
+    if max_derivatives == 2:
+        f2 = sympy.lambdify(theta, exprs[2], modules="math")
 
-                return f0v(theta)
+    @overload
+    def D(theta: float, derivatives: Literal[0] = 0) -> float: ...
 
-            if derivatives == 1:
-                return f01(theta)
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0] = 0,
+    ) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
 
-            if derivatives == 2 and max_derivatives == 2:
-                return (*f01(theta), f2(theta))
+    @overload
+    def D(theta: float, derivatives: Literal[1]) -> tuple[float, float]: ...
 
-            msg = f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives + 1))}}}"
-            raise ValueError(msg)
+    @overload
+    def D(theta: float, derivatives: Literal[2]) -> tuple[float, float, float]: ...
+
+    def D(
+        theta: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0, 1, 2] = 0,
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]] | tuple[float, ...]:
+        if derivatives == 0:
+            try:
+                # Convert scalars to NumPy scalars; avoids
+                # https://github.com/sympy/sympy/issues/11306
+                theta = np.float64(theta)
+            except TypeError:
+                pass
+
+            return f0v(theta)  # type: ignore[no-any-return]
+
+        if derivatives == 1:
+            return f01(theta)  # type: ignore[no-any-return]
+
+        if derivatives == 2 and max_derivatives == 2:
+            return (*f01(theta), f2(theta))
+
+        msg = f"derivatives must be one of {{{', '.join(str(n) for n in range(max_derivatives + 1))}}}"
+        raise ValueError(msg)
 
     return D
 
 
-def power_law(k, a=1.0, epsilon=0.0):
+def power_law(k: float, a: float = 1.0, epsilon: float = 0.0) -> _VectorizedD2:
     r"""
     Return a power-law `D` function.
 
@@ -225,7 +467,58 @@ def power_law(k, a=1.0, epsilon=0.0):
     necessarily map every value of :math:`\theta` to a positive value.
     """
 
-    def D(theta, derivatives=0):
+    @overload
+    def D(theta: float, derivatives: Literal[0] = 0) -> float: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0] = 0,
+    ) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+    @overload
+    def D(theta: float, derivatives: Literal[1]) -> tuple[float, float]: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[1],
+    ) -> tuple[
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ]: ...
+
+    @overload
+    def D(theta: float, derivatives: Literal[2]) -> tuple[float, float, float]: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[2],
+    ) -> tuple[
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ]: ...
+
+    def D(
+        theta: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0, 1, 2] = 0,
+    ) -> (
+        float
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+        | tuple[float, float]
+        | tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]
+        | tuple[float, float, float]
+        | tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]
+    ):
         D = a * theta**k + epsilon
 
         if derivatives == 0:
@@ -247,7 +540,9 @@ def power_law(k, a=1.0, epsilon=0.0):
     return D
 
 
-def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
+def _as_Ks(
+    Ks: float | None = None, k: float | None = None, nu: float = 1e-6, g: float = 9.81
+) -> float:
     r"""
     Return the saturated hydraulic conductivity.
 
@@ -303,15 +598,15 @@ def _as_Ks(Ks=None, k=None, nu=1e-6, g=9.81):
 
 
 def brooks_and_corey(
-    n,
-    l=1.0,  # noqa: E741
-    alpha=1.0,
-    Ks=None,
-    k=None,
-    nu=1e-6,
-    g=9.81,
-    theta_range=(0.0, 1.0),
-):
+    n: float,
+    l: float = 1.0,  # noqa: E741
+    alpha: float = 1.0,
+    Ks: float | None = None,
+    k: float | None = None,
+    nu: float = 1e-6,
+    g: float = 9.81,
+    theta_range: tuple[float, float] = (0.0, 1.0),
+) -> _VectorizedD2:
     r"""
     Return a Brooks and Corey moisture diffusivity function.
 
@@ -395,7 +690,58 @@ def brooks_and_corey(
     x2 = n * (l + 2) + 1
     x3 = x1 * x2
 
-    def D(theta, derivatives=0):
+    @overload
+    def D(theta: float, derivatives: Literal[0] = 0) -> float: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0] = 0,
+    ) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+    @overload
+    def D(theta: float, derivatives: Literal[1]) -> tuple[float, float]: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[1],
+    ) -> tuple[
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ]: ...
+
+    @overload
+    def D(theta: float, derivatives: Literal[2]) -> tuple[float, float, float]: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[2],
+    ) -> tuple[
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ]: ...
+
+    def D(
+        theta: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0, 1, 2] = 0,
+    ) -> (
+        float
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+        | tuple[float, float]
+        | tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]
+        | tuple[float, float, float]
+        | tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]
+    ):
         x0 = theta - theta_range[0]
         x4 = Ks * x1 * (-x0 / (theta_range[0] - theta_range[1])) ** x3 / alpha
         D = x4 / x0
@@ -416,16 +762,16 @@ def brooks_and_corey(
 
 
 def van_genuchten(
-    n=None,
-    m=None,
-    l=0.5,  # noqa: E741
-    alpha=1.0,
-    Ks=None,
-    k=None,
-    nu=1e-6,
-    g=9.81,
-    theta_range=(0.0, 1.0),
-):
+    n: float | None = None,
+    m: float | None = None,
+    l: float = 0.5,  # noqa: E741
+    alpha: float = 1.0,
+    Ks: float | None = None,
+    k: float | None = None,
+    nu: float = 1e-6,
+    g: float = 9.81,
+    theta_range: tuple[float, float] = (0.0, 1.0),
+) -> _VectorizedD2:
     r"""
     Return a Van Genuchten moisture diffusivity function.
 
@@ -539,7 +885,7 @@ def van_genuchten(
     x3 = 1 / m
     x8 = l - x3
 
-    def D(theta, derivatives=0):
+    def D(theta, derivatives=0):  # type: ignore[no-untyped-def]  # noqa: ANN001 ANN202
         x0 = theta - theta_range[0]
         x2 = -x0 * x1
         x4 = x2**x3
@@ -603,19 +949,19 @@ def van_genuchten(
 
 
 def letxs(
-    Lw,
-    Ew,
-    Tw,
-    Ls,
-    Es,
-    Ts,
-    Ks=None,
-    k=None,
-    nu=1e-6,
-    g=9.81,
-    alpha=1.0,
-    theta_range=(0.0, 1.0),
-):
+    Lw: float,
+    Ew: float,
+    Tw: float,
+    Ls: float,
+    Es: float,
+    Ts: float,
+    Ks: float | None = None,
+    k: float | None = None,
+    nu: float = 1e-6,
+    g: float = 9.81,
+    alpha: float = 1.0,
+    theta_range: tuple[float, float] = (0.0, 1.0),
+) -> _VectorizedD2:
     r"""
     Return a LETx + LETs diffusivity function.
 
@@ -729,7 +1075,7 @@ def letxs(
     x53 = Ts**2
     x58 = Ls**2
 
-    def D(theta, derivatives=0):
+    def D(theta, derivatives=0):  # type: ignore[no-untyped-def]  # noqa: ANN001 ANN202
         x1 = theta - theta_range[0]
         x3 = x1 * x2
         x4 = x3 + 1
@@ -850,7 +1196,13 @@ def letxs(
     return D
 
 
-def letd(L, E, T, Dwt=1.0, theta_range=(0.0, 1.0)):
+def letd(
+    L: float,
+    E: float,
+    T: float,
+    Dwt: float = 1.0,
+    theta_range: tuple[float, float] = (0.0, 1.0),
+) -> _VectorizedD2:
     r"""
     Return a LETd diffusivity function.
 
@@ -904,7 +1256,7 @@ def letd(L, E, T, Dwt=1.0, theta_range=(0.0, 1.0)):
     x2 = 1 / (theta_range[0] + x1)
     x17 = L**2
 
-    def D(theta, derivatives=0):
+    def D(theta, derivatives=0):  # type: ignore[no-untyped-def]  # noqa: ANN001 ANN202
         x0 = theta - theta_range[0]
         x3 = (-x0 * x2) ** L
         x4 = theta + x1
@@ -945,7 +1297,14 @@ def letd(L, E, T, Dwt=1.0, theta_range=(0.0, 1.0)):
     return D
 
 
-def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
+def richards(
+    C: _VectorizedD2,
+    kr: _VectorizedD2,
+    Ks: float | None = None,
+    k: float | None = None,
+    nu: float = 1e-6,
+    g: float = 9.81,
+) -> _VectorizedD2:
     r"""
     Return a moisture diffusivity function for a Richards equation problem.
 
@@ -1014,12 +1373,63 @@ def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
     """
     Ks = _as_Ks(Ks=Ks, k=k, nu=nu, g=g)
 
-    def D(theta, derivatives=0):
+    @overload
+    def D(theta: float, derivatives: Literal[0] = 0) -> float: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0] = 0,
+    ) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+    @overload
+    def D(theta: float, derivatives: Literal[1]) -> tuple[float, float]: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[1],
+    ) -> tuple[
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ]: ...
+
+    @overload
+    def D(theta: float, derivatives: Literal[2]) -> tuple[float, float, float]: ...
+
+    @overload
+    def D(
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[2],
+    ) -> tuple[
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ]: ...
+
+    def D(
+        theta: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[0, 1, 2] = 0,
+    ) -> (
+        float
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+        | tuple[float, float]
+        | tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]
+        | tuple[float, float, float]
+        | tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]
+    ):
         if derivatives == 0:
             return Ks * kr(theta) / C(theta)
 
-        K_ = [Ks * kr for kr in kr(theta, derivatives)]
-        C_ = C(theta, derivatives)
+        K_ = [Ks * kr for kr in kr(theta, derivatives)]  # type: ignore[arg-type]
+        C_ = C(theta, derivatives)  # type: ignore[arg-type]
 
         D = K_[0] / C_[0]
 
@@ -1028,7 +1438,7 @@ def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
         if derivatives == 1:
             return D, dD_dtheta
 
-        d2D_dtheta2 = (K_[2] - 2 * dD_dtheta * C_[1] - D * C_[2]) / C_[0]
+        d2D_dtheta2 = (K_[2] - 2 * dD_dtheta * C_[1] - D * C_[2]) / C_[0]  # type: ignore[misc]
 
         if derivatives == 2:
             return D, dD_dtheta, d2D_dtheta2
@@ -1039,7 +1449,17 @@ def richards(C, kr, Ks=None, k=None, nu=1e-6, g=9.81):
     return D
 
 
-def _checked(D, theta=None):
+@overload
+def _checked(D: _ScalarD1, theta: float) -> float: ...
+
+
+@overload
+def _checked(D: _ScalarD1, theta: None = None) -> Callable[[float], float]: ...
+
+
+def _checked(
+    D: _ScalarD1, theta: float | None = None
+) -> float | Callable[[float], float]:
     """
     Call `D` and return its value if valid.
 

@@ -2,7 +2,7 @@ import fronts.D
 import pytest
 
 
-def test_letxs():
+def test_letxs() -> None:
     D = fronts.D.letxs(
         Lw=1.1,
         Ew=1.2,
@@ -23,7 +23,7 @@ def test_letxs():
     )
 
 
-def test_letd():
+def test_letd() -> None:
     D = fronts.D.letd(L=1.1, E=1.2, T=1.3, Dwt=1.4, theta_range=(0.1, 0.9))
 
     assert D(0.5, 2) == pytest.approx(

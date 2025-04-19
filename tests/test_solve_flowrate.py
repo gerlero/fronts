@@ -4,7 +4,7 @@ import pytest
 from numpy.testing import assert_allclose
 
 
-def test_Qb():
+def test_Qb() -> None:
     Qb = 2
     height = 10
 
@@ -18,7 +18,7 @@ def test_Qb():
     )
 
 
-def test_noflow():
+def test_noflow() -> None:
     theta = fronts.solve_flowrate(D="theta", radial="polar", i=0.1, Qb=0)
 
     o = np.linspace(1e-6, 20, 100)
@@ -26,6 +26,6 @@ def test_noflow():
     assert_allclose(theta(o=o), theta.i)
 
 
-def test_badbracket():
+def test_badbracket() -> None:
     with pytest.raises(ValueError):
         fronts.solve_flowrate(D="theta", i=0, Qb=1, radial="polar", b_bracket=(1, 2))

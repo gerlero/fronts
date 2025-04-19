@@ -6,7 +6,7 @@ Script that derives the ODE's Jacobian matrix
 Used only in development. Running this script requires SymPy.
 """
 
-import sympy
+import sympy  # type: ignore [import-untyped]
 
 o = sympy.Symbol("o", real=True)
 
