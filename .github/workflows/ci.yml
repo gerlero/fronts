@@ -39,7 +39,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
     - name: Install test dependencies
-      run: uv sync --extra test
+      run: uv sync
     - name: Test with pytest
       run: uv run pytest --cov=fronts --cov-report xml
       env: # for Matplotlib
