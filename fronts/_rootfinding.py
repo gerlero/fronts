@@ -1,4 +1,10 @@
+from __future__ import annotations
+
 import itertools
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class Result:
@@ -24,13 +30,13 @@ class Result:
 
     def __init__(
         self,
-        root=None,
-        f_root=None,
-        bracket=None,
-        f_bracket=None,
-        iterations=0,
-        function_calls=0,
-    ):
+        root: float | None = None,
+        f_root: float | None = None,
+        bracket: tuple[float, float] | None = None,
+        f_bracket: tuple[float, float] | None = None,
+        iterations: int = 0,
+        function_calls: int = 0,
+    ) -> None:
         self.root = root
         self.f_root = f_root
         self.bracket = bracket
@@ -56,7 +62,13 @@ class IterationLimitReached(RuntimeError):
         Number of calls to `f`.
     """
 
-    def __init__(self, message, interval, f_interval, function_calls):
+    def __init__(
+        self,
+        message: str,
+        interval: tuple[float, float],
+        f_interval: tuple[float, float],
+        function_calls: int,
+    ) -> None:
         super().__init__(message)
 
         self.interval = interval
@@ -65,8 +77,13 @@ class IterationLimitReached(RuntimeError):
 
 
 def bracket_root(
-    f, interval, growth_factor=2, maxiter=100, f_interval=(None, None), ftol=None
-):
+    f: Callable[[float], float],
+    interval: tuple[float, float],
+    growth_factor: float = 2,
+    maxiter: int | None = 100,
+    f_interval: tuple[float | None, float | None] = (None, None),
+    ftol: float | None = None,
+) -> Result:
     """
     Find an interval that brackets a root of a function.
 
@@ -200,7 +217,8 @@ def bracket_root(
         a, b = b, b + growth_factor * (b - a)
         f_a, f_b = f_b, f(b)
         function_calls += 1
-    return None
+
+    raise AssertionError
 
 
 class NotABracketError(ValueError):
@@ -219,14 +237,22 @@ class NotABracketError(ValueError):
         Number of calls to `f`.
     """
 
-    def __init__(self, message, f_interval, function_calls):
+    def __init__(
+        self, message: str, f_interval: tuple[float, float], function_calls: int
+    ) -> None:
         super().__init__(message)
 
         self.f_interval = f_interval
         self.function_calls = function_calls
 
 
-def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
+def bisect(
+    f: Callable[[float], float],
+    bracket: tuple[float, float],
+    ftol: float = 1e-12,
+    maxiter: int | None = 100,
+    f_bracket: tuple[float | None, float | None] = (None, None),
+) -> Result:
     """
     Find root of a function within a bracket using the bisection method.
 
@@ -350,4 +376,5 @@ def bisect(f, bracket, ftol=1e-12, maxiter=100, f_bracket=(None, None)):
                 iterations=iteration,
                 function_calls=function_calls,
             )
-    return None
+
+    raise AssertionError

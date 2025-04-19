@@ -4,9 +4,9 @@
 Script that derives the expressions for the LET-based diffusivity functions.
 """
 
-import sympy
+import sympy  # type: ignore [import-untyped]
 
-from generate import functionstr
+from .generate import functionstr
 
 Swir = sympy.Symbol("Swir", real=True, positive=True)
 

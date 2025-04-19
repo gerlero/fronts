@@ -5,15 +5,26 @@ This module uses the Boltzmann transformation to deal with initial-boundary
 value problems in semi-infinite domains.
 """
 
-from collections import namedtuple
+from __future__ import annotations
+
+import sys
 from time import process_time
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, TypeVar
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 import numpy as np
 from scipy.integrate import solve_bvp, solve_ivp
 
 from ._boltzmann import BaseSolution, ode, r
 from ._rootfinding import NotABracketError, bisect, bracket_root
-from .D import _checked, from_expr
+from .D import _D0, _checked, _ScalarD1, _ScalarD2, _VectorizedD2, from_expr
+
+if TYPE_CHECKING:
+    import sympy  # type: ignore[import-untyped]
 
 
 class Solution(BaseSolution):
@@ -49,12 +60,23 @@ class Solution(BaseSolution):
         Must be callable with a float or NumPy array as its argument.
     """
 
-    def __init__(self, sol, ob, oi, D):
+    def __init__(
+        self,
+        sol: Callable[
+            [float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ],
+        ob: float,
+        oi: float,
+        D: _D0,
+    ) -> None:
         if ob > oi:
             msg = "ob cannot be greater than oi"
             raise ValueError(msg)
 
-        def wrapped_sol(o):
+        def wrapped_sol(
+            o: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
             under = np.less(o, ob)
             over = np.greater(o, oi)
 
@@ -71,17 +93,17 @@ class Solution(BaseSolution):
         self._oi = oi
 
     @property
-    def i(self):
+    def i(self) -> float:
         """float: Initial value of the solution."""
-        return self(o=self._oi)
+        return self(o=self._oi)  # type: ignore[return-value]
 
     @property
-    def ob(self):
+    def ob(self) -> float:
         """float: Parameter :math:`o_b`."""
         return self._ob
 
     @property
-    def oi(self):
+    def oi(self) -> float:
         """
         float: Parameter :math:`o_i`.
 
@@ -90,7 +112,9 @@ class Solution(BaseSolution):
         """
         return self._oi
 
-    def rb(self, t):
+    def rb(
+        self, t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         """
         Boundary location.
 
@@ -112,11 +136,13 @@ class Solution(BaseSolution):
         return r(o=self.ob, t=t)
 
     @property
-    def b(self):
+    def b(self) -> float:
         """float: Boundary value of the solution."""
-        return self(o=self.ob)
+        return self(o=self.ob)  # type: ignore[return-value]
 
-    def d_drb(self, t):
+    def d_drb(
+        self, t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         r"""
         Spatial derivative of the solution at the boundary.
 
@@ -134,7 +160,9 @@ class Solution(BaseSolution):
         """
         return self.d_dr(self.rb(t), t)
 
-    def d_dtb(self, t):
+    def d_dtb(
+        self, t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         r"""
         Time derivative of the solution at the boundary.
 
@@ -152,7 +180,9 @@ class Solution(BaseSolution):
         """
         return self.d_dt(self.rb(t), t)
 
-    def fluxb(self, t):
+    def fluxb(
+        self, t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         r"""
         Boundary flux.
 
@@ -172,16 +202,20 @@ class Solution(BaseSolution):
         return self.flux(self.rb(t), t)
 
     @property
-    def d_dob(self):
+    def d_dob(self) -> float:
         """
         float: boundary Boltzmann derivative.
 
         Derivative of the solution with respect to the Boltzmann
         variable at the boundary.
         """
-        return self.d_do(o=self.ob)
+        return self.d_do(o=self.ob)  # type: ignore[return-value]
 
-    def sorptivity(self, *, o=None):
+    def sorptivity(
+        self,
+        *,
+        o: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]] | None = None,
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         r"""
         Sorptivity.
 
@@ -207,6 +241,9 @@ class Solution(BaseSolution):
         if o is None:
             o = self.ob
         return super().sorptivity(o=o)
+
+
+R = TypeVar("R")
 
 
 class _Shooter:
@@ -235,17 +272,42 @@ class _Shooter:
     """
 
     @staticmethod
-    def _native_float_inputs(f):
+    def _native_float_inputs(
+        f: Callable[[float, tuple[float, float]], R],
+    ) -> Callable[[float, tuple[float, float]], R]:
         """Speeds up arithmetic by converting NumPy inputs to native floats."""
 
-        def wrapper(o, y):
+        def wrapper(o: float, y: tuple[float, float]) -> R:
             return f(float(o), (float(y[0]), float(y[1])))
 
         return wrapper
 
+    class Result(NamedTuple):
+        b: float
+        d_dob: float | None
+        i_residual: float
+        D_calls: int | None
+        o: np.ndarray[tuple[int], np.dtype[np.floating]] | None
+        sol: (
+            Callable[
+                [float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]],
+                np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            ]
+            | None
+        )
+
     def __init__(
-        self, D, i, radial, ob, theta_direction, itol, method, max_shots, shot_callback
-    ):
+        self,
+        D: _ScalarD2 | _ScalarD1,
+        i: float,
+        radial: Literal[False, "cylindrical", "polar", "spherical"],
+        ob: float,
+        theta_direction: int,
+        itol: float,
+        method: Literal["implicit", "explicit"],
+        max_shots: int | None,
+        shot_callback: Callable[[Result], None] | None,
+    ) -> None:
         assert callable(D)
         assert not radial or ob > 0
         assert theta_direction in {-1, 0, 1}
@@ -268,24 +330,26 @@ class _Shooter:
         self._checked_D = _checked(D)
 
         # Integration events
-        def settled(o, y):
-            return y[1]
+        def settled(
+            o: float, y: np.ndarray[tuple[int], np.dtype[np.floating]]
+        ) -> float:
+            return y[1]  # type: ignore[no-any-return]
 
-        settled.terminal = True
+        settled.terminal = True  # type: ignore[attr-defined]
 
-        def blew_past_i(o, y):
-            return y[0] - (i + theta_direction * itol)
+        def blew_past_i(
+            o: float, y: np.ndarray[tuple[int], np.dtype[np.floating]]
+        ) -> float:
+            return y[0] - (i + theta_direction * itol)  # type: ignore[no-any-return]
 
-        blew_past_i.terminal = True
+        blew_past_i.terminal = True  # type: ignore[attr-defined]
 
-        self._events = (settled, blew_past_i)
+        self._events = [settled, blew_past_i]
 
         self.shots = 0
-        self.best_shot = None
+        self.best_shot: _Shooter.Result | None = None
 
-    Result = namedtuple("Result", ["b", "d_dob", "i_residual", "D_calls", "o", "sol"])
-
-    def integrate(self, b, d_dob):
+    def integrate(self, b: float, d_dob: float) -> Result:
         """
         Integrate and return the full result.
 
@@ -311,7 +375,7 @@ class _Shooter:
                         method="DOP853",
                         events=self._events,
                         dense_output=True,
-                    )
+                    )  # type: ignore[call-overload]
                 else:
                     ivp_result = solve_ivp(
                         self._fun,
@@ -321,7 +385,7 @@ class _Shooter:
                         jac=self._jac,
                         events=self._events,
                         dense_output=True,
-                    )
+                    )  # type: ignore[call-overload]
             except ValueError as e:
                 # Workaround for https://github.com/scipy/scipy/issues/17066
                 if str(e) == "`ts` must be strictly increasing or decreasing.":
@@ -362,7 +426,7 @@ class _Shooter:
         shots has been reached.
         """
 
-    def shoot(self, *args, **kwargs):
+    def shoot(self, *args: Any, **kwargs: Any) -> float:  # noqa: ANN401
         """
         Call `integrate` and returns the result's `i_residual`.
 
@@ -417,7 +481,18 @@ class _DirichletShooter(_Shooter):
     shot_callback : None or callable
     """
 
-    def __init__(self, D, i, b, radial, ob, itol, method, max_shots, shot_callback):
+    def __init__(
+        self,
+        D: _ScalarD1 | _ScalarD2,
+        i: float,
+        b: float,
+        radial: Literal[False, "cylindrical", "polar", "spherical"],
+        ob: float,
+        itol: float,
+        method: Literal["implicit", "explicit"],
+        max_shots: int | None,
+        shot_callback: Callable[[_Shooter.Result], None] | None,
+    ) -> None:
         theta_direction = np.sign(i - b)
 
         super().__init__(
@@ -438,7 +513,7 @@ class _DirichletShooter(_Shooter):
         if abs(i - b) > itol:
             self._checked_D(i - theta_direction * itol)
 
-    def integrate(self, d_dob):
+    def integrate(self, d_dob: float) -> _Shooter.Result:  # type: ignore[override]
         """
         Integrate and return the full result.
 
@@ -454,18 +529,18 @@ class _DirichletShooter(_Shooter):
 
 
 def solve(
-    D,
-    i,
-    b,
-    radial=False,
-    ob=0.0,
-    itol=1e-3,
-    d_dob_hint=None,
-    d_dob_bracket=None,
-    method="implicit",
-    maxiter=100,
-    verbose=0,
-):
+    D: _ScalarD1 | _ScalarD2 | sympy.Expression | str | float,
+    i: float,
+    b: float,
+    radial: Literal[False, "cylindrical", "polar", "spherical"] = False,
+    ob: float = 0.0,
+    itol: float = 1e-3,
+    d_dob_hint: float | None = None,
+    d_dob_bracket: tuple[float, float] | None = None,
+    method: Literal["implicit", "explicit"] = "implicit",
+    maxiter: int = 100,
+    verbose: int = 0,
+) -> Solution:
     r"""
     Solve a problem with a Dirichlet boundary condition.
 
@@ -631,7 +706,7 @@ def solve(
 
         d_dob_bracket = tuple(
             x if np.sign(x) == np.sign(i - b) else 0 for x in d_dob_bracket
-        )
+        )  # type: ignore[assignment]
 
     elif d_dob_hint is None:
         d_dob_hint = (i - b) / (2 * _checked(D, b) ** 0.5)
@@ -643,7 +718,7 @@ def solve(
     if verbose >= 2:
         print(f"{'Iteration':^15}{'Residual':^15}{'d/do|b':^15}{'Calls to D':^15}")
 
-        def shot_callback(result):
+        def shot_callback(result: _Shooter.Result) -> None:
             if np.isfinite(result.i_residual):
                 print(
                     f"{shooter.shots:^15}{result.i_residual:^15.2e}{result.d_dob:^15.7e}{result.D_calls:^15}"
@@ -654,7 +729,7 @@ def solve(
                     f"{shooter.shots:^15}{'*':^15}{result.d_dob:^15.7e}{result.D_calls or '*':^15}"
                 )
     else:
-        shot_callback = None
+        shot_callback = None  # type: ignore[assignment]
 
     shooter = _DirichletShooter(
         D=D,
@@ -671,10 +746,11 @@ def solve(
     try:
         if d_dob_bracket is None:
             if i == b:
-                d_dob = 0
-                d_dob_bracket = (0, 0)
+                d_dob: float | None = 0.0
+                d_dob_bracket = (0.0, 0.0)
 
             else:
+                assert d_dob_hint is not None
                 d_dob_result = bracket_root(
                     shooter.shoot,
                     interval=(0, d_dob_hint),
@@ -684,13 +760,15 @@ def solve(
                 )
 
                 d_dob = d_dob_result.root
+                assert d_dob_result.bracket is not None
                 d_dob_bracket = d_dob_result.bracket
-                f_bracket = d_dob_result.f_bracket
+                assert d_dob_result.f_bracket is not None
+                f_bracket: tuple[float | None, float | None] = d_dob_result.f_bracket
 
         else:
             assert d_dob_hint is None
             d_dob = None
-            f_bracket = tuple(b - i if x == 0 else None for x in d_dob_bracket)
+            f_bracket = tuple(b - i if x == 0 else None for x in d_dob_bracket)  # type: ignore[assignment]
 
         if d_dob is None:
             try:
@@ -702,8 +780,11 @@ def solve(
                     maxiter=None,
                 )
 
+                assert d_dob_result.root is not None
                 d_dob = d_dob_result.root
+                assert d_dob_result.bracket is not None
                 d_dob_bracket = d_dob_result.bracket
+                assert d_dob_result.f_bracket is not None
                 f_bracket = d_dob_result.f_bracket
 
             except NotABracketError:
@@ -728,11 +809,13 @@ def solve(
     else:
         result = shooter.integrate(d_dob=d_dob)
 
+    assert result.sol is not None
+    assert result.o is not None
     solution = Solution(sol=result.sol, ob=result.o[0], oi=result.o[-1], D=D)
 
-    solution.o = result.o
-    solution.niter = shooter.shots
-    solution.d_dob_bracket = d_dob_bracket
+    solution.o = result.o  # type: ignore[attr-defined]
+    solution.niter = shooter.shots  # type: ignore[attr-defined]
+    solution.d_dob_bracket = d_dob_bracket  # type: ignore[attr-defined]
 
     if verbose:
         print(f"Solved in {shooter.shots} iterations.")
@@ -764,7 +847,17 @@ class _FlowrateShooter(_Shooter):
     shot_callback : None or callable
     """
 
-    def __init__(self, D, i, rel_flowrate, ob, itol, method, max_shots, shot_callback):
+    def __init__(
+        self,
+        D: _ScalarD2 | _ScalarD1,
+        i: float,
+        rel_flowrate: float,
+        ob: float,
+        itol: float,
+        method: Literal["implicit", "explicit"],
+        max_shots: int | None,
+        shot_callback: Callable[[_Shooter.Result], None] | None,
+    ) -> None:
         assert ob > 0
 
         theta_direction = np.sign(-rel_flowrate)
@@ -785,7 +878,7 @@ class _FlowrateShooter(_Shooter):
         # Flow rate per unit angle and height
         self._rel_flowrate = rel_flowrate
 
-    def integrate(self, b):
+    def integrate(self, b: float) -> _Shooter.Result:  # type: ignore[override]
         """
         Integrate and return the full result.
 
@@ -819,20 +912,20 @@ class _FlowrateShooter(_Shooter):
 
 
 def solve_flowrate(
-    D,
-    i,
-    Qb,
-    radial,
-    ob=1e-6,
-    angle=2 * np.pi,
-    height=None,
-    itol=1e-3,
-    b_hint=None,
-    b_bracket=None,
-    method="implicit",
-    maxiter=100,
-    verbose=0,
-):
+    D: _ScalarD2 | _ScalarD1 | sympy.Expression | str | float,
+    i: float,
+    Qb: float,
+    radial: Literal["cylindrical", "polar"],
+    ob: float = 1e-6,
+    angle: float = 2 * np.pi,
+    height: float | None = None,
+    itol: float = 1e-3,
+    b_hint: float | None = None,
+    b_bracket: tuple[float, float] | None = None,
+    method: Literal["implicit", "explicit"] = "implicit",
+    maxiter: int = 100,
+    verbose: int = 0,
+) -> Solution:
     r"""
     Solve a radial problem with a fixed-flowrate boundary condition.
 
@@ -1024,7 +1117,7 @@ def solve_flowrate(
             msg = "cannot pass both b_hint and b_bracket"
             raise TypeError(msg)
 
-        b_bracket = tuple(x if np.sign(i - x) == np.sign(-Qb) else i for x in b_bracket)
+        b_bracket = tuple(x if np.sign(i - x) == np.sign(-Qb) else i for x in b_bracket)  # type: ignore[assignment]
 
     elif b_hint is None:
         b_hint = i + np.sign(Qb)
@@ -1038,7 +1131,7 @@ def solve_flowrate(
             f"{'Iteration':^15}{'Residual':^15}{'Boundary value':^15}{'d/do|b':^15}{'Calls to D':^15}"
         )
 
-        def shot_callback(result):
+        def shot_callback(result: _Shooter.Result) -> None:
             if np.isfinite(result.i_residual):
                 print(
                     f"{shooter.shots:^15}{result.i_residual:^15.2e}{result.b:^15.2e}{result.d_dob:^15.7e}{result.D_calls:^15}"
@@ -1054,7 +1147,7 @@ def solve_flowrate(
                 )
 
     else:
-        shot_callback = None
+        shot_callback = None  # type: ignore[assignment]
 
     shooter = _FlowrateShooter(
         D=D,
@@ -1070,10 +1163,11 @@ def solve_flowrate(
     try:
         if b_bracket is None:
             if Qb == 0:
-                b = i
+                b: float | None = i
                 b_bracket = (i, i)
 
             else:
+                assert b_hint is not None
                 b_result = bracket_root(
                     shooter.shoot,
                     interval=(i, b_hint),
@@ -1083,13 +1177,15 @@ def solve_flowrate(
                 )
 
                 b = b_result.root
+                assert b_result.bracket is not None
                 b_bracket = b_result.bracket
+                assert b_result.f_bracket is not None
                 f_bracket = b_result.f_bracket
 
         else:
             assert b_hint is None
             b = None
-            f_bracket = tuple(0 if Qb == 0 and x == i else None for x in b_bracket)
+            f_bracket = tuple(0 if Qb == 0 and x == i else None for x in b_bracket)  # type: ignore[assignment]
 
         if b is None:
             try:
@@ -1101,8 +1197,11 @@ def solve_flowrate(
                     maxiter=None,
                 )
 
+                assert b_result.root is not None
                 b = b_result.root
+                assert b_result.bracket is not None
                 b_bracket = b_result.bracket
+                assert b_result.f_bracket is not None
                 f_bracket = b_result.f_bracket
 
             except NotABracketError:
@@ -1127,11 +1226,13 @@ def solve_flowrate(
     else:
         result = shooter.integrate(b=b)
 
+    assert result.sol is not None
+    assert result.o is not None
     solution = Solution(sol=result.sol, ob=result.o[0], oi=result.o[-1], D=D)
 
-    solution.o = result.o
-    solution.niter = shooter.shots
-    solution.b_bracket = b_bracket
+    solution.o = result.o  # type: ignore[attr-defined]
+    solution.niter = shooter.shots  # type: ignore[attr-defined]
+    solution.b_bracket = b_bracket  # type: ignore[attr-defined]
 
     if verbose:
         print(f"Solved in {shooter.shots} iterations.")
@@ -1147,7 +1248,16 @@ def solve_flowrate(
     return solution
 
 
-def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verbose=0):
+def solve_from_guess(
+    D: _VectorizedD2 | sympy.Expression | str | float,
+    i: float,
+    b: float,
+    o_guess: np.ndarray[tuple[int], np.dtype[np.floating]],
+    guess: float | np.ndarray[tuple[int], np.dtype[np.floating]],
+    radial: Literal[False, "cylindrical", "polar", "spherical"] = False,
+    max_nodes: int = 1000,
+    verbose: int = 0,
+) -> Solution:
     r"""
     Alternative solver for problems with a Dirichlet boundary condition.
 
@@ -1287,14 +1397,23 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verb
     fun, jac = ode(D=D, radial=radial)
 
     # Boundary conditions
-    def bc(yb, yi):
+    def bc(
+        yb: np.ndarray[tuple[int], np.dtype[np.floating]],
+        yi: np.ndarray[tuple[int], np.dtype[np.floating]],
+    ) -> tuple[float, float]:
         return (yb[0] - b, yi[0] - i)
 
     dbc_dyb = np.array(((1, 0), (0, 0)))
     dbc_dyi = np.array(((0, 0), (1, 0)))
 
-    def bc_jac(yb, yi):
-        return dbc_dyb, dbc_dyi
+    def bc_jac(
+        yb: np.ndarray[tuple[int], np.dtype[np.floating]],
+        yi: np.ndarray[tuple[int], np.dtype[np.floating]],
+    ) -> tuple[
+        np.ndarray[tuple[int, int], np.dtype[np.floating]],
+        np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    ]:
+        return dbc_dyb, dbc_dyi  # type: ignore[return-value]
 
     with np.errstate(divide="ignore", invalid="ignore"):
         bvp_result = solve_bvp(
@@ -1306,7 +1425,7 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verb
             bc_jac=bc_jac,
             max_nodes=max_nodes,
             verbose=verbose,
-        )
+        )  # type: ignore[call-overload]
 
     if not bvp_result.success:
         if verbose:
@@ -1329,9 +1448,9 @@ def solve_from_guess(D, i, b, o_guess, guess, radial=False, max_nodes=1000, verb
         sol=bvp_result.sol, ob=bvp_result.x[0], oi=bvp_result.x[-1], D=D
     )
 
-    solution.o = bvp_result.x
-    solution.niter = bvp_result.niter
-    solution.rms_residuals = bvp_result.rms_residuals
+    solution.o = bvp_result.x  # type: ignore[attr-defined]
+    solution.niter = bvp_result.niter  # type: ignore[attr-defined]
+    solution.rms_residuals = bvp_result.rms_residuals  # type: ignore[attr-defined]
 
     if verbose:
         print(f"Execution time: {process_time() - start_time:.3f} s")

@@ -7,9 +7,9 @@ function
 Used only in development. Running this script requires SymPy.
 """
 
-import sympy
+import sympy  # type: ignore [import-untyped]
 
-from generate import functionstr
+from .generate import functionstr
 
 alpha, m, Ks, l = sympy.symbols("alpha, m, Ks, l", real=True, positive=True)  # noqa: E741
 theta_range = sympy.symbols("theta_range[0], theta_range[1]", real=True)

@@ -1,16 +1,22 @@
+from __future__ import annotations
+
 import itertools
+from typing import TYPE_CHECKING
 
-import sympy
+import sympy  # type: ignore [import-untyped]
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 
-def _derivative_names(var):
+def _derivative_names(var: str) -> Generator[str, None, None]:
     yield "D"
     yield f"dD_d{var}"
     for n in itertools.count(start=2):
         yield f"d{n}D_d{var}{n}"
 
 
-def functionstr(var, expr):
+def functionstr(var: sympy.Symbol | str, expr: sympy.Expression | str | float) -> str:
     """
     Return a string that defines a function ``D`` that can evaluate `expr` and
     its first two derivatives with respect to `var`.

@@ -7,10 +7,51 @@ transformation of the ODE's solution into a solution to the partial
 differential equation.
 """
 
+from __future__ import annotations
+
+import sys
+from typing import TYPE_CHECKING, Literal, overload
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
+
 import numpy as np
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
-def o(r, t):
+    from .D import _D0, _ScalarD1, _ScalarD2, _VectorizedD1, _VectorizedD2
+
+
+@overload
+def o(r: float, t: float) -> float: ...
+
+
+@overload
+def o(
+    r: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    t: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+@overload
+def o(
+    r: float, t: np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+@overload
+def o(
+    r: np.ndarray[tuple[int, ...], np.dtype[np.floating]], t: float
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+def o(
+    r: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
     r"""
     Transform to the Boltzmann variable.
 
@@ -45,7 +86,19 @@ def o(r, t):
     return r / t**0.5
 
 
-def do_dr(r, t):
+@overload
+def do_dr(r: object, t: float) -> float: ...
+
+
+@overload
+def do_dr(
+    r: object, t: np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+def do_dr(
+    r: object, t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
     r"""
     Spatial derivative of the Boltzmann transformation.
 
@@ -74,7 +127,33 @@ def do_dr(r, t):
     return 1 / t**0.5
 
 
-def do_dt(r, t):
+@overload
+def do_dt(r: float, t: float) -> float: ...
+
+
+@overload
+def do_dt(
+    r: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    t: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+@overload
+def do_dt(
+    r: float, t: np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+@overload
+def do_dt(
+    r: np.ndarray[tuple[int, ...], np.dtype[np.floating]], t: float
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+def do_dt(
+    r: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
     r"""
     Time derivative of the Boltzmann transformation.
 
@@ -103,7 +182,33 @@ def do_dt(r, t):
     return -o(r, t) / (2 * t)
 
 
-def r(o, t):
+@overload
+def r(o: float, t: float) -> float: ...
+
+
+@overload
+def r(
+    o: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    t: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+@overload
+def r(
+    o: float, t: np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+@overload
+def r(
+    o: np.ndarray[tuple[int, ...], np.dtype[np.floating]], t: float
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+def r(
+    o: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
     """
     Transform back from the Boltzmann variable into `r`.
 
@@ -130,7 +235,33 @@ def r(o, t):
     return o * t**0.5
 
 
-def t(o, r):
+@overload
+def t(o: float, r: float) -> float: ...
+
+
+@overload
+def t(
+    o: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    r: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+@overload
+def t(
+    o: float, r: np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+@overload
+def t(
+    o: np.ndarray[tuple[int, ...], np.dtype[np.floating]], r: float
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+def t(
+    o: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    r: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
     """
     Transform back from the Boltzmann variable into `t`.
 
@@ -160,7 +291,11 @@ def t(o, r):
 _o = o
 
 
-def as_o(r=None, t=None, o=None):
+def as_o(
+    r: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]] | None,
+    t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]] | None,
+    o: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]] | None,
+) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
     """
     Transform to the Boltzmann variable if called with `r` and `t`.
 
@@ -207,7 +342,28 @@ def as_o(r=None, t=None, o=None):
 _k = {False: 0, "cylindrical": 1, "polar": 1, "spherical": 2}
 
 
-def ode(D, radial=False, catch_errors=False):
+def ode(
+    D: _ScalarD1 | _ScalarD2 | _VectorizedD1 | _VectorizedD2,
+    radial: Literal[False, "cylindrical", "polar", "spherical"] = False,
+    catch_errors: bool = False,  # noqa: FBT001
+) -> tuple[
+    Callable[
+        [
+            float | np.ndarray[tuple[int], np.dtype[np.floating]],
+            tuple[float, float]
+            | np.ndarray[tuple[int] | tuple[int, int], np.dtype[np.floating]],
+        ],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ],
+    Callable[
+        [
+            float | np.ndarray[tuple[int], np.dtype[np.floating]],
+            tuple[float, float]
+            | np.ndarray[tuple[int] | tuple[int, int], np.dtype[np.floating]],
+        ],
+        np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ],
+]:
     r"""
     Transform the PDE into an ODE.
 
@@ -317,7 +473,11 @@ def ode(D, radial=False, catch_errors=False):
         msg = f"radial must be one of {{{', '.join(repr(key) for key in _k)}}}"
         raise ValueError(msg) from None
 
-    def fun(o, y):
+    def fun(
+        o: float | np.ndarray[tuple[int], np.dtype[np.floating]],
+        y: tuple[float, float]
+        | np.ndarray[tuple[int] | tuple[int, int], np.dtype[np.floating]],
+    ) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         theta, dtheta_do = y
 
         try:
@@ -350,7 +510,11 @@ def ode(D, radial=False, catch_errors=False):
                 return np.array((dtheta_do, np.nan * o), float)
             raise
 
-    def jac(o, y):
+    def jac(
+        o: float | np.ndarray[tuple[int], np.dtype[np.floating]],
+        y: tuple[float, float]
+        | np.ndarray[tuple[int] | tuple[int, ...], np.dtype[np.floating]],
+    ) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         theta, dtheta_do = y
 
         J = np.empty((2, 2, *np.shape(o)))
@@ -358,7 +522,7 @@ def ode(D, radial=False, catch_errors=False):
         J[0, 1] = 1
 
         try:
-            D2 = D(theta, 2)
+            D2 = D(theta, 2)  # type: ignore[call-overload]
         except (ValueError, ArithmeticError):
             if catch_errors:
                 try:
@@ -436,11 +600,23 @@ class BaseSolution:
     ode
     """
 
-    def __init__(self, sol, D):
+    def __init__(
+        self,
+        sol: Callable[
+            [float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ],
+        D: _D0,
+    ) -> None:
         self._sol = sol
         self._D = D
 
-    def __call__(self, r=None, t=None, o=None):
+    def __call__(
+        self,
+        r: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]] | None = None,
+        t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]] | None = None,
+        o: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]] | None = None,
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         r"""
         Evaluate the solution.
 
@@ -461,9 +637,13 @@ class BaseSolution:
         -------
         float or numpy.ndarray, shape (n,)
         """
-        return self._sol(as_o(r, t, o))[0]
+        return self._sol(as_o(r, t, o))[0]  # type: ignore[no-any-return]
 
-    def d_dr(self, r, t):
+    def d_dr(
+        self,
+        r: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         r"""
         Spatial derivative of the solution.
 
@@ -482,7 +662,11 @@ class BaseSolution:
         """
         return self.d_do(r, t) * do_dr(r, t)
 
-    def d_dt(self, r, t):
+    def d_dt(
+        self,
+        r: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         r"""
         Time derivative of the solution.
 
@@ -501,7 +685,11 @@ class BaseSolution:
         """
         return self.d_do(r, t) * do_dt(r, t)
 
-    def flux(self, r, t):
+    def flux(
+        self,
+        r: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         r"""
         Diffusive flux.
 
@@ -522,7 +710,12 @@ class BaseSolution:
         """
         return -self._D(self(r, t)) * self.d_dr(r, t)
 
-    def d_do(self, r=None, t=None, o=None):
+    def d_do(
+        self,
+        r: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]] | None = None,
+        t: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]] | None = None,
+        o: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]] | None = None,
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         r"""
         Boltzmann-variable derivative of the solution.
 
@@ -544,9 +737,11 @@ class BaseSolution:
         -------
         float or numpy.ndarray, shape (n,)
         """
-        return self._sol(as_o(r, t, o))[1]
+        return self._sol(as_o(r, t, o))[1]  # type: ignore[no-any-return]
 
-    def sorptivity(self, *, o):
+    def sorptivity(
+        self, *, o: float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+    ) -> float | np.ndarray[tuple[int, ...], np.dtype[np.floating]]:
         r"""
         Sorptivity.
 

@@ -5,9 +5,9 @@ Script that derives the expressions for the bundled Brooks and Corey
 diffusivity function.
 """
 
-import sympy
+import sympy  # type: ignore [import-untyped]
 
-from generate import functionstr
+from .generate import functionstr
 
 Hp = sympy.Symbol("Hp", real=True, negative=True)
 Ks, alpha, n, Se = sympy.symbols("Ks, alpha, n, Se", real=True, positive=True)
