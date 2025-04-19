@@ -194,7 +194,7 @@ def constant(D0: float) -> _VectorizedD2:
 
 @overload
 def from_expr(
-    expr: sympy.Expression,
+    expr: sympy.Expr | str | float,
     vectorized: bool,  # noqa: FBT001
     max_derivatives: Literal[0],
 ) -> _D0: ...
@@ -202,32 +202,38 @@ def from_expr(
 
 @overload
 def from_expr(
-    expr: sympy.Expression, vectorized: Literal[False], max_derivatives: Literal[1]
+    expr: sympy.Expr | str | float,
+    vectorized: Literal[False],
+    max_derivatives: Literal[1],
 ) -> _ScalarD1: ...
 
 
 @overload
 def from_expr(
-    expr: sympy.Expression, vectorized: Literal[False], max_derivatives: Literal[2]
+    expr: sympy.Expr | str | float,
+    vectorized: Literal[False],
+    max_derivatives: Literal[2],
 ) -> _ScalarD2: ...
 
 
 @overload
 def from_expr(
-    expr: sympy.Expression, vectorized: Literal[True], max_derivatives: Literal[1]
+    expr: sympy.Expr | str | float,
+    vectorized: Literal[True],
+    max_derivatives: Literal[1],
 ) -> _VectorizedD1: ...
 
 
 @overload
 def from_expr(
-    expr: sympy.Expression,
+    expr: sympy.Expr | str | float,
     vectorized: Literal[True] = True,
     max_derivatives: Literal[2] = 2,
 ) -> _VectorizedD2: ...
 
 
 def from_expr(
-    expr: sympy.Expression | str | float,
+    expr: sympy.Expr | str | float,
     vectorized: bool = True,  # noqa: FBT001
     max_derivatives: Literal[0, 1, 2] = 2,
 ) -> _D0 | _ScalarD1 | _ScalarD2 | _VectorizedD1 | _VectorizedD2:
@@ -236,7 +242,7 @@ def from_expr(
 
     Parameters
     ----------
-    expr : `sympy.Expression` or str or float
+    expr : `sympy.Expr` or str or float
         SymPy-compatible expression containing up to one free symbol.
     vectorized : bool, optional
         Whether the returned `D` must be compatible with a solver that uses

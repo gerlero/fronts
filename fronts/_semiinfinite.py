@@ -529,7 +529,7 @@ class _DirichletShooter(_Shooter):
 
 
 def solve(
-    D: _ScalarD1 | _ScalarD2 | sympy.Expression | str | float,
+    D: _ScalarD1 | _ScalarD2 | str | float,
     i: float,
     b: float,
     radial: Literal[False, "cylindrical", "polar", "spherical"] = False,
@@ -558,7 +558,7 @@ def solve(
 
     Parameters
     ----------
-    D : callable or `sympy.Expression` or str or float
+    D : callable or `sympy.Expr` or str or float
         Callable that evaluates :math:`D` and its derivatives, obtained from
         the :mod:`fronts.D` module or defined in the same manner---i.e.:
 
@@ -574,7 +574,7 @@ def solve(
 
         Alternatively, instead of a callable, the argument can be the
         expression of :math:`D` in the form of a string or
-        :class:`sympy.Expression` with a single variable. In this case, the
+        :class:`sympy.Expr` with a single variable. In this case, the
         solver will differentiate and evaluate the expression as necessary.
     i : float
         Initial condition, :math:`\theta_i`.
@@ -912,7 +912,7 @@ class _FlowrateShooter(_Shooter):
 
 
 def solve_flowrate(
-    D: _ScalarD2 | _ScalarD1 | sympy.Expression | str | float,
+    D: _ScalarD2 | _ScalarD1 | sympy.Expr | str | float,
     i: float,
     Qb: float,
     radial: Literal["cylindrical", "polar"],
@@ -943,7 +943,7 @@ def solve_flowrate(
 
     Parameters
     ----------
-    D : callable or `sympy.Expression` or str or float
+    D : callable or `sympy.Expr` or str or float
         Callable that evaluates :math:`D` and its derivatives, obtained from
         the :mod:`fronts.D` module or defined in the same manner---i.e.:
 
@@ -959,7 +959,7 @@ def solve_flowrate(
 
         Alternatively, instead of a callable, the argument can be the
         expression of :math:`D` in the form of a string or
-        :class:`sympy.Expression` with a single variable. In this case, the
+        :class:`sympy.Expr` with a single variable. In this case, the
         solver will differentiate and evaluate the expression as necessary.
     i : float
         Initial condition, :math:`\theta_i`.
@@ -1249,7 +1249,7 @@ def solve_flowrate(
 
 
 def solve_from_guess(
-    D: _VectorizedD2 | sympy.Expression | str | float,
+    D: _VectorizedD2 | sympy.Expr | str | float,
     i: float,
     b: float,
     o_guess: np.ndarray[tuple[int], np.dtype[np.floating]],
@@ -1292,7 +1292,7 @@ def solve_from_guess(
 
     Parameters
     ----------
-    D : callable or `sympy.Expression` or str or float
+    D : callable or `sympy.Expr` or str or float
         Callable that evaluates :math:`D` and its derivatives, obtained from
         the :mod:`fronts.D` module or defined in the same manner---i.e.:
 
@@ -1306,7 +1306,7 @@ def solve_from_guess(
 
         Alternatively, instead of a callable, the argument can be the
         expression of :math:`D` in the form of a string or
-        :class:`sympy.Expression` with a single variable. In this case, the
+        :class:`sympy.Expr` with a single variable. In this case, the
         solver will differentiate and evaluate the expression as necessary.
     i : float
         Initial condition, :math:`\theta_i`.
