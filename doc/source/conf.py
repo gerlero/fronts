@@ -20,7 +20,7 @@
 import fronts
 
 project = "Fronts"
-copyright = "2019-2023, Gabriel S. Gerlero"
+copyright = "2019-2025, Gabriel S. Gerlero"
 author = "Gabriel S. Gerlero"
 
 # The full version, including alpha/beta/rc tags
