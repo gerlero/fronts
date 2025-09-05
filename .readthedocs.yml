@@ -9,7 +9,8 @@ build:
     python: "3"
   jobs:
     install:
-       - pip install --group 'docs'
+       - pip install --upgrade pip
+       - pip install --group docs
 
 sphinx:
   configuration: doc/source/conf.py
