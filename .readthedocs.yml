@@ -10,6 +10,7 @@ build:
   jobs:
     install:
        - pip install --upgrade pip
+       - pip install .
        - pip install --group docs
 
 sphinx:
