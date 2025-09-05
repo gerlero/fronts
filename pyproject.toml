@@ -36,18 +36,19 @@ dependencies = [
     "sympy>=1,<2",
     "typing-extensions>=4,<5; python_version<'3.8'",
 ]
-
 dynamic = ["version"]
-
-[dependency-groups]
-dev = ["fronts[dev]"]
-examples = ["fronts[examples]"]
-lint = ["fronts[lint]"]
-test = ["fronts[test]"]
-doc = ["fronts[doc]"]
 
 [project.optional-dependencies]
 examples = ["matplotlib>=3,<4"]
+
+[project.urls]
+Homepage = "https://github.com/gerlero/fronts"
+Repository = "https://github.com/gerlero/fronts"
+Documentation = "https://fronts.readthedocs.io"
+Changelog = "https://github.com/gerlero/fronts/blob/main/CHANGELOG.md"
+
+[dependency-groups]
+examples = ["fronts[examples]"]
 lint = ["ruff"]
 typing = [
     "mypy>=1,<2",
@@ -58,23 +59,17 @@ test = [
     "pytest-cov",
     "fronts[examples]",
 ]
-doc = [
+docs = [
     "sphinx>=5,<9",
     "sphinx_rtd_theme",
 ]
 dev = [
-    "fronts[examples]",
-    "fronts[lint]",
-    "fronts[typing]",
-    "fronts[test]",
-    "fronts[doc]",
+    {include-group = "examples"},
+    {include-group = "lint"},
+    {include-group = "typing"},
+    {include-group = "test"},
+    {include-group = "docs"},
 ]
-
-[project.urls]
-Homepage = "https://github.com/gerlero/fronts"
-Repository = "https://github.com/gerlero/fronts"
-Documentation = "https://fronts.readthedocs.io"
-Changelog = "https://github.com/gerlero/fronts/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
 packages = ["fronts"]
