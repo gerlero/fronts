@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 def check_result(
     result: rootfinding.Result,
     f: Callable[[float], float],
+    *,
     ftol: float | None = None,
     f_calls: float | None = None,
     has_root: bool | None = None,
