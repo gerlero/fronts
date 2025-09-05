@@ -102,7 +102,7 @@ def inverse(
     i = samples[-1]
 
     samples, indices = np.unique(samples, return_index=True)
-    o = o[indices]  # type: ignore[assignment]
+    o = o[indices]
 
     o_func = PchipInterpolator(x=samples, y=o, extrapolate=False)
 
