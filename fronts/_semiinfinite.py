@@ -1413,7 +1413,7 @@ def solve_from_guess(
         np.ndarray[tuple[int, int], np.dtype[np.floating]],
         np.ndarray[tuple[int, int], np.dtype[np.floating]],
     ]:
-        return dbc_dyb, dbc_dyi  # type: ignore[return-value]
+        return dbc_dyb, dbc_dyi
 
     with np.errstate(divide="ignore", invalid="ignore"):
         bvp_result = solve_bvp(
