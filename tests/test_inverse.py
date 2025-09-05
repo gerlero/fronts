@@ -9,7 +9,7 @@ def test_exact() -> None:
     # https://doi.org/10.1071/PH600001
     o = np.linspace(0, 20, 100)
 
-    D = fronts.inverse(o=o, samples=np.exp(-o))  # type: ignore[arg-type]
+    D = fronts.inverse(o=o, samples=np.exp(-o))
 
     theta = np.linspace(1e-6, 1, 100)
 
@@ -19,7 +19,7 @@ def test_exact() -> None:
 def test_exact_solve() -> None:
     o = np.linspace(0, 20, 100)
 
-    D = fronts.inverse(o=o, samples=np.exp(-o))  # type: ignore[arg-type]
+    D = fronts.inverse(o=o, samples=np.exp(-o))
 
     theta = fronts.solve(D=D, b=1, i=0)
 
@@ -29,6 +29,6 @@ def test_exact_solve() -> None:
 def test_sorptivity() -> None:
     o = np.linspace(0, 20, 100)
 
-    assert fronts.sorptivity(o=o, samples=np.exp(-o), i=0, b=1) == pytest.approx(  # type: ignore[arg-type]
+    assert fronts.sorptivity(o=o, samples=np.exp(-o), i=0, b=1) == pytest.approx(
         1, abs=5e-3
     )
