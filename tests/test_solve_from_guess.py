@@ -12,7 +12,7 @@ def test_exact() -> None:
         D="0.5*(1 - log(theta))",
         i=0,
         b=1,
-        o_guess=o,  # type: ignore[arg-type]
+        o_guess=o,
         guess=0.5,
     )
 
