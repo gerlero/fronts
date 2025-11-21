@@ -7,14 +7,8 @@ value problems in semi-infinite domains.
 
 from __future__ import annotations
 
-import sys
 from time import process_time
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple, TypeVar
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal, NamedTuple, TypeVar
 
 import numpy as np
 from scipy.integrate import solve_bvp, solve_ivp
