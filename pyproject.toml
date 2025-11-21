@@ -66,9 +66,6 @@ dev = [
     {include-group = "docs"},
 ]
 
-[tool.uv.build-backend]
-module-root = "."
-
 [tool.ruff.lint]
 extend-select = ["ALL"]
 extend-ignore = [
