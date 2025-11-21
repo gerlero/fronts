@@ -1,9 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.2"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.9,<0.10"]
+build-backend = "uv_build"
 
 [project]
 name = "fronts"
+version = "1.2.7"
 license = "BSD-3-Clause"
 authors = [{ name = "Gabriel S. Gerlero", email = "ggerlero@cimec.unl.edu.ar" }]
 description = "Numerical library for nonlinear diffusion problems in semi-infinite domains"
@@ -31,7 +32,6 @@ dependencies = [
     "numpy>=1,<3",
     "sympy>=1,<2",
 ]
-dynamic = ["version"]
 
 [project.optional-dependencies]
 examples = ["matplotlib>=3,<4"]
@@ -66,11 +66,8 @@ dev = [
     {include-group = "docs"},
 ]
 
-[tool.setuptools]
-packages = ["fronts"]
-
-[tool.setuptools.dynamic]
-version = {attr = "fronts.__version__"}
+[tool.uv.build-backend]
+module-root = "."
 
 [tool.ruff.lint]
 extend-select = ["ALL"]
