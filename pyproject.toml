@@ -1,14 +1,10 @@
 [build-system]
-requires = [
-    "setuptools>=61.2",
-]
+requires = ["setuptools>=61.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "fronts"
-authors = [
-    { name = "Gabriel S. Gerlero", email = "ggerlero@cimec.unl.edu.ar" },
-]
+authors = [{ name = "Gabriel S. Gerlero", email = "ggerlero@cimec.unl.edu.ar" }]
 description = "Numerical library for nonlinear diffusion problems in semi-infinite domains"
 readme = "README.md"
 classifiers = [
