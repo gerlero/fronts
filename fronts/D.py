@@ -3,13 +3,7 @@
 from __future__ import annotations
 
 import functools
-import sys
-from typing import TYPE_CHECKING, overload
-
-if sys.version_info >= (3, 8):
-    from typing import Literal, Protocol
-else:
-    from typing_extensions import Literal, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol, overload
 
 import numpy as np
 import sympy  # type: ignore[import-untyped]

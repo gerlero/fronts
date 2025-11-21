@@ -61,7 +61,7 @@ As mentioned before, if your problem is supported, you can expect Fronts to be e
 
 ## Installation
 
-Fronts currently runs on Python 3.7 and later.
+Fronts currently runs on Python 3.8 and later.
 
 Install Fronts with [pip](https://pip.pypa.io/en/stable/) by running this command in a terminal:
 
