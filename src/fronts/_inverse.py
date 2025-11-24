@@ -1,12 +1,9 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Literal, overload
+from typing import Literal, overload
 
 import numpy as np
 from scipy.interpolate import PchipInterpolator
 
-if TYPE_CHECKING:
-    from .D import _VectorizedD2
+from .D import _VectorizedD2
 
 
 def inverse(

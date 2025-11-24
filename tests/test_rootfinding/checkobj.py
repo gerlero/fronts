@@ -1,11 +1,6 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from collections.abc import Callable
 
 import fronts._rootfinding as rootfinding
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
 
 
 def check_result(

@@ -7,16 +7,12 @@ transformation of the ODE's solution into a solution to the partial
 differential equation.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Literal, overload
+from collections.abc import Callable
+from typing import Literal, overload
 
 import numpy as np
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
-    from .D import _D0, _ScalarD1, _ScalarD2, _VectorizedD1, _VectorizedD2
+from .D import _D0, _ScalarD1, _ScalarD2, _VectorizedD1, _VectorizedD2
 
 
 @overload
