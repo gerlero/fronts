@@ -227,4 +227,4 @@ def sorptivity(
     if i is None:
         i = samples[-1]
 
-    return np.trapz(samples - i, o)  # type: ignore[return-value]
+    return np.trapezoid(samples - i, o)  # type: ignore[no-any-return]
