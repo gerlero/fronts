@@ -65,7 +65,7 @@ def functionstr(var: sympy.Symbol | str, expr: sympy.Expr | str | float) -> str:
     lines.append(f"def D({var}, derivatives=0):")
 
     deriv_names = [
-        name for name, _ in zip(_derivative_names(var), range(3), strict=True)
+        name for name, _ in zip(_derivative_names(var), range(3), strict=False)
     ]
 
     for n, (name, expr) in enumerate(zip(deriv_names, exprs, strict=True)):
