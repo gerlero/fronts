@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "fronts"
-version = "1.2.8"
+version = "1.2.9"
 license = "BSD-3-Clause"
 authors = [{ name = "Gabriel S. Gerlero", email = "ggerlero@cimec.unl.edu.ar" }]
 description = "Numerical library for nonlinear diffusion problems in semi-infinite domains"
