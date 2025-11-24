@@ -1,15 +1,11 @@
 """D functions."""
 
-from __future__ import annotations
-
 import functools
-from typing import TYPE_CHECKING, Literal, Protocol, overload
+from collections.abc import Callable
+from typing import Literal, Protocol, overload
 
 import numpy as np
 import sympy  # type: ignore[import-untyped]
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
 
 
 class _D0(Protocol):

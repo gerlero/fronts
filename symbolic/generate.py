@@ -1,12 +1,7 @@
-from __future__ import annotations
-
 import itertools
-from typing import TYPE_CHECKING
+from collections.abc import Generator
 
 import sympy  # type: ignore [import-untyped]
-
-if TYPE_CHECKING:
-    from collections.abc import Generator
 
 
 def _derivative_names(var: str) -> Generator[str, None, None]:

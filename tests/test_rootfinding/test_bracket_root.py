@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import fronts._rootfinding as rootfinding
 import pytest
 
