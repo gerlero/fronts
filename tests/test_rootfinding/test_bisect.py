@@ -67,7 +67,7 @@ def test_iterationlimit() -> None:
     exc = exc_info.value
     assert f.calls == 3  # type: ignore [attr-defined]
     check_iterationlimitreached(exc, f, f_calls=f.calls)  # type: ignore [attr-defined]
-    assert any(a == b for a, b in zip(bracket, exc.interval))
+    assert any(a == b for a, b in zip(bracket, exc.interval, strict=True))
 
 
 def test_invalidftol() -> None:
