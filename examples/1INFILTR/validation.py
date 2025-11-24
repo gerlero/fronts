@@ -71,7 +71,7 @@ if __name__ == "__main__":
     fig.canvas.manager.set_window_title("Water content plot")
 
     plt.title("Water content fields")
-    for t_, theta_ in zip(t, theta):
+    for t_, theta_ in zip(t, theta, strict=True):
         plt.plot(r, theta_, label=f"{name}, t={t_} {t_unit}")
     plt.xlabel(f"r [{r_unit}]")
     plt.ylabel("water content [-]")
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     fig.canvas.manager.set_window_title("Velocity plot")
 
     plt.title("Velocity fields")
-    for t_, velocity_ in zip(t, velocity):
+    for t_, velocity_ in zip(t, velocity, strict=True):
         plt.plot(r, velocity_, label=f"{name}, t={t_} {t_unit}")
     plt.xlabel(f"r [{r_unit}]")
     plt.ylabel(f"Darcy velocity [{r_unit}/{t_unit}]")

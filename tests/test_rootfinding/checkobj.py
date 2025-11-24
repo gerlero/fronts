@@ -38,7 +38,9 @@ def check_result(
         assert len(result.bracket) == 2
         assert result.f_bracket is not None
         assert len(result.f_bracket) == 2
-        assert all(y == f(x) for x, y in zip(result.bracket, result.f_bracket))
+        assert all(
+            y == f(x) for x, y in zip(result.bracket, result.f_bracket, strict=True)
+        )
     else:
         assert has_bracket is None or not has_bracket
         assert result.f_bracket is None
@@ -54,7 +56,7 @@ def check_iterationlimitreached(
 
     assert len(exc.interval) == 2
     assert len(exc.f_interval) == 2
-    assert all(y == f(x) for x, y in zip(exc.interval, exc.f_interval))
+    assert all(y == f(x) for x, y in zip(exc.interval, exc.f_interval, strict=True))
 
 
 def check_notabracketerror(
@@ -69,5 +71,5 @@ def check_notabracketerror(
         assert f_calls == 2
 
     assert len(exc.f_interval) == 2
-    assert all(y == f(x) for x, y in zip(interval, exc.f_interval))
+    assert all(y == f(x) for x, y in zip(interval, exc.f_interval, strict=True))
     assert exc.f_interval[0] * exc.f_interval[1] > 0

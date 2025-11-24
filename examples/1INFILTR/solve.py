@@ -23,7 +23,7 @@ fig = plt.figure()
 fig.canvas.manager.set_window_title("Water content plot")
 
 plt.title("Water content fields")
-for t, theta_ in zip(validation.t, validation.theta):
+for t, theta_ in zip(validation.t, validation.theta, strict=True):
     plt.plot(
         validation.r, theta(validation.r, t), label=f"Fronts, t={t} {validation.t_unit}"
     )
@@ -39,7 +39,7 @@ fig = plt.figure()
 fig.canvas.manager.set_window_title("Velocity plot")
 
 plt.title("Velocity fields")
-for t, velocity in zip(validation.t, validation.velocity):
+for t, velocity in zip(validation.t, validation.velocity, strict=True):
     plt.plot(
         validation.r,
         theta.flux(validation.r, t),

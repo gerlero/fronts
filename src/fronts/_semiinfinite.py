@@ -8,7 +8,7 @@ value problems in semi-infinite domains.
 from __future__ import annotations
 
 from time import process_time
-from typing import TYPE_CHECKING, Any, Callable, Literal, NamedTuple, TypeVar
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, TypeVar
 
 import numpy as np
 from scipy.integrate import solve_bvp, solve_ivp
@@ -18,6 +18,8 @@ from ._rootfinding import NotABracketError, bisect, bracket_root
 from .D import _D0, _checked, _ScalarD1, _ScalarD2, _VectorizedD2, from_expr
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     import sympy  # type: ignore[import-untyped]
 
 
