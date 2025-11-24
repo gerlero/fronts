@@ -3,13 +3,14 @@
 Fronts is a Python numerical library for nonlinear diffusion problems based on the Boltzmann transformation.
 
 ```python
-Python 3.9.6 (default, Sep 26 2022, 11:37:49)
+Python 3.14.0 (main, Oct  7 2025, 15:35:21) [Clang 20.1.4 ] on linux
+Type "help", "copyright", "credits" or "license" for more information.
 >>> import fronts
 >>> θ = fronts.solve(D="exp(7*θ)/2", i=0, b=1)  # i: initial value, b: boundary value
 >>> θ(r=10, t=3) 
-0.9169685387070694
+np.float64(0.9169685387070685)
 >>> θ.d_dr(10,3)  # ∂θ/∂r
--0.01108790437249313
+np.float64(-0.011087904372492852)
 >>> print("Welcome to the Fronts project page.")
 ```
 
@@ -61,7 +62,7 @@ As mentioned before, if your problem is supported, you can expect Fronts to be e
 
 ## Installation
 
-Fronts currently runs on Python 3.8 and later.
+Fronts currently runs on Python 3.10 and later.
 
 Install Fronts with [pip](https://pip.pypa.io/en/stable/) by running this command in a terminal:
 
