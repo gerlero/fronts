@@ -45,7 +45,7 @@ examples = ["fronts[examples]"]
 lint = ["ruff"]
 typing = [
     "mypy>=1,<2",
-    "scipy-stubs; python_version>='3.10'",
+    "scipy-stubs",
 ]
 test = [
     "pytest>=7,<10",
