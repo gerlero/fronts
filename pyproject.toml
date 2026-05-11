@@ -44,7 +44,7 @@ Changelog = "https://github.com/gerlero/fronts/blob/main/CHANGELOG.md"
 examples = ["fronts[examples]"]
 lint = ["ruff"]
 typing = [
-    "mypy>=1,<2",
+    "mypy>=1,<3",
     "scipy-stubs",
 ]
 test = [
