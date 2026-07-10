@@ -1,5 +1,5 @@
 [build-system]
-requires = ["uv_build>=0.9,<0.12"]
+requires = ["uv_build>=0.11,<0.12"]
 build-backend = "uv_build"
 
 [project]
@@ -48,12 +48,12 @@ typing = [
     "scipy-stubs",
 ]
 test = [
-    "pytest>=7,<10",
+    "pytest>=9,<10",
     "pytest-cov",
     "fronts[examples]",
 ]
 docs = [
-    "sphinx>=5,<9",
+    "sphinx>=8,<10",
     "sphinx_rtd_theme",
 ]
 dev = [
