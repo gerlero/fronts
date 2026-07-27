@@ -1,8 +1,9 @@
-import fronts
-import fronts.D
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+
+import fronts
+import fronts.D
 
 
 def test_nogradient() -> None:

@@ -1,7 +1,8 @@
-import fronts
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+
+import fronts
 
 
 def test_exact() -> None:

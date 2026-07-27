@@ -7,6 +7,7 @@ This example solves a problem that has an exact solution (using
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from fronts import solve_from_guess
 
 o = np.linspace(0, 20, 100)

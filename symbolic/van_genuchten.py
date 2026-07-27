@@ -11,7 +11,7 @@ import sympy  # type: ignore [import-untyped]
 
 from .generate import functionstr
 
-alpha, m, Ks, l = sympy.symbols("alpha, m, Ks, l", real=True, positive=True)  # noqa: E741
+alpha, m, Ks, l = sympy.symbols("alpha, m, Ks, l", real=True, positive=True)
 theta_range = sympy.symbols("theta_range[0], theta_range[1]", real=True)
 
 theta = sympy.Symbol("theta", real=True)

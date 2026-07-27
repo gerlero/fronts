@@ -14,6 +14,7 @@ Warning: this example takes ~30 seconds to run to completion.
 import matplotlib.pyplot as plt
 import numpy as np
 import validation
+
 from fronts import inverse, solve
 from fronts.D import van_genuchten
 

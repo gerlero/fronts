@@ -335,7 +335,7 @@ _k = {False: 0, "cylindrical": 1, "polar": 1, "spherical": 2}
 def ode(
     D: _ScalarD1 | _ScalarD2 | _VectorizedD1 | _VectorizedD2,
     radial: Literal[False, "cylindrical", "polar", "spherical"] = False,
-    catch_errors: bool = False,  # noqa: FBT001
+    catch_errors: bool = False,
 ) -> tuple[
     Callable[
         [

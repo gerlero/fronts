@@ -8,8 +8,9 @@ Diffusivity plot.
 
 import matplotlib.pyplot as plt
 import numpy as np
-from fronts.D import van_genuchten
 from validation import r_unit, t_unit
+
+from fronts.D import van_genuchten
 
 epsilon = 1e-6
 

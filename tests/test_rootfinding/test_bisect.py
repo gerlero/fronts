@@ -1,7 +1,8 @@
 import sys
 
-import fronts._rootfinding as rootfinding
 import pytest
+
+import fronts._rootfinding as rootfinding
 
 from .checkobj import check_iterationlimitreached, check_notabracketerror, check_result
 
