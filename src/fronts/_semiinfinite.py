@@ -417,7 +417,7 @@ class _Shooter:
         shots has been reached.
         """
 
-    def shoot(self, *args: Any, **kwargs: Any) -> float:  # noqa: ANN401
+    def shoot(self, *args: Any, **kwargs: Any) -> float:
         """
         Call `integrate` and returns the result's `i_residual`.
 

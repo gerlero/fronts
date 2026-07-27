@@ -1,8 +1,0 @@
-extend = "../pyproject.toml"
-
-[lint]
-extend-ignore = [
-    "D",
-    "PT011",
-    "S603",
-]

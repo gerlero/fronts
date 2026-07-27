@@ -7,6 +7,7 @@ and compares the solutions.
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from fronts import solve
 
 theta = solve(D="0.5*(1 - log(theta))", i=0, b=1, verbose=2)

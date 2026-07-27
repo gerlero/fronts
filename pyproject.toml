@@ -64,27 +64,6 @@ dev = [
     {include-group = "docs"},
 ]
 
-[tool.ruff.lint]
-extend-select = ["ALL"]
-extend-ignore = [
-    "ARG001",
-    "C901",
-    "COM812",
-    "E501",
-    "FBT002",
-    "ISC001",
-    "N",
-    "NPY201",
-    "PLR0912",
-    "PLR0913",
-    "PLR0915",
-    "PLR2004",
-    "PYI",
-    "S101",
-    "SIM105",
-    "T201",
-]
-
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
 

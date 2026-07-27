@@ -1,3 +1,4 @@
+# noqa: N999
 """D functions."""
 
 import functools
@@ -185,7 +186,7 @@ def constant(D0: float) -> _VectorizedD2:
 @overload
 def from_expr(
     expr: sympy.Expr | str | float,
-    vectorized: bool,  # noqa: FBT001
+    vectorized: bool,
     max_derivatives: Literal[0],
 ) -> _D0: ...
 
@@ -224,7 +225,7 @@ def from_expr(
 
 def from_expr(
     expr: sympy.Expr | str | float,
-    vectorized: bool = True,  # noqa: FBT001
+    vectorized: bool = True,
     max_derivatives: Literal[0, 1, 2] = 2,
 ) -> _D0 | _ScalarD1 | _ScalarD2 | _VectorizedD1 | _VectorizedD2:
     """
@@ -595,7 +596,7 @@ def _as_Ks(
 
 def brooks_and_corey(
     n: float,
-    l: float = 1.0,  # noqa: E741
+    l: float = 1.0,
     alpha: float = 1.0,
     Ks: float | None = None,
     k: float | None = None,
@@ -760,7 +761,7 @@ def brooks_and_corey(
 def van_genuchten(
     n: float | None = None,
     m: float | None = None,
-    l: float = 0.5,  # noqa: E741
+    l: float = 0.5,
     alpha: float = 1.0,
     Ks: float | None = None,
     k: float | None = None,
@@ -881,7 +882,7 @@ def van_genuchten(
     x3 = 1 / m
     x8 = l - x3
 
-    def D(theta, derivatives=0):  # type: ignore[no-untyped-def]  # noqa: ANN001 ANN202
+    def D(theta, derivatives=0):  # type: ignore[no-untyped-def]
         x0 = theta - theta_range[0]
         x2 = -x0 * x1
         x4 = x2**x3
@@ -1071,7 +1072,7 @@ def letxs(
     x53 = Ts**2
     x58 = Ls**2
 
-    def D(theta, derivatives=0):  # type: ignore[no-untyped-def]  # noqa: ANN001 ANN202
+    def D(theta, derivatives=0):  # type: ignore[no-untyped-def]
         x1 = theta - theta_range[0]
         x3 = x1 * x2
         x4 = x3 + 1
@@ -1252,7 +1253,7 @@ def letd(
     x2 = 1 / (theta_range[0] + x1)
     x17 = L**2
 
-    def D(theta, derivatives=0):  # type: ignore[no-untyped-def]  # noqa: ANN001 ANN202
+    def D(theta, derivatives=0):  # type: ignore[no-untyped-def]
         x0 = theta - theta_range[0]
         x3 = (-x0 * x2) ** L
         x4 = theta + x1

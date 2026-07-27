@@ -101,6 +101,7 @@ With Fronts, all it takes is a call to [``fronts.solve()``](https://fronts.readt
 
 ```python
 import fronts
+
 c = fronts.solve(D="c**4", i=0.1, b=1)
 ```
 

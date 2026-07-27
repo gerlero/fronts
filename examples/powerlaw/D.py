@@ -6,6 +6,7 @@ Plot of D in the powerlaw case.
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from fronts.D import power_law
 
 k = 4.0

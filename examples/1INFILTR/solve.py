@@ -4,6 +4,7 @@
 
 import matplotlib.pyplot as plt
 import validation
+
 from fronts import solve
 from fronts.D import van_genuchten
 

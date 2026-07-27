@@ -4,6 +4,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from fronts import inverse, solve
 from fronts.D import power_law
 

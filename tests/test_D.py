@@ -1,5 +1,7 @@
-import fronts.D
+# noqa: N999
 import pytest
+
+import fronts.D
 
 
 def test_letxs() -> None:
