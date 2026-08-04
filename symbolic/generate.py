@@ -25,8 +25,8 @@ def functionstr(var: sympy.Symbol | str, expr: sympy.Expr | str | float) -> str:
     expr : `sympy.Expr` or str or float
         SymPy-compatible expression. Any free symbols other than `var` will be
         taken as parameters that must be in scope when the returned code is
-        executed. Use of special functions and constructs is not currently
-        allowed.
+        executed. Mathematical functions (e.g. ``exp``, ``expm1``, ``log1p``)
+        are printed by name and must likewise be in scope.
 
     Returns
     -------
@@ -69,12 +69,11 @@ def functionstr(var: sympy.Symbol | str, expr: sympy.Expr | str | float) -> str:
     ]
 
     for n, (name, expr) in enumerate(zip(deriv_names, exprs, strict=True)):
-        for x in xs:
-            lines.extend(
-                "    {} = {}".format(*x)
-                for x in xs
-                if x[0] in variable and appearance[x] == n
-            )
+        lines.extend(
+            "    {} = {}".format(*x)
+            for x in xs
+            if x[0] in variable and appearance[x] == n
+        )
         lines.append(f"    {name} = {expr}")
         lines.append(
             f"    if derivatives == {n}: return {', '.join(deriv_names[: n + 1])}"
