@@ -7,6 +7,7 @@ from typing import Literal, Protocol, overload
 
 import numpy as np
 import sympy  # type: ignore[import-untyped]
+from numpy import exp, expm1, log1p
 
 
 class _D0(Protocol):
@@ -123,6 +124,20 @@ class _VectorizedD2(Protocol):
     def __call__(
         self, theta: float, derivatives: Literal[2]
     ) -> tuple[float, float, float]: ...
+
+    @overload
+    def __call__(
+        self,
+        theta: np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        derivatives: Literal[2],
+    ) -> (
+        tuple[float, float, float]
+        | tuple[
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+            np.ndarray[tuple[int, ...], np.dtype[np.floating]],
+        ]
+    ): ...
 
 
 def constant(D0: float) -> _VectorizedD2:
@@ -880,58 +895,58 @@ def van_genuchten(
     # Source: ../symbolic/van_genuchten.py
     x1 = 1 / (theta_range[0] - theta_range[1])
     x3 = 1 / m
-    x8 = l - x3
 
     def D(theta, derivatives=0):  # type: ignore[no-untyped-def]
         x0 = theta - theta_range[0]
         x2 = -x0 * x1
         x4 = x2**x3
-        x5 = (1 - x4) ** m
-        x6 = x5 - 2
-        x7 = (x5 * x6 + 1) / x5
-        x9 = Ks * x1 * x2**x8 * x3 * (m - 1) / alpha
-        D = x7 * x9
+        x5 = m * log1p(-x4)
+        x6 = expm1(x5)
+        x7 = x6**2
+        x8 = exp(-x5)
+        x9 = x8 / x4
+        x10 = x3 * x9
+        x11 = x10 * x7
+        x12 = Ks * x1 * x2**l * (m - 1) / alpha
+        D = x11 * x12
         if derivatives == 0:
             return D
-        x10 = (x1 * (-theta + theta_range[0])) ** x3
-        x11 = (1 - x10) ** m
-        x12 = x4 / (x10 - 1)
-        x13 = (x11 * (x11 - 2) + 1) / x11
-        dD_dtheta = x9 * (-x12 * x13 + 2 * x12 * (x11 - 1) + x13 * x8) / x0
+        x13 = x4 - 1
+        x14 = 1 / x13
+        x15 = 2 * x14
+        x16 = l * x6
+        x17 = x14 * x8
+        x18 = x12 * x3
+        dD_dtheta = x18 * x6 * (-x10 * x6 + x15 + x16 * x9 - x17 * x6) / x0
         if derivatives == 1:
             return D, dD_dtheta
-        x14 = x4 - 1
-        x15 = x2 ** (2 * x3) / x14**2
-        x16 = 4 * x5 - 4
-        x17 = x4 / x14
-        x18 = x7 * x8
-        x19 = x17 * x7
-        x20 = x15 * x7
-        x21 = x3 * x5
-        x22 = x3 * x6
+        x19 = x15 * x6
+        x20 = x4 / x13**2
+        x21 = 2 * x20
+        x22 = x21 * x6
+        x23 = x17 * x7
+        x24 = x7 * x9
+        x25 = x7 * x8
+        x26 = x20 * x25
         d2D_dtheta2 = (
-            x9
+            x18
             * (
-                -x15 * x16
-                + x16 * x17 * x8
-                - 2 * x17 * x18
-                + x17
-                * (
-                    -x17 * x21
-                    - x17 * x22
-                    + 3 * x17 * x5
-                    + x17 * x6
-                    + x21
-                    + x22
-                    - 2 * x5
-                    + 2
-                )
-                - x18
+                l**2 * x24
+                - 2 * l * x11
+                - l * x15 * x25
+                - l * x24
+                + x11
+                + 4 * x14 * x16
                 - x19 * x3
-                + x19
-                + x20 * x3
-                + x20
-                + x7 * x8**2
+                - x19
+                + x21 * exp(x5)
+                - x22 * x3
+                - x22
+                + x23 * x3
+                + x23
+                + x26 * x3
+                + x26
+                + x24 / m**2
             )
             / x0**2
         )
@@ -1425,20 +1440,20 @@ def richards(
         if derivatives == 0:
             return Ks * kr(theta) / C(theta)
 
-        K_ = [Ks * kr for kr in kr(theta, derivatives)]  # type: ignore[arg-type]
-        C_ = C(theta, derivatives)  # type: ignore[arg-type]
+        K_ = [Ks * kr for kr in kr(theta, derivatives)]
+        C_ = C(theta, derivatives)
 
         D = K_[0] / C_[0]
 
         dD_dtheta = (K_[1] * C_[0] - K_[0] * C_[1]) / C_[0] ** 2
 
         if derivatives == 1:
-            return D, dD_dtheta
+            return D, dD_dtheta  # type: ignore[return-value]
 
         d2D_dtheta2 = (K_[2] - 2 * dD_dtheta * C_[1] - D * C_[2]) / C_[0]  # type: ignore[misc]
 
         if derivatives == 2:
-            return D, dD_dtheta, d2D_dtheta2
+            return D, dD_dtheta, d2D_dtheta2  # type: ignore[return-value]
 
         msg = "derivatives must be 0, 1, or 2"
         raise ValueError(msg)
