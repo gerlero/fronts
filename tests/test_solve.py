@@ -180,3 +180,22 @@ def test_scipy_17066() -> None:
     )
     fronts.solve(D=D, i=0.025, b=0.7 - 1e-7)
     fronts.solve(D=D, i=0.025, b=0.7 - 1e-7, method="explicit")
+
+
+def test_van_genuchten_near_residual() -> None:
+    # A Van Genuchten diffusivity evaluated close to the residual water
+    # content used to underflow to exactly 0, making these calls fail with
+    # ZeroDivisionError/ValueError
+    D = fronts.D.van_genuchten(n=1.1)
+
+    fun, jac = fronts.ode(D)
+    assert np.all(np.isfinite(fun(1.0, (0.1, -1.0))))
+    assert np.all(np.isfinite(jac(1.0, (0.1, -1.0))))
+
+    theta = fronts.solve(D=D, i=0.1, b=0.3)
+
+    o = np.linspace(0, 2, 100)
+    assert np.all(theta(o=o) >= theta.i)
+    assert np.all(theta(o=o) <= theta.b)
+    assert np.all(np.diff(theta(o=o)) <= 0)
+    assert theta(o=0) == pytest.approx(0.3, abs=1e-3)
