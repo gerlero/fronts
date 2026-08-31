@@ -1,5 +1,5 @@
 [build-system]
-requires = ["uv_build>=0.11,<0.13"]
+requires = ["uv_build>=0.12,<0.13"]
 build-backend = "uv_build"
 
 [project]
@@ -26,13 +26,13 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "scipy>=1.4.0,<2",
+    "scipy>=1.13,<2",
     "numpy>=2,<3",
     "sympy>=1,<2",
 ]
 
 [project.optional-dependencies]
-examples = ["matplotlib>=3,<4"]
+examples = ["matplotlib>=3.5,<4"]
 
 [project.urls]
 Homepage = "https://github.com/gerlero/fronts"
@@ -42,19 +42,19 @@ Changelog = "https://github.com/gerlero/fronts/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 examples = ["fronts[examples]"]
-lint = ["ruff"]
+lint = ["ruff>=0.16.5,<0.17"]
 typing = [
     "mypy>=1,<3",
-    "scipy-stubs",
+    "scipy-stubs>=1,<2",
 ]
 test = [
     "pytest>=9,<10",
-    "pytest-cov",
+    "pytest-cov>=7,<8",
     "fronts[examples]",
 ]
 docs = [
     "sphinx>=8,<10",
-    "sphinx_rtd_theme",
+    "sphinx_rtd_theme>=3,<4",
 ]
 dev = [
     {include-group = "examples"},
