@@ -32,7 +32,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-examples = ["matplotlib>=3.5,<4"]
+examples = ["matplotlib>=3.8,<4"]
 
 [project.urls]
 Homepage = "https://github.com/gerlero/fronts"
