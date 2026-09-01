@@ -37,8 +37,7 @@ jobs:
       with:
         python-version-file: pyproject.toml
     - name: Check types with mypy
-      run: |
-        uv run mypy
+      run: uv run --group typing mypy
 
   test:
     runs-on: ubuntu-latest
@@ -60,10 +59,13 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
-    - name: Install test dependencies
-      run: uv sync --python ${{ matrix.python-version }} --group test --resolution ${{ matrix.dependency-resolution }}
     - name: Test with pytest
-      run: uv run pytest --cov=fronts --cov-report xml
+      run: >
+        uv run
+        --python ${{ matrix.python-version }}
+        --group test
+        --resolution ${{ matrix.dependency-resolution }}
+        pytest --cov=fronts --cov-report xml
       env: # for Matplotlib
         MPLBACKEND: agg
     - name: Upload code coverage results to Codecov
