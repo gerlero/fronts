@@ -43,7 +43,7 @@ Changelog = "https://github.com/gerlero/fronts/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 examples = ["fronts[examples]"]
-lint = ["ruff>=0.16.5,<0.17"]
+lint = ["ruff>=0.16.5,<0.18"]
 typing = [
     "mypy>=1,<3",
     "scipy-stubs>=1,<2",
